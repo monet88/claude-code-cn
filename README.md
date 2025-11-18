@@ -33,6 +33,8 @@ pnpm i
 pnpm run pack
 ```
 
+[claude-code-cn-1.0.2.vsix](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/claude-code-cn-1.0.2.vsix)
+
 ---
 
 ## 功能展示
