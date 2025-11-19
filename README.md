@@ -23,6 +23,8 @@
 本项目是 [Claudix](https://github.com/Haleclipse/Claudix) 的修改版本
 基于AGPL 3.0许可证进行开发和分发
 
+别Star这个项目了，Star原作者项目：[Claudix](https://github.com/Haleclipse/Claudix) 感谢大家
+
 ## 使用方法
 
 ```sh
