@@ -227,18 +227,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
+import { ref, onMounted, onUnmounted, reactive, computed, inject } from 'vue';
 import { useProviderStore } from '../stores/providerStore';
 import type { ProviderConfig } from '../types/provider';
 import ProviderEditDialog from '../components/ProviderEditDialog.vue';
 import AddProviderDialog from '../components/AddProviderDialog.vue';
 import MessageDialog from '../components/MessageDialog.vue';
 import UsageStatisticsSection from '../components/UsageStatisticsSection.vue';
+import { RuntimeKey } from '../composables/runtimeContext';
 
 defineEmits<{
   back: [];
 }>();
 
+const runtime = inject(RuntimeKey);
 const providerStore = useProviderStore();
 const currentTab = ref('basic');
 const showEditDialog = ref(false);
@@ -409,7 +411,19 @@ async function handleSwitchProvider(id: string) {
   try {
     await providerStore.switchProvider(id);
     providers.value = providerStore.providers;
-    await showAlert('成功', '供应商切换成功！请重启当前编辑器以使更改生效');
+
+    // 自动重启当前会话，以使用新的供应商配置
+    const activeSession = runtime?.sessionStore.activeSession();
+    if (activeSession) {
+      try {
+        await activeSession.restartClaude();
+        console.log('[SettingsPage] 会话已自动重启，使用新的供应商配置');
+      } catch (restartError) {
+        console.warn('[SettingsPage] 重启会话失败:', restartError);
+      }
+    }
+
+    await showAlert('成功', '供应商切换成功！会话已自动重启');
   } catch (error) {
     console.error('Failed to switch provider:', error);
     await showAlert('错误', `切换供应商失败: ${error}`);

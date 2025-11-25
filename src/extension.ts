@@ -214,9 +214,13 @@ export function activate(context: vscode.ExtensionContext) {
 						await claudeSettingsService.updateProvider(apiKey, baseUrl);
 					}
 
+					// 4. 关闭所有现有会话，以便使用新的供应商配置
+					await claudeAgentService.closeAllChannelsWithCredentialChange();
+					logService.info('已关闭所有现有会话，供应商切换完成');
+
 					webViewService.postMessage({
 						type: 'providerSwitched',
-						payload: { success: true }
+						payload: { success: true, needsRestart: true }
 					});
 				} catch (error) {
 					logService.error(`Failed to switch provider: ${error}`);

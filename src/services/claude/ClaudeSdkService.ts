@@ -136,7 +136,7 @@ export class ClaudeSdkService implements IClaudeSdkService {
                 const lines = data.trim().split('\n');
 
                 for (const line of lines) {
-                    if (!line.trim()) continue;
+                    if (!line.trim()) {continue;}
 
                     // 检测错误级别
                     const lowerLine = line.toLowerCase();

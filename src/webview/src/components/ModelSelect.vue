@@ -28,12 +28,12 @@
       />
       <DropdownItem
         :item="{
-          id: 'claude-opus-4-1',
-          label: 'Opus 4.1',
-          checked: selectedModel === 'claude-opus-4-1',
+          id: 'claude-opus-4-5-20251101',
+          label: 'Opus 4.5',
+          checked: selectedModel === 'claude-opus-4-5-20251101',
           type: 'model'
         }"
-        :is-selected="selectedModel === 'claude-opus-4-1'"
+        :is-selected="selectedModel === 'claude-opus-4-5-20251101'"
         :index="1"
         @click="(item) => handleModelSelect(item, close)"
       />
@@ -64,8 +64,8 @@ const selectedModelLabel = computed(() => {
   switch (props.selectedModel) {
     case 'claude-sonnet-4-5':
       return 'Sonnet 4.5'
-    case 'claude-opus-4-1':
-      return 'Opus 4.1'
+    case 'claude-opus-4-5-20251101':
+      return 'Opus 4.5'
     default:
       return 'Sonnet 4.5'
   }
