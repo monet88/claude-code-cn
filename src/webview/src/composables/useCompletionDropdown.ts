@@ -75,14 +75,16 @@ export function useCompletionDropdown<T>(
   // === 数据加载（序列化 + 竞态防护） ===
   const requestSeq = ref(0)
   const isLoading = ref(false)
+  let debounceTimerId: number | undefined
+  let currentAbortController: AbortController | undefined
 
-  async function loadItems(searchQuery: string) {
+  async function loadItems(searchQuery: string, signal?: AbortSignal) {
     try {
       // 自增请求号，仅允许最新请求写入
       const seq = ++requestSeq.value
       isLoading.value = true
 
-      const result = provider(searchQuery)
+      const result = provider(searchQuery, signal)
       const data = result instanceof Promise ? await result : result
 
       // 只采纳最新请求
@@ -90,10 +92,32 @@ export function useCompletionDropdown<T>(
         rawItems.value = (data ?? []) as T[]
       }
     } catch (error) {
+      // 如果是 AbortError，静默处理
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       console.error('[useCompletionDropdown] 加载数据失败:', error)
       rawItems.value = []
+    } finally {
+      isLoading.value = false
     }
-    isLoading.value = false
+  }
+
+  // 防抖加载（inline 模式专用，200ms 延迟 + AbortController 支持）
+  function loadItemsDebounced(searchQuery: string, delay = 200) {
+    if (debounceTimerId !== undefined) {
+      window.clearTimeout(debounceTimerId)
+    }
+
+    if (currentAbortController) {
+      currentAbortController.abort()
+      currentAbortController = undefined
+    }
+
+    debounceTimerId = window.setTimeout(() => {
+      currentAbortController = new AbortController()
+      void loadItems(searchQuery, currentAbortController.signal)
+    }, delay)
   }
 
   // === 项列表处理 ===
@@ -228,7 +252,7 @@ export function useCompletionDropdown<T>(
       query.value = foundQuery.query
       isOpen.value = true
       activeIndex.value = 0
-      void loadItems(foundQuery.query)
+      loadItemsDebounced(foundQuery.query)
     } else {
       isOpen.value = false
     }
@@ -303,9 +327,13 @@ export function useCompletionDropdown<T>(
     }
   }
 
-  // === 查询变化时重新加载（inline 模式触发；manual 由 handleSearch 触发） ===
+  // === 查询变化时重新加载（仅非 inline/manual 模式） ===
   watch(query, (newQuery) => {
+    // inline 模式已通过 evaluateQuery + 防抖触发，避免重复调用
+    if (mode === 'inline') return
+    // manual 模式由 handleSearch 控制
     if (mode === 'manual') return
+
     if (isOpen.value) void loadItems(newQuery)
   })
 

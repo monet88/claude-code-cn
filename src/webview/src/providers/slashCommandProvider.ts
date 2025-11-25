@@ -45,7 +45,8 @@ export interface CommandWithSection extends CommandAction {
  */
 export function getSlashCommands(
   query: string,
-  runtime: RuntimeInstance | undefined
+  runtime: RuntimeInstance | undefined,
+  _signal?: AbortSignal
 ): CommandAction[] {
   if (!runtime) return []
 

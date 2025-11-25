@@ -245,6 +245,66 @@ export interface GetMcpServersResponse {
     mcpServers: Array<{ name: string; status: string }>;
 }
 
+// ============================================================================
+// MCP 服务器管理消息类型
+// ============================================================================
+
+import type { McpServer, McpServerSpec, McpServersMap } from './types/mcp';
+
+/**
+ * 获取所有 MCP 服务器（完整配置）
+ */
+export interface GetAllMcpServersRequest {
+    type: "get_all_mcp_servers";
+}
+
+export interface GetAllMcpServersResponse {
+    type: "get_all_mcp_servers_response";
+    servers: McpServersMap;
+}
+
+/**
+ * 添加或更新 MCP 服务器
+ */
+export interface UpsertMcpServerRequest {
+    type: "upsert_mcp_server";
+    server: McpServer;
+}
+
+export interface UpsertMcpServerResponse {
+    type: "upsert_mcp_server_response";
+    success: boolean;
+    error?: string;
+}
+
+/**
+ * 删除 MCP 服务器
+ */
+export interface DeleteMcpServerRequest {
+    type: "delete_mcp_server";
+    id: string;
+}
+
+export interface DeleteMcpServerResponse {
+    type: "delete_mcp_server_response";
+    success: boolean;
+    error?: string;
+}
+
+/**
+ * 验证 MCP 服务器配置
+ */
+export interface ValidateMcpServerRequest {
+    type: "validate_mcp_server";
+    server: McpServer;
+}
+
+export interface ValidateMcpServerResponse {
+    type: "validate_mcp_server_response";
+    valid: boolean;
+    errors: string[];
+}
+
 /**
  * 获取资源 URI
  */
@@ -318,7 +378,7 @@ export interface ListFilesResponse {
     files: Array<{
         path: string;
         name: string;
-        type: string;
+        type: "file" | "directory";
     }>;
 }
 
@@ -595,7 +655,12 @@ export type WebViewRequest =
     // | LoginRequest
     // | SubmitOAuthCodeRequest
     | OpenConfigFileRequest
-    | OpenClaudeInTerminalRequest;
+    | OpenClaudeInTerminalRequest
+    // MCP 管理请求
+    | GetAllMcpServersRequest
+    | UpsertMcpServerRequest
+    | DeleteMcpServerRequest
+    | ValidateMcpServerRequest;
 
 /**
  * Extension → WebView 的所有响应类型
@@ -624,7 +689,12 @@ export type WebViewRequestResponse =
     // | LoginResponse
     // | SubmitOAuthCodeResponse
     | OpenConfigFileResponse
-    | OpenClaudeInTerminalResponse;
+    | OpenClaudeInTerminalResponse
+    // MCP 管理响应
+    | GetAllMcpServersResponse
+    | UpsertMcpServerResponse
+    | DeleteMcpServerResponse
+    | ValidateMcpServerResponse;
 
 /**
  * Extension → WebView 的所有请求类型

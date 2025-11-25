@@ -18,7 +18,8 @@ export interface FileReference {
  */
 export async function getFileReferences(
   query: string,
-  runtime: RuntimeInstance | undefined
+  runtime: RuntimeInstance | undefined,
+  signal?: AbortSignal
 ): Promise<FileReference[]> {
   if (!runtime) {
     console.warn('[fileReferenceProvider] No runtime available')
@@ -28,13 +29,16 @@ export async function getFileReferences(
   try {
     const connection = await runtime.connectionManager.get()
 
-    // 对空查询使用 '*' 默认模式，让后端列出前 N 个结果（上限 200）
-    const pattern = (query && query.trim()) ? query : '*'
-    const response = await connection.listFiles(pattern)
+    // 空查询传递空字符串，让后端返回顶层内容
+    const pattern = (query && query.trim()) ? query : ''
+    const response = await connection.listFiles(pattern, signal)
 
     // response.files 格式：{ path, name, type }
     return response.files || []
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return []
+    }
     console.error('[fileReferenceProvider] Failed to list files:', error)
     return []
   }

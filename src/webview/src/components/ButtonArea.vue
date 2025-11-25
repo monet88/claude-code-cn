@@ -224,7 +224,7 @@ const runtime = inject(RuntimeKey)
 // Slash Command 补全
 const commandCompletion = useCompletionDropdown({
   mode: 'manual',
-  provider: (query) => getSlashCommands(query, runtime),
+  provider: (query, signal) => getSlashCommands(query, runtime, signal),
   toDropdownItem: commandToDropdownItem,
   onSelect: (command) => {
     // 执行命令
@@ -240,7 +240,7 @@ const commandCompletion = useCompletionDropdown({
 // @ 文件引用补全
 const fileCompletion = useCompletionDropdown({
   mode: 'manual',
-  provider: (query) => getFileReferences(query, runtime),
+  provider: (query, signal) => getFileReferences(query, runtime, signal),
   toDropdownItem: fileToDropdownItem,
   onSelect: (file) => {
     // 触发 mention 事件并传递文件路径

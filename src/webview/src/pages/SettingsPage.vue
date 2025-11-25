@@ -35,6 +35,14 @@
             <span class="sidebar-item-text">使用统计</span>
           </div>
           <div
+            :class="['sidebar-item', { active: currentTab === 'mcp' }]"
+            @click="currentTab = 'mcp'"
+            :title="isCollapsed ? 'MCP服务器' : ''"
+          >
+            <span class="codicon codicon-server"></span>
+            <span class="sidebar-item-text">MCP服务器</span>
+          </div>
+          <div
             :class="['sidebar-item', { active: currentTab === 'permissions', warning: true }]"
             @click="currentTab = 'permissions'"
             :title="isCollapsed ? '权限配置' : ''"
@@ -44,29 +52,22 @@
             <span class="codicon codicon-warning"></span>
           </div>
           <div
-            :class="['sidebar-item', { active: currentTab === 'mcp', warning: true }]"
-            @click="currentTab = 'mcp'"
-            :title="isCollapsed ? 'MCP服务器' : ''"
-          >
-            <span class="codicon codicon-server"></span>
-            <span class="sidebar-item-text">MCP服务器</span>
-            <span class="codicon codicon-warning"></span>
-          </div>
-          <div
-            :class="['sidebar-item', { active: currentTab === 'agents' }]"
+            :class="['sidebar-item', { active: currentTab === 'agents', warning: true }]"
             @click="currentTab = 'agents'"
             :title="isCollapsed ? 'Agents' : ''"
           >
             <span class="codicon codicon-robot"></span>
             <span class="sidebar-item-text">Agents</span>
+            <span class="codicon codicon-warning"></span>
           </div>
           <div
-            :class="['sidebar-item', { active: currentTab === 'skills' }]"
+            :class="['sidebar-item', { active: currentTab === 'skills', warning: true }]"
             @click="currentTab = 'skills'"
             :title="isCollapsed ? 'Skills' : ''"
           >
             <span class="codicon codicon-book"></span>
             <span class="sidebar-item-text">Skills</span>
+            <span class="codicon codicon-warning"></span>
           </div>
           <div
             :class="['sidebar-item', { active: currentTab === 'community' }]"
@@ -186,6 +187,14 @@
           </div>
         </div>
 
+        <!-- MCP 服务器 -->
+        <div v-else-if="currentTab === 'mcp'" class="config-section mcp-section">
+          <h3 class="section-title">MCP 服务器</h3>
+          <p class="section-desc">管理 MCP (Model Context Protocol) 服务器，为 Claude 提供额外的工具和功能</p>
+
+          <McpServerPanel />
+        </div>
+
         <!-- 其他标签页占位 -->
         <div v-else class="config-section">
           <h3 class="section-title">{{ currentTab }}</h3>
@@ -234,6 +243,7 @@ import ProviderEditDialog from '../components/ProviderEditDialog.vue';
 import AddProviderDialog from '../components/AddProviderDialog.vue';
 import MessageDialog from '../components/MessageDialog.vue';
 import UsageStatisticsSection from '../components/UsageStatisticsSection.vue';
+import McpServerPanel from '../components/McpServerPanel.vue';
 import { RuntimeKey } from '../composables/runtimeContext';
 
 defineEmits<{
@@ -629,7 +639,11 @@ async function handleTestConnection() {
 }
 
 .settings-sidebar.collapsed .sidebar-item.warning .codicon-warning {
-  display: none;
+  display: block;
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-size: 10px;
 }
 
 .settings-content {

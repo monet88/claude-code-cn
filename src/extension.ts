@@ -4,7 +4,7 @@
 
 import * as vscode from 'vscode';
 import { InstantiationServiceBuilder } from './di/instantiationServiceBuilder';
-import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService } from './services/serviceRegistry';
+import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService } from './services/serviceRegistry';
 import { VSCodeTransport } from './services/claude/transport/VSCodeTransport';
 import type { ClaudeProvider } from './services/ccSwitchSettingsService';
 import { getCurrentProjectStatistics, getAllProjectsAggregatedStatistics } from './services/usageStatisticsService';
@@ -40,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const claudeSettingsService = accessor.get(IClaudeSettingsService);
 		const ccSwitchSettingsService = accessor.get(ICCSwitchSettingsService);
 		const configurationService = accessor.get(IConfigurationService);
+		const mcpService = accessor.get(IMcpService);
 
 		// Initialize CC Switch settings (ensure default provider exists)
 		await ccSwitchSettingsService.initialize();
@@ -229,6 +230,78 @@ export function activate(context: vscode.ExtensionContext) {
 						payload: { success: false, error: String(error) }
 					});
 					vscode.window.showErrorMessage(`切换供应商失败: ${error}`);
+				}
+				return;
+			}
+
+			// Handle MCP server management
+			if (message.type === 'getAllMcpServers') {
+				try {
+					const servers = await mcpService.getAllServers();
+					webViewService.postMessage({
+						type: 'allMcpServersData',
+						payload: servers
+					});
+				} catch (error) {
+					logService.error(`Failed to get MCP servers: ${error}`);
+					webViewService.postMessage({
+						type: 'allMcpServersData',
+						payload: {}
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'upsertMcpServer') {
+				try {
+					const { server } = message.payload;
+					await mcpService.upsertServer(server);
+					webViewService.postMessage({
+						type: 'mcpServerUpserted',
+						payload: { success: true }
+					});
+				} catch (error) {
+					logService.error(`Failed to upsert MCP server: ${error}`);
+					webViewService.postMessage({
+						type: 'mcpServerUpserted',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'deleteMcpServer') {
+				try {
+					const { id } = message.payload;
+					const success = await mcpService.deleteServer(id);
+					webViewService.postMessage({
+						type: 'mcpServerDeleted',
+						payload: { success }
+					});
+				} catch (error) {
+					logService.error(`Failed to delete MCP server: ${error}`);
+					webViewService.postMessage({
+						type: 'mcpServerDeleted',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'validateMcpServer') {
+				try {
+					const { server } = message.payload;
+					const result = mcpService.validateServer(server);
+					webViewService.postMessage({
+						type: 'mcpServerValidated',
+						payload: result
+					});
+				} catch (error) {
+					logService.error(`Failed to validate MCP server: ${error}`);
+					webViewService.postMessage({
+						type: 'mcpServerValidated',
+						payload: { valid: false, errors: [String(error)] }
+					});
 				}
 				return;
 			}

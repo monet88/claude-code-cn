@@ -172,6 +172,16 @@ export interface IClaudeAgentService {
     setModel(channelId: string, model: string): Promise<void>;
 
     /**
+     * 获取 Channel
+     */
+    getChannel(channelId: string): Channel | undefined;
+
+    /**
+     * 获取 MCP 服务器状态
+     */
+    getMcpServerStatus(channelId: string): Promise<any[]>;
+
+    /**
      * 关闭
      */
     shutdown(): Promise<void>;
@@ -894,5 +904,32 @@ export class ClaudeAgentService implements IClaudeAgentService {
         await this.configService.updateValue('claudecodecn.selectedModel', model);
 
         this.logService.info(`[setModel] Set channel ${channelId} to model: ${model}`);
+    }
+
+    /**
+     * 获取 Channel
+     */
+    getChannel(channelId: string): Channel | undefined {
+        return this.channels.get(channelId);
+    }
+
+    /**
+     * 获取 MCP 服务器状态
+     */
+    async getMcpServerStatus(channelId: string): Promise<any[]> {
+        const channel = this.channels.get(channelId);
+        if (!channel) {
+            this.logService.warn(`[getMcpServerStatus] Channel ${channelId} not found`);
+            return [];
+        }
+
+        try {
+            const status = await channel.query.mcpServerStatus?.();
+            this.logService.info(`[getMcpServerStatus] Got ${status?.length || 0} MCP servers`);
+            return status || [];
+        } catch (error) {
+            this.logService.error(`[getMcpServerStatus] Error: ${error}`);
+            return [];
+        }
     }
 }

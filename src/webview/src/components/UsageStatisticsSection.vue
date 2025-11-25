@@ -7,7 +7,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-else-if="statistics && hasData" class="statistics-content">
+    <div v-else class="statistics-content">
       <!-- 顶部控制栏 -->
       <div class="control-bar">
         <!-- 项目范围切换器 -->
@@ -65,8 +65,9 @@
 
       <!-- 标签页内容 -->
       <div class="tab-content">
-        <!-- Overview 标签页 -->
-        <div v-if="activeTab === 'overview'" class="tab-panel">
+        <template v-if="statistics">
+          <!-- Overview 标签页 -->
+          <div v-if="activeTab === 'overview'" class="tab-panel">
           <!-- 项目信息（仅显示项目名称） -->
           <div v-if="statistics" class="project-info-header">
             <h3 class="project-title">
@@ -379,23 +380,22 @@
             <p>暂无时间线数据</p>
           </div>
         </div>
+        </template>
+        <div v-else class="empty-state empty-tab-placeholder">
+          <span class="codicon codicon-graph"></span>
+          <p v-if="error">{{ error }}</p>
+          <p v-else>{{ projectScope === 'current' ? '当前项目暂无使用数据' : '暂无使用数据' }}</p>
+          <button class="action-btn" @click="handleRefresh">
+            <span class="codicon codicon-refresh"></span>
+            刷新数据
+          </button>
+        </div>
       </div>
 
       <!-- 更新时间 -->
-      <div class="last-update">
+      <div v-if="statistics" class="last-update">
         最后更新: {{ formatLastUpdate }}
       </div>
-    </div>
-
-    <!-- 空状态 -->
-    <div v-else class="empty-state">
-      <span class="codicon codicon-graph"></span>
-      <p v-if="error">{{ error }}</p>
-      <p v-else>{{ projectScope === 'current' ? '当前项目暂无使用数据' : '暂无使用数据' }}</p>
-      <button class="action-btn" @click="handleRefresh">
-        <span class="codicon codicon-refresh"></span>
-        刷新数据
-      </button>
     </div>
   </div>
 </template>
@@ -445,7 +445,6 @@ const error = computed(() => usageStore.error);
 const formattedTotalTokens = computed(() => usageStore.formattedTotalTokens);
 const avgCostPerSession = computed(() => usageStore.avgCostPerSession);
 const lastUpdate = computed(() => usageStore.lastUpdate);
-const hasData = computed(() => usageStore.hasData);
 const selectedDateRange = computed(() => usageStore.selectedDateRange);
 const activeTab = computed(() => usageStore.activeTab);
 const projectScope = computed(() => usageStore.projectScope);
@@ -1561,6 +1560,11 @@ onMounted(async () => {
   font-size: 48px;
   opacity: 0.5;
   margin-bottom: 16px;
+}
+
+.empty-tab-placeholder {
+  min-height: 400px;
+  width: 100%;
 }
 
 .empty-sessions {
