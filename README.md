@@ -11,7 +11,7 @@
 ## 项目来源
 本项目主要基于 [Claudix](https://github.com/Haleclipse/Claudix) 进行修改，集成了cc-switch，未来还会集成 ccr 和 spec-kit 功能
 
-基于AGPL 3.0许可证进行开发和分发
+并基于AGPL 3.0许可证进行开发和分发
 
 欢迎大家也 Star原作者项目：[Claudix](https://github.com/Haleclipse/Claudix) 感谢大家
 
@@ -26,10 +26,12 @@
   - [x] 优化输入框 @文件 功能
   - [x] 解决Windows系统下 用量统计无效问题
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/2.png" />
+
 - 2025年11月24日（v1.0.3）
   - [x] 增加claude-opus-4-5 入口
   - [x] 实现切换供应商不用重启功能，现在切换供应商终于不用重启编辑器了
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.3/1.png" />
+
 - 2025年11月18日（v1.0.2）
   - 增加 README 内容 解释，避免语言产生歧义误解
 - 2025年11月18日（v1.0.1）
@@ -37,6 +39,7 @@
   - 【优化】设置侧边栏小屏幕状态下的展示
   - 【优化】其他细节问题
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/8.png" />
+
 - v1.0.0（2025年11月18日）
   - 正式发布
 
@@ -121,9 +124,8 @@ pnpm i
 pnpm run pack
 ```
 
-[claude-code-cn-1.0.2.vsix](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/claude-code-cn-1.0.2.vsix)
-
 ---
+
 ## 鸣谢
 
 站在前人肩膀上可以看的更远，本项目参考项目和网站如下，希望也能对你有所启发：
