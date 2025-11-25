@@ -2,17 +2,6 @@
 	<img src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/claude-logo.png" height="64">
 	<br>Claude Code 中文版
 </h2>
-<p align="center">
-    <a href="https://marketplace.visualstudio.com/items?itemName=zhukunpeng.claude-code-cn" alt="Marketplace version">
-        <img src="https://img.shields.io/visual-studio-marketplace/v/zhukunpeng.claude-code-cn?color=orange&label=VS%20Code%20Marketplace" />
-    </a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=zhukunpeng.claude-code-cn" alt="Marketplace download count">
-        <img src="https://img.shields.io/visual-studio-marketplace/stars/zhukunpeng.claude-code-cn" />
-    </a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=zhukunpeng.claude-code-cn" alt="Marketplace download count">
-        <img src="https://img.shields.io/visual-studio-marketplace/d/zhukunpeng.claude-code-cn?color=blueviolet&label=Downloads" />
-    </a>
-</p>
 <p align="center"><strong>本项目无广告，无商业，只为用极客精神实现更好的VibeCoding
 
 </strong></p>
@@ -20,26 +9,40 @@
 本项目产生背景：我在长期使用代码辅助编程之后，遇到了很多痛点，我觉得你也可能会遇到这些问题，于是我将问题解决，封装为产品，来为大家节省时间；本项目开源社区贡献最大，我只是一个站在大佬肩膀上的整合者，并非大佬~
 
 ## 项目来源
-本项目是 [Claudix](https://github.com/Haleclipse/Claudix) 的修改版本
+本项目主要基于 [Claudix](https://github.com/Haleclipse/Claudix) 进行修改，集成了cc-switch，未来还会集成 ccr 和 spec-kit 功能
+
 基于AGPL 3.0许可证进行开发和分发
 
-别Star这个项目了，Star原作者项目：[Claudix](https://github.com/Haleclipse/Claudix) 感谢大家
-
-## 使用方法
-
-```sh
-# 安装依赖
-pnpm i
-
-# 构建 并 打包.vsix
-pnpm run pack
-```
-
-[claude-code-cn-1.0.2.vsix](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/claude-code-cn-1.0.2.vsix)
+欢迎大家也 Star原作者项目：[Claudix](https://github.com/Haleclipse/Claudix) 感谢大家
 
 ---
 
-## 功能展示
+更新日志
+
+> [最新包：claude-code-cn-1.0.4.vsix 下载链接](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/claude-code-cn-1.0.4.vsix)
+
+- 2025年11月25日（v1.0.4）
+  - [x] 增加简易MCP功能（切换不需要重启终端，正常需要重启，但是我适配了一下，不用重启）
+  - [x] 优化输入框 @文件 功能
+  - [x] 解决Windows系统下 用量统计无效问题
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/2.png" />
+- 2025年11月24日（v1.0.3）
+  - [x] 增加claude-opus-4-5 入口
+  - [x] 实现切换供应商不用重启功能，现在切换供应商终于不用重启编辑器了
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.3/1.png" />
+- 2025年11月18日（v1.0.2）
+  - 增加 README 内容 解释，避免语言产生歧义误解
+- 2025年11月18日（v1.0.1）
+  - 【功能】新增使用统计功能
+  - 【优化】设置侧边栏小屏幕状态下的展示
+  - 【优化】其他细节问题
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/8.png" />
+- v1.0.0（2025年11月18日）
+  - 正式发布
+
+---
+
+## 核心功能展示
 
 首页
 
@@ -66,6 +69,13 @@ pnpm run pack
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/7.png" />
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/8.png" />
+
+MCP功能
+
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/2.png" />
+
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/1.png" />
+
 
 ---
 
@@ -101,12 +111,17 @@ GitHub开源仓库：[cc-switch](https://github.com/farion1231/cc-switch) 给出
 
 ---
 
-## 开发计划
+## 使用方法
 
-- 【进行中】第一阶段目标：打造一个优雅的Claude Code GUI程序
-- 【待开始】第二阶段目标：打造一个没有Claude Code和Codex的概念的 vibecoding GUI 汇总程序
-- 【待开始】第三阶段目标：让vibecoding生成的代码质量与可用性得到大幅提升
-- 【待开始】第四阶段目标：让仅有基础知识的新手开发者，也可以做出惊艳的程序，尽情发挥创意
+```sh
+# 安装依赖
+pnpm i
+
+# 构建 并 打包.vsix
+pnpm run pack
+```
+
+[claude-code-cn-1.0.2.vsix](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/claude-code-cn-1.0.2.vsix)
 
 ---
 ## 鸣谢
@@ -126,25 +141,3 @@ GitHub开源仓库：[cc-switch](https://github.com/farion1231/cc-switch) 给出
 - [Copilot Chat](https://github.com/microsoft/vscode-copilot-chat)
 - [Codex Cli](https://developers.openai.com/codex/cli/)
 - [cc-switch](https://github.com/farion1231/cc-switch)
-
----
-
-## 官方文档
-
-- 国际站点：[https://docs.vibecoding.cab](https://docs.vibecoding.cab)
-- 国内站点：vibecoding.中国（暂未开放）
-
-```
-
----
-
-更新日志
-
-- 2025年11月18日（v1.0.2）
-  - 增加 README 内容 解释，避免语言产生歧义误解
-- 2025年11月18日（v1.0.1）
-  - 【功能】新增使用统计功能
-  - 【优化】设置侧边栏小屏幕状态下的展示
-  - 【优化】其他细节问题
-- v1.0.0（2025年11月18日）
-  - 正式发布

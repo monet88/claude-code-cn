@@ -186,14 +186,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, reactive } from 'vue';
+import { ref, computed, onMounted, onUnmounted, reactive, inject } from 'vue';
 import { useMcpStore } from '../stores/mcpStore';
+import { useToastStore } from '../stores/toastStore';
+import { RuntimeKey } from '../composables/runtimeContext';
 import type { McpServer, McpPreset } from '../types/mcp';
 import McpServerDialog from './McpServerDialog.vue';
 import McpPresetDialog from './McpPresetDialog.vue';
 import MessageDialog from './MessageDialog.vue';
 
 const mcpStore = useMcpStore();
+const toastStore = useToastStore();
+const runtime = inject(RuntimeKey);
 
 // 状态
 const showAddDialog = ref(false);
@@ -268,6 +272,35 @@ function isServerEnabled(server: McpServer): boolean {
     return server.enabled;
   }
   return server.apps?.claude !== false;
+}
+
+/**
+ * 重启当前会话以应用 MCP 配置更改
+ * @param message 提示消息
+ * @param type 提示类型：'success' 启用/添加，'error' 禁用/删除
+ */
+async function restartSessionForMcp(message: string, type: 'success' | 'error' = 'success') {
+  const activeSession = runtime?.sessionStore.activeSession();
+  if (activeSession) {
+    try {
+      await activeSession.restartClaude();
+      if (type === 'error') {
+        toastStore.error(message);
+      } else {
+        toastStore.success(message);
+      }
+      console.log('[McpServerPanel] 会话已重启，MCP 配置已生效');
+    } catch (error) {
+      console.warn('[McpServerPanel] 重启会话失败:', error);
+      toastStore.warning('MCP 配置已保存，但会话重启失败，请手动重启');
+    }
+  } else {
+    if (type === 'error') {
+      toastStore.error(message);
+    } else {
+      toastStore.success(message);
+    }
+  }
 }
 
 // 获取状态提示
@@ -355,6 +388,12 @@ async function handleSelectPreset(preset: McpPreset) {
   const result = await mcpStore.upsertServer(server);
   if (!result.success) {
     await showAlert('错误', result.error || '添加失败');
+  } else {
+    // 自动检测服务器
+    handleCheckStatus(server, true);
+    // 重启会话以应用 MCP 配置
+    const serverName = server.name || server.id;
+    await restartSessionForMcp(`已添加 MCP 服务器「${serverName}」`);
   }
 }
 
@@ -419,12 +458,21 @@ async function handleToggleServer(server: McpServer, event: Event) {
     // 回滚 checkbox 状态
     target.checked = !enabled;
     await showAlert('错误', result.error || '更新失败');
-  } else if (enabled) {
-    // 如果启用了，自动检测连接状态
-    handleCheckStatus(server, true);
   } else {
-    // 如果禁用了，清除状态
-    serverStatus.value[server.id] = null;
+    // 重启会话以应用 MCP 配置
+    const serverName = server.name || server.id;
+    const message = enabled
+      ? `已启用 MCP 服务器「${serverName}」`
+      : `已禁用 MCP 服务器「${serverName}」`;
+    await restartSessionForMcp(message, enabled ? 'success' : 'error');
+
+    if (enabled) {
+      // 如果启用了，自动检测连接状态
+      handleCheckStatus(server, true);
+    } else {
+      // 如果禁用了，清除状态
+      serverStatus.value[server.id] = null;
+    }
   }
 }
 
@@ -468,9 +516,10 @@ function handleEdit(server: McpServer) {
 
 // 处理删除
 async function handleDelete(server: McpServer) {
+  const serverName = server.name || server.id;
   const confirmed = await showConfirm(
     '删除服务器',
-    `确定要删除服务器 "${server.name || server.id}" 吗？\n\n此操作无法撤销。`
+    `确定要删除服务器 "${serverName}" 吗？\n\n此操作无法撤销。`
   );
 
   if (confirmed) {
@@ -481,17 +530,26 @@ async function handleDelete(server: McpServer) {
       // 清除相关状态
       expandedServers.value.delete(server.id);
       delete serverStatus.value[server.id];
+      // 重启会话以应用 MCP 配置
+      await restartSessionForMcp(`已删除 MCP 服务器「${serverName}」`, 'error');
     }
   }
 }
 
 // 处理保存
 async function handleSave(server: McpServer) {
+  const isNew = !mcpStore.isIdExists(server.id) || editingServer.value === null;
   const result = await mcpStore.upsertServer(server);
   if (result.success) {
     handleCloseDialog();
-    // 自动检测新添加的服务器
+    // 自动检测服务器
     handleCheckStatus(server, true);
+    // 重启会话以应用 MCP 配置
+    const serverName = server.name || server.id;
+    const message = isNew
+      ? `已添加 MCP 服务器「${serverName}」`
+      : `已更新 MCP 服务器「${serverName}」`;
+    await restartSessionForMcp(message);
   } else {
     await showAlert('错误', result.error || '保存失败');
   }

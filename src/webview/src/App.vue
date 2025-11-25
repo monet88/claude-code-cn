@@ -32,6 +32,8 @@
         </Motion>
       </div>
     </main>
+    <!-- Toast 轻提示容器 -->
+    <ToastContainer />
   </div>
 </template>
 
@@ -41,6 +43,7 @@ import { Motion } from 'motion-v';
 import SessionsPage from './pages/SessionsPage.vue';
 import ChatPage from './pages/ChatPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
+import ToastContainer from './components/ToastContainer.vue';
 import './styles/claude-theme.css';
 import { useRuntime } from './composables/useRuntime';
 import { RuntimeKey } from './composables/runtimeContext';

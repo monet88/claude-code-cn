@@ -121,16 +121,28 @@ function getModelPricing(model: string) {
 
 /**
  * 将项目路径转换为 ~/.claude/projects 中的文件夹名称
+ *
+ * 示例：
+ * - Mac: /Users/username/Desktop/project -> -Users-username-Desktop-project
+ * - Windows: C:\Users\Admin\Desktop\project -> c--Users-Admin-Desktop-project
  */
 function getProjectFolderName(projectPath: string): string {
-  // 移除开头的 '/'，然后将所有 '/' 替换为 '-'
-  // 处理中文和特殊字符：它们会被转换成 '-'
-  // 例如：/Users/username/Desktop/project -> -Users-username-Desktop-project
-  // 例如：/Users/username/Desktop/新codemoss/project -> -Users-username-Desktop--codemoss-project
+  // 标准化路径：将反斜杠转换为正斜杠（处理Windows路径）
+  let normalizedPath = projectPath.replace(/\\/g, '/');
 
-  // 简单的方法：将路径中的非ASCII字符替换为 '-'
-  const cleanPath = projectPath.replace(/[^\x00-\x7F]/g, '-');
-  return '-' + cleanPath.substring(1).replace(/\//g, '-');
+  // 处理Windows盘符：C:/Users/... -> c-/Users/...
+  // 盘符转小写，冒号转为连字符
+  if (/^[a-zA-Z]:/.test(normalizedPath)) {
+    normalizedPath = normalizedPath[0].toLowerCase() + '-' + normalizedPath.substring(2);
+  }
+
+  // 处理中文和特殊字符：将非ASCII字符替换为 '-'
+  const cleanPath = normalizedPath.replace(/[^\x00-\x7F]/g, '-');
+
+  // 将 '/' 替换为 '-'
+  // Mac: /Users/... → -Users-...
+  // Windows: c-/Users/... → c--Users-...
+  return cleanPath.replace(/\//g, '-');
 }
 
 /**
