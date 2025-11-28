@@ -1,34 +1,78 @@
 <template>
-  <!-- 输入框 - 三行布局结构 -->
-  <div class="full-input-box" style="position: relative;">
-    <!-- 附件列表（如果有附件） -->
-    <div v-if="attachments && attachments.length > 0" class="attachments-list">
-      <div
-        v-for="attachment in attachments"
-        :key="attachment.id"
-        class="attachment-item"
-        @click="isImageAttachment(attachment) ? handlePreviewImage(attachment) : null"
-        :class="{ 'is-image': isImageAttachment(attachment) }"
-      >
-        <div class="icon-wrapper">
-          <!-- 图片附件：显示缩略图 -->
-          <div v-if="isImageAttachment(attachment)" class="attachment-thumbnail">
-            <img :src="getImageDataUrl(attachment)" :alt="attachment.fileName" />
+  <!-- 融合式输入框容器 -->
+  <div class="full-input-box">
+    
+    <!-- 1. 附件预览区域 (横向滚动) -->
+    <div
+      v-if="imageAttachments.length || fileAttachments.length"
+      class="attachments-scroll-view custom-scrollbar"
+    >
+      <!-- 图片附件（使用 motion-v 增强添加 / 删除 / hover 动画） -->
+      <template v-if="props.enableAttachmentMotion">
+        <Motion
+          v-for="(attachment, index) in imageAttachments"
+          :key="attachment.id"
+          :data-index="index"
+          class="attachment-card is-image"
+          :initial="{ opacity: 0, scale: 0.9, y: 4 }"
+          :animate="{ opacity: 1, scale: 1, y: 0 }"
+          :exit="{ opacity: 0, scale: 0.9, y: -4 }"
+          :transition="{ duration: 0.18, ease: 'easeOut' }"
+          :hover="{ scale: 1.02, y: -2 }"
+          @click="handlePreviewImage(attachment)"
+        >
+          <img :src="getImageDataUrl(attachment)" :alt="attachment.fileName" class="attachment-thumb" />
+          <!-- 悬浮遮罩与删除按钮 -->
+          <div class="attachment-overlay">
+            <button
+              class="delete-btn"
+              @click.stop="handleRemoveAttachment(attachment.id)"
+              :aria-label="`移除 ${attachment.fileName}`"
+            >
+              <span class="codicon codicon-close" />
+            </button>
           </div>
-          <!-- 非图片附件：显示图标 -->
-          <div v-else class="attachment-icon">
-            <FileIcon :file-name="attachment.fileName" :size="16" />
+        </Motion>
+      </template>
+      <template v-else>
+        <div
+          v-for="(attachment, index) in imageAttachments"
+          :key="attachment.id"
+          :data-index="index"
+          class="attachment-card is-image"
+          @click="handlePreviewImage(attachment)"
+        >
+          <img :src="getImageDataUrl(attachment)" :alt="attachment.fileName" class="attachment-thumb" />
+          <!-- 悬浮遮罩与删除按钮 -->
+          <div class="attachment-overlay">
+            <button
+              class="delete-btn"
+              @click.stop="handleRemoveAttachment(attachment.id)"
+              :aria-label="`移除 ${attachment.fileName}`"
+            >
+              <span class="codicon codicon-close" />
+            </button>
           </div>
-          <button
-            class="remove-button"
-            @click.stop="handleRemoveAttachment(attachment.id)"
-            :aria-label="`移除 ${attachment.fileName}`"
-          >
-            <span class="codicon codicon-close" />
-          </button>
         </div>
-        <!-- 只有非图片附件才显示文件名 -->
-        <span v-if="!isImageAttachment(attachment)" class="attachment-name">{{ attachment.fileName }}</span>
+      </template>
+
+      <!-- 文件附件 -->
+      <div
+        v-for="attachment in fileAttachments"
+        :key="attachment.id"
+        class="attachment-card is-file"
+      >
+        <div class="file-icon">
+          <FileIcon :file-name="attachment.fileName" :size="16" />
+        </div>
+        <span class="file-name" :title="attachment.fileName">{{ attachment.fileName }}</span>
+        <button
+          class="delete-btn-file"
+          @click.stop="handleRemoveAttachment(attachment.id)"
+          :aria-label="`移除 ${attachment.fileName}`"
+        >
+          <span class="codicon codicon-close" />
+        </button>
       </div>
     </div>
 
@@ -40,7 +84,7 @@
       @close="handleClosePreview"
     />
 
-    <!-- 第一行：输入框区域 -->
+    <!-- 2. 输入框区域 -->
     <div
       ref="textareaRef"
       contenteditable="true"
@@ -52,25 +96,27 @@
       @paste="handlePaste"
     />
 
-    <!-- 第二行：ButtonArea 组件 + TokenIndicator -->
-    <ButtonArea
-      :disabled="isSubmitDisabled"
-      :loading="isLoading"
-      :selected-model="selectedModel"
-      :conversation-working="conversationWorking"
-      :has-input-content="!!content.trim()"
-      :show-progress="showProgress"
-      :progress-percentage="progressPercentage"
-      :thinking-level="thinkingLevel"
-      :permission-mode="permissionMode"
-      @submit="handleSubmit"
-      @stop="handleStop"
-      @add-attachment="handleAddFiles"
-      @mention="handleMention"
-      @thinking-toggle="() => emit('thinkingToggle')"
-      @mode-select="(mode) => emit('modeSelect', mode)"
-      @model-select="(modelId) => emit('modelSelect', modelId)"
-    />
+    <!-- 3. 底部按钮区域 -->
+    <div class="button-area-wrapper">
+      <ButtonArea
+        :disabled="isSubmitDisabled"
+        :loading="isLoading"
+        :selected-model="selectedModel"
+        :conversation-working="conversationWorking"
+        :has-input-content="!!content.trim()"
+        :show-progress="showProgress"
+        :progress-percentage="progressPercentage"
+        :thinking-level="thinkingLevel"
+        :permission-mode="permissionMode"
+        @submit="handleSubmit"
+        @stop="handleStop"
+        @add-attachment="handleAddFiles"
+        @mention="handleMention"
+        @thinking-toggle="() => emit('thinkingToggle')"
+        @mode-select="(mode) => emit('modeSelect', mode)"
+        @model-select="(modelId) => emit('modelSelect', modelId)"
+      />
+    </div>
 
     <!-- Slash Command Dropdown -->
     <Dropdown
@@ -151,6 +197,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, inject, onMounted, onUnmounted } from 'vue'
+import { Motion } from 'motion-v'
 import type { PermissionMode } from '@anthropic-ai/claude-agent-sdk'
 import FileIcon from './FileIcon.vue'
 import ButtonArea from './ButtonArea.vue'
@@ -174,6 +221,12 @@ interface Props {
   attachments?: AttachmentItem[]
   thinkingLevel?: string
   permissionMode?: PermissionMode
+  /**
+   * 是否启用附件图片的 Motion 动画
+   * - 默认 true：用于主输入框，新增/删除/hover 都有轻动效
+   * - 编辑历史消息等场景可置为 false，避免重复加载动画干扰
+   */
+  enableAttachmentMotion?: boolean
 }
 
 interface Emits {
@@ -191,7 +244,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   showProgress: true,
-  progressPercentage: 48.7,
+  progressPercentage: 0,
   placeholder: '',
   readonly: false,
   showSearch: false,
@@ -199,7 +252,8 @@ const props = withDefaults(defineProps<Props>(), {
   conversationWorking: false,
   attachments: () => [],
   thinkingLevel: 'default_on',
-  permissionMode: 'default'
+  permissionMode: 'default',
+  enableAttachmentMotion: true
 })
 
 const emit = defineEmits<Emits>()
@@ -217,6 +271,10 @@ const previewImageAlt = ref('')
 
 // 动态placeholder
 const placeholderText = computed(() => props.placeholder || '@ 引用文件，/ 执行命令...')
+
+const attachmentsList = computed(() => props.attachments ?? [])
+const imageAttachments = computed(() => attachmentsList.value.filter(a => isImageAttachment(a)))
+const fileAttachments = computed(() => attachmentsList.value.filter(a => !isImageAttachment(a)))
 
 const isSubmitDisabled = computed(() => {
   return !content.value.trim() || isLoading.value
@@ -600,225 +658,218 @@ defineExpose({
     }
     autoResizeTextarea()
   },
-  /** 聚焦到输入框 */
+  /** 聚焦到输入框，并将光标移动到最后一个字符 */
   focus() {
-    nextTick(() => textareaRef.value?.focus())
+    nextTick(() => {
+      const el = textareaRef.value
+      if (!el) return
+      // 先将光标移动到末尾，再聚焦，确保编辑时从最后一个字继续输入
+      placeCaretAtEnd(el)
+      el.focus()
+    })
   }
 })
 
 </script>
 
 <style scoped>
-/* 输入框基础样式 - 固定行高以稳定 caret 定位 */
-.aislash-editor-input {
-  line-height: 18px;
+/* 全局输入框容器：融合式设计 */
+.full-input-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
 }
 
-/* 移除输入框聚焦时的边框 */
-.aislash-editor-input:focus {
-  outline: none !important;
-  border: none !important;
-}
-
-/* 移除父容器聚焦时的边框 */
+/* 聚焦时高亮边框 */
 .full-input-box:focus-within {
-  border-color: var(--vscode-input-border) !important;
-  outline: none !important;
+  border-color: var(--vscode-focusBorder);
+  outline: none;
 }
 
-/* Placeholder 样式 */
+/* 附件预览区域：横向滚动 */
+.attachments-scroll-view {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 4px 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+/* 附件卡片基础样式 */
+.attachment-card {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid var(--vscode-editorWidget-border);
+  background-color: var(--vscode-editor-background);
+  transition: all 0.2s ease;
+  user-select: none;
+  cursor: default;
+}
+
+.attachment-card:hover {
+  border-color: var(--vscode-focusBorder);
+}
+
+/* 图片附件卡片 */
+.attachment-card.is-image {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.attachment-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 更多图片计数器 */
+.attachment-card.more-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.attachment-card.more-count:hover {
+  opacity: 0.9;
+}
+
+/* 图片悬浮遮罩 */
+.attachment-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  /* 改为 block 以便绝对定位子元素 */
+  display: block;
+}
+
+.attachment-card.is-image:hover .attachment-overlay {
+  opacity: 1;
+}
+
+/* 删除按钮（图片） */
+.delete-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 59, 48, 0.9);
+}
+
+.delete-btn .codicon {
+  font-size: 14px;
+}
+
+/* 文件附件卡片 (Chip 样式) */
+.attachment-card.is-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px 0 6px;
+  max-width: 200px;
+}
+
+.file-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-name {
+  font-size: 12px;
+  color: var(--vscode-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 文件删除按钮 */
+.delete-btn-file {
+  background: none;
+  border: none;
+  color: var(--vscode-descriptionForeground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  margin-left: 2px;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.delete-btn-file:hover {
+  background-color: var(--vscode-list-hoverBackground);
+  color: var(--vscode-errorForeground);
+  opacity: 1;
+}
+
+/* 输入框样式 */
+.aislash-editor-input {
+  min-width: 0;
+  line-height: 1.5;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--vscode-input-foreground);
+}
+
 .aislash-editor-input:empty::before {
   content: attr(data-placeholder);
   color: var(--vscode-input-placeholderForeground);
   pointer-events: none;
-  position: absolute;
 }
 
-.aislash-editor-input:focus:empty::before {
-  content: attr(data-placeholder);
-  color: var(--vscode-input-placeholderForeground);
-  pointer-events: none;
+/* 按钮区域容器 */
+.button-area-wrapper {
+  padding: 2px 8px 6px 8px;
 }
 
-/* 附件列表样式 - 水平排列的 pills */
-.attachments-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 20px;
-  /* max-height: 44px; */
-  overflow: hidden;
+/* 隐藏横向滚动条 */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
 }
-
-.attachment-item {
-  display: inline-flex;
-  align-items: center;
-  padding-right: 4px;
-  border: 1px solid var(--vscode-editorWidget-border);
-  border-radius: 4px;
-  font-size: 12px;
-  flex-shrink: 0;
-  max-width: 200px;
-  cursor: pointer;
-  transition: all 0.15s;
-  position: relative;
-  outline: none;
-  line-height: 16px;
-  height: 20px;
-}
-
-.attachment-item:hover {
-  background-color: var(--vscode-list-hoverBackground);
-  border-color: var(--vscode-focusBorder);
-}
-
-/* 图片附件的特殊样式 */
-.attachment-item.is-image {
-  cursor: zoom-in;
-  padding: 0;
-  width: 52px;
-  height: 52px;
-  max-width: 52px;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* 图标和关闭按钮的重叠容器 */
-.icon-wrapper {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-/* 图片附件的 icon-wrapper 使用全尺寸 */
-.attachment-item.is-image .icon-wrapper {
-  width: 100%;
-  height: 100%;
-}
-
-.attachment-icon {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  opacity: 1;
-  transition: opacity 0.15s ease;
-  scale: 0.8;
-}
-
-/* 图片缩略图样式 */
-.attachment-thumbnail {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 6px;
-  opacity: 1;
-  transition: opacity 0.15s ease;
-}
-
-.attachment-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 确保图标样式正确应用（使用 :deep 穿透到 FileIcon 内部） */
-.attachment-item .attachment-icon :deep(.mdi),
-.attachment-item .attachment-icon :deep(.codicon) {
-  color: var(--vscode-foreground);
-  opacity: 0.8;
-}
-
-.attachment-name {
-  flex-shrink: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--vscode-foreground);
-  opacity: 1;
-  max-width: 140px;
-}
-
-.attachment-size {
-  display: none; /* 隐藏文件大小，保持简洁 */
-}
-
-.remove-button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  background: none;
-  border: none;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-background);
   border-radius: 2px;
-  cursor: pointer;
-  color: var(--vscode-foreground);
-  opacity: 0;
-  transition: opacity 0.15s ease;
 }
-
-/* 图片附件的删除按钮样式 */
-.attachment-item.is-image .remove-button {
-  top: 2px;
-  right: 2px;
-  left: auto;
-  width: 20px;
-  height: 20px;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  border-radius: 50%;
-  color: #fff;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-.attachment-item.is-image .remove-button:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
-
-.remove-button .codicon {
-  font-size: 14px;
-}
-
-.attachment-item.is-image .remove-button .codicon {
-  font-size: 12px;
-}
-
-/* hover attachment-item 时切换图标和按钮的显示 */
-/* 非图片附件：隐藏图标，显示删除按钮 */
-.attachment-item:not(.is-image):hover .attachment-icon {
-  opacity: 0;
-}
-
-.attachment-item:not(.is-image):hover .remove-button {
-  opacity: 0.8;
-}
-
-/* 图片附件：只显示删除按钮，不隐藏缩略图 */
-.attachment-item.is-image:hover .remove-button {
-  opacity: 1;
-}
-
-.remove-button:hover {
-  opacity: 1 !important;
-}
-
 </style>

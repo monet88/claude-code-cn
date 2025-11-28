@@ -20,8 +20,8 @@
       <div class="actions-section">
         <!-- Token Indicator -->
         <TokenIndicator
-          v-if="showProgress"
-          :percentage="progressPercentage"
+          v-if="shouldShowTokenIndicator"
+          :percentage="normalizedProgress"
         />
 
         <!-- Thinking Toggle Button - 已隐藏 -->
@@ -128,6 +128,7 @@
           class="action-button"
           @click="handleAttachClick"
           :aria-label="'添加附件'"
+          :disabled="isActionDisabled"
         >
           <span class="codicon codicon-attach text-[16px]!" />
           <input
@@ -205,7 +206,7 @@ const props = withDefaults(defineProps<Props>(), {
   conversationWorking: false,
   hasInputContent: false,
   showProgress: true,
-  progressPercentage: 48.7,
+  progressPercentage: 0,
   thinkingLevel: 'default_on',
   permissionMode: 'default'
 })
@@ -252,12 +253,26 @@ const fileCompletion = useCompletionDropdown({
 })
 
 
+const isActionDisabled = computed(() => props.disabled || props.loading)
+
+const normalizedProgress = computed(() => {
+  const raw = Number(props.progressPercentage ?? 0)
+  if (Number.isNaN(raw)) return 0
+  return Math.min(100, Math.max(0, raw))
+})
+
+const shouldShowTokenIndicator = computed(() => props.showProgress)
+
 const isThinkingOn = computed(() => props.thinkingLevel !== 'off')
 
 const submitVariant = computed(() => {
   // 对齐 React：busy 时始终显示停止按钮
   if (props.conversationWorking) {
     return 'stop'
+  }
+
+  if (isActionDisabled.value) {
+    return 'disabled'
   }
 
   // 未 busy 且无输入 -> 禁用

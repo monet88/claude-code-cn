@@ -1,5 +1,35 @@
 <template>
   <div class="chat-page">
+    <!-- 全局拖拽上传遮罩 -->
+    <Transition name="drag-fade">
+      <div 
+        v-if="isDragOver" 
+        class="drag-overlay"
+        @dragenter.prevent.stop="handleOverlayDragEnter"
+        @dragover.prevent="handleOverlayDragOver"
+        @dragleave.prevent.stop="handleOverlayDragLeave"
+        @drop.prevent="handleOverlayDrop"
+      >
+        <div class="drag-box">
+          <div class="drag-icon-wrapper">
+            <span class="codicon codicon-cloud-upload text-[32px]!" />
+          </div>
+          <div class="drag-content">
+            <span class="drag-title">释放以添加文件</span>
+            <span class="drag-subtitle">支持图片与文本文件</span>
+          </div>
+        </div>
+        <!-- 兜底 file input：当 dataTransfer.files 为空时触发 -->
+        <input
+          ref="fallbackInputRef"
+          type="file"
+          multiple
+          class="sr-only"
+          @change="handleFallbackFileSelect"
+        >
+      </div>
+    </Transition>
+
     <!-- 顶部标题栏 -->
     <div class="chat-header">
       <div class="header-left">
@@ -169,9 +199,123 @@
   // DOM refs
   const containerEl = ref<HTMLDivElement | null>(null);
   const endEl = ref<HTMLDivElement | null>(null);
+  const fallbackInputRef = ref<HTMLInputElement | null>(null);
 
   // 附件状态管理
   const attachments = ref<AttachmentItem[]>([]);
+  const isDragOver = ref(false);
+
+  function hasFiles(event: DragEvent): boolean {
+    const dt = event.dataTransfer;
+    if (!dt) return false;
+    // 检查 types 是否包含 Files
+    if (dt.types && Array.from(dt.types).includes('Files')) return true;
+    // 检查 items (某些浏览器/环境)
+    if (dt.items && dt.items.length > 0) {
+      const hasFileItem = Array.from(dt.items).some(it => it.kind === 'file');
+      if (hasFileItem) return true;
+    }
+    return false;
+  }
+
+  // 全局入口：检测拖拽进入窗口
+  function handleGlobalDragEnter(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    isDragOver.value = true;
+  }
+
+  // 全局 Over：确保激活遮罩 + 防止默认行为 (Failsafe)
+  function handleGlobalDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    // 如果 dragenter 没触发（例如直接在元素上开始），这里补救
+    if (!isDragOver.value && hasFiles(event)) {
+      isDragOver.value = true;
+    }
+  }
+
+  // 全局 Leave：离开窗口时关闭遮罩
+  function handleGlobalDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const related = event.relatedTarget as HTMLElement | null;
+    // 当 relatedTarget 为空，表示拖拽离开窗口
+    if (!related) {
+      isDragOver.value = false;
+    }
+  }
+
+  // 兜底文件选择：当 drop 未携带 files 时触发
+  function handleFallbackFileSelect(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      void handleAddAttachment(input.files);
+    }
+    // 清空以允许重复选择同一文件
+    input.value = '';
+  }
+
+  // 遮罩层 Over：保持显示，设置 copy 效果
+  function handleOverlayDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  }
+
+  function handleOverlayDragEnter(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    isDragOver.value = true;
+  }
+
+  // 遮罩层 Leave：检测是否真的离开了遮罩层（还是只是进入了子元素）
+  function handleOverlayDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const currentTarget = event.currentTarget as HTMLElement;
+    const relatedTarget = event.relatedTarget as HTMLElement;
+
+    // 如果 relatedTarget 为空（离开窗口）或 relatedTarget 不在 currentTarget 内部
+    // 则认为离开了遮罩层
+    if (!relatedTarget || !currentTarget.contains(relatedTarget)) {
+      isDragOver.value = false;
+    }
+  }
+
+  // 遮罩层 Drop：处理文件
+  function handleOverlayDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    isDragOver.value = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      void handleAddAttachment(files);
+      return;
+    }
+
+    // 某些环境下 drop 无 files，兜底触发文件选择
+    fallbackInputRef.value?.click();
+  }
+
+  // 全局 Drop：防止未被遮罩层捕获的文件打开行为，并尝试处理
+  function handleGlobalDrop(event: DragEvent) {
+    if (hasFiles(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      isDragOver.value = false;
+      
+      const files = event.dataTransfer?.files;
+      if (files && files.length > 0) {
+        void handleAddAttachment(files);
+      }
+    }
+  }
+
 
   // 记录上次消息数量，用于判断是否需要滚动
   let prevCount = 0;
@@ -225,10 +369,23 @@
     prevCount = messages.value.length;
     await nextTick();
     scrollToBottom();
+
+    // 绑定全局 dragenter 用于触发遮罩层
+    window.addEventListener('dragenter', handleGlobalDragEnter, true);
+    // 绑定全局 dragover 防止默认预览行为并作为 dragenter 的备份
+    window.addEventListener('dragover', handleGlobalDragOver, true);
+    // 离开窗口时关闭遮罩
+    window.addEventListener('dragleave', handleGlobalDragLeave, true);
+    // 绑定全局 drop 以防遮罩层未及时捕获
+    window.addEventListener('drop', handleGlobalDrop, true);
   });
 
   onUnmounted(() => {
     try { unregisterToggle?.(); } catch {}
+    window.removeEventListener('dragenter', handleGlobalDragEnter, true);
+    window.removeEventListener('dragover', handleGlobalDragOver, true);
+    window.removeEventListener('dragleave', handleGlobalDragLeave, true);
+    window.removeEventListener('drop', handleGlobalDrop, true);
   });
 
   async function createNew(): Promise<void> {
@@ -253,12 +410,14 @@
   // ChatInput 事件处理
   async function handleSubmit(content: string) {
     const s = session.value;
-    const trimmed = (content || '').trim();
+    const raw = content ?? '';
+    const trimmed = raw.trim();
+    // 只用 trimmed 判断“是否为空”，但保留用户真实输入（包括前导空格）
     if (!s || (!trimmed && attachments.value.length === 0) || isBusy.value) return;
 
     try {
-      // 传递附件给 send 方法
-      await s.send(trimmed || ' ', attachments.value);
+      // 传递附件给 send 方法，使用原始内容
+      await s.send(raw, attachments.value);
 
       // 发送成功后清空附件
       attachments.value = [];
@@ -374,6 +533,107 @@
     height: 100%;
     min-width: 360px;
   }
+
+  /* 拖拽遮罩 - 玻璃拟态与微交互 */
+  .drag-fade-enter-active,
+  .drag-fade-leave-active {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .drag-fade-enter-from,
+  .drag-fade-leave-to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+
+  .drag-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 移除 pointer-events: none 以便捕获事件 */
+    pointer-events: auto;
+    /* 增强的玻璃拟态背景 - 降低不透明度以突显模糊 */
+    background: color-mix(in srgb, var(--vscode-editor-background) 40%, transparent);
+    backdrop-filter: blur(12px) saturate(150%);
+    /* 径向渐变增加质感 */
+    background-image: radial-gradient(
+      circle at center, 
+      color-mix(in srgb, var(--vscode-textLink-activeForeground) 5%, transparent) 0%,
+      transparent 70%
+    );
+  }
+
+  .drag-box {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 48px;
+    border-radius: 24px;
+    /* 边框与背景 */
+    border: 1px solid color-mix(in srgb, var(--vscode-focusBorder) 30%, transparent);
+    background: color-mix(in srgb, var(--vscode-editor-background) 90%, var(--vscode-focusBorder) 5%);
+    box-shadow: 
+      0 16px 48px -8px rgba(0, 0, 0, 0.25),
+      0 0 0 1px color-mix(in srgb, var(--vscode-focusBorder) 10%, transparent);
+    color: var(--vscode-foreground);
+    /* 初始缩放状态 */
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .drag-fade-enter-from .drag-box,
+  .drag-fade-leave-to .drag-box {
+    transform: scale(0.9);
+  }
+
+  .drag-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--vscode-focusBorder) 15%, transparent);
+    color: var(--vscode-focusBorder);
+    margin-bottom: 4px;
+    animation: bounce 2s infinite;
+  }
+
+  .drag-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .drag-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vscode-foreground);
+  }
+
+  .drag-subtitle {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-6px);
+    }
+    60% {
+      transform: translateY(-3px);
+    }
+  }
+
 
   .chat-header {
     display: flex;
