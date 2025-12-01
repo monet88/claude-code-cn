@@ -16,8 +16,36 @@
           @keydown.enter.prevent="startEditing"
           @keydown.space.prevent="startEditing"
         >
-          <div class="message-text">
-            <div>{{ displayContent }}</div>
+          <!-- 附件预览区域 (横向滚动) -->
+          <div
+            v-if="imageAttachmentsDisplay.length || fileAttachmentsDisplay.length"
+            class="attachments-scroll-view custom-scrollbar"
+          >
+            <!-- 图片附件 -->
+            <div
+              v-for="(att, index) in imageAttachmentsDisplay"
+              :key="att.id"
+              :data-index="index"
+              class="attachment-card is-image"
+            >
+              <img :src="`data:${att.mediaType};base64,${att.data}`" :alt="att.fileName" class="attachment-thumb" />
+            </div>
+
+            <!-- 文件附件 -->
+            <div
+              v-for="att in fileAttachmentsDisplay"
+              :key="att.id"
+              class="attachment-card is-file"
+            >
+              <div class="file-icon-box">
+                <FileIcon :file-name="att.fileName" :size="16" />
+              </div>
+              <span class="file-name">{{ att.fileName }}</span>
+            </div>
+          </div>
+
+          <div class="message-text-row">
+            <div class="message-text">{{ displayContent }}</div>
             <button
               class="restore-button"
               @click.stop="handleRestore"
@@ -34,6 +62,7 @@
             :show-progress="false"
             :conversation-working="false"
             :attachments="attachments"
+            :enable-attachment-motion="false"
             ref="chatInputRef"
             @submit="handleSaveEdit"
             @stop="cancelEdit"
@@ -50,6 +79,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import type { Message } from '../../models/Message';
 import type { ToolContext } from '../../types/tool';
 import type { AttachmentItem } from '../../types/attachment';
+import { IMAGE_MEDIA_TYPES } from '../../types/attachment';
 import ChatInputBox from '../ChatInputBox.vue';
 import FileIcon from '../FileIcon.vue';
 
@@ -64,10 +94,14 @@ const isEditing = ref(false);
 const chatInputRef = ref<InstanceType<typeof ChatInputBox>>();
 const containerRef = ref<HTMLElement>();
 const attachments = ref<AttachmentItem[]>([]);
+const displayAttachments = computed<AttachmentItem[]>(() => extractAttachments());
+const imageAttachmentsDisplay = computed(() => displayAttachments.value.filter(a => isImage(a)));
+const fileAttachmentsDisplay = computed(() => displayAttachments.value.filter(a => !isImage(a)));
 
 // 显示内容（纯文本）
 const displayContent = computed(() => {
   if (typeof props.message.message.content === 'string') {
+    // 保留用户原始输入，包括前导空格
     return props.message.message.content;
   }
   // 如果是 content blocks，提取文本
@@ -75,12 +109,17 @@ const displayContent = computed(() => {
     return props.message.message.content
       .map(wrapper => {
         const block = wrapper.content;
+        // 只保留文本 block，自身的前导空格原样保留
         if (block.type === 'text') {
           return block.text;
         }
+        // 对 image / document 等非文本 block，在展示纯文本时不占位，避免产生多余空格
         return '';
       })
-      .join(' ');
+      // 丢弃完全为空的片段，避免因为 join(' ') 在前面拼出额外空格
+      .filter(part => part.length > 0)
+      // 文本块之间直接拼接，不额外插入空格，交给原始文本自己决定是否有空白
+      .join('');
   }
   return '';
 });
@@ -123,6 +162,10 @@ function extractAttachments(): AttachmentItem[] {
   }
 
   return extracted;
+}
+
+function isImage(att: AttachmentItem): boolean {
+  return IMAGE_MEDIA_TYPES.includes((att.mediaType || '').toLowerCase() as (typeof IMAGE_MEDIA_TYPES)[number]);
 }
 
 async function startEditing() {
@@ -210,83 +253,141 @@ onUnmounted(() => {
   background-color: transparent;
 }
 
-/* 消息内容容器 - 负责背景色和圆角 */
+/* 消息内容容器 - 统一边框和背景 */
 .message-content {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: column;
   width: 100%;
-  background-color: color-mix(
-    in srgb,
-    var(--vscode-sideBar-background) 60%,
-    transparent
-  );
+  background-color: var(--vscode-input-background); /* 统一使用输入框背景 */
   outline: none;
-  border: 1px solid var(--vscode-editorWidget-border);
+  border: 1px solid var(--vscode-input-border);
   border-radius: 6px;
   position: relative;
   transition: all 0.2s ease;
 }
 
+.message-content:hover {
+  border-color: var(--vscode-focusBorder);
+}
+
 .message-content.editing {
   z-index: 200;
-  border: none;
-  background-color: transparent;
+  /* 编辑模式下保持与普通模式一致的卡片边框和背景，避免左右抖动 */
+  border: 1px solid var(--vscode-input-border);
+  background-color: var(--vscode-input-background);
 }
 
 /* 普通显示模式 */
 .message-view {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   width: 100%;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.message-view .message-text {
-  cursor: pointer;
-  background-color: color-mix(
-    in srgb,
-    var(--vscode-input-background) 60%,
-    transparent
-  );
-  outline: none;
+/* 附件预览区域：横向滚动 */
+.attachments-scroll-view {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 4px 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+/* 附件卡片基础样式 */
+.attachment-card {
+  position: relative;
+  flex-shrink: 0;
   border-radius: 6px;
+  border: 1px solid var(--vscode-editorWidget-border);
+  background-color: var(--vscode-editor-background);
+  user-select: none;
+  cursor: default;
+}
+
+/* 图片附件卡片 */
+.attachment-card.is-image {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.attachment-thumb {
   width: 100%;
-  padding: 6px 8px;
-  box-sizing: border-box;
-  min-width: 0;
-  flex: 1;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 更多图片计数器 */
+.attachment-card.more-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.attachment-card.more-count:hover {
+  opacity: 0.9;
+}
+
+/* 文件附件卡片 (Chip 样式) */
+.attachment-card.is-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px 0 6px;
+  max-width: 200px;
+}
+
+.file-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-name {
+  font-size: 12px;
+  color: var(--vscode-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 文本区域行 */
+.message-text-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  /* 与输入框单行高度对齐，默认最小 34px */
+  min-height: 34px;
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.message-view .message-text:hover {
-  background-color: color-mix(
-    in srgb,
-    var(--vscode-input-background) 70%,
-    transparent
-  );
-}
-
-.message-text > div:first-child {
+.message-text {
   min-width: 0;
-  height: min-content;
-  max-height: 72px;
-  overflow: hidden;
   line-height: 1.5;
   font-family: inherit;
   font-size: 13px;
+  padding: 6px 8px;
   color: var(--vscode-input-foreground);
   background-color: transparent;
   outline: none;
   border: none;
   overflow-wrap: break-word;
   word-break: break-word;
-  padding: 0;
   user-select: text;
   white-space: pre-wrap;
   flex: 1;
@@ -296,28 +397,43 @@ onUnmounted(() => {
 .restore-button {
   background: transparent;
   border: none;
-  color: var(--vscode-foreground);
+  color: var(--vscode-descriptionForeground);
   display: flex;
   width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
-  line-height: 17px;
-  padding: 0 6px;
-  height: 26px;
-  box-sizing: border-box;
+  padding: 0;
   flex-shrink: 0;
   cursor: pointer;
   border-radius: 3px;
-  transition: background-color 0.1s ease;
+  transition: all 0.2s ease;
+  opacity: 0; /* 默认隐藏，hover 时显示 */
+}
+
+.message-content:hover .restore-button {
+  opacity: 1;
 }
 
 .restore-button:hover {
-  background-color: color-mix(in srgb, var(--vscode-foreground) 10%, transparent);
+  background-color: var(--vscode-list-hoverBackground);
+  color: var(--vscode-foreground);
 }
 
 .restore-button .codicon {
-  font-size: 12px;
-  color: var(--vscode-foreground);
+  font-size: 14px;
+}
+
+/* 滚动条样式 */
+.attachments-scroll-view::-webkit-scrollbar {
+  height: 4px;
+}
+.attachments-scroll-view::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-background);
+  border-radius: 2px;
+}
+.attachments-scroll-view::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* 编辑模式 */
@@ -333,11 +449,15 @@ onUnmounted(() => {
 
 /* 编辑模式下的特定样式覆盖 */
 .edit-mode :deep(.full-input-box) {
-  background: var(--vscode-input-background);
+  /* 在消息内编辑时，由外层 .message-content 提供卡片视觉，内部 full-input-box 仅作为布局容器 */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
 .edit-mode :deep(.full-input-box:focus-within) {
-  box-shadow: 0 0 8px 2px
-    color-mix(in srgb, var(--vscode-input-background) 30%, transparent);
+  /* 编辑时不需要额外阴影，input box 自带 focus 样式 */
+  box-shadow: none;
 }
 </style>
