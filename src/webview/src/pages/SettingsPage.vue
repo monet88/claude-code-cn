@@ -43,6 +43,14 @@
             <span class="sidebar-item-text">MCP服务器</span>
           </div>
           <div
+            :class="['sidebar-item', { active: currentTab === 'skills' }]"
+            @click="currentTab = 'skills'"
+            :title="isCollapsed ? 'Skills' : ''"
+          >
+            <span class="codicon codicon-book"></span>
+            <span class="sidebar-item-text">Skills</span>
+          </div>
+          <div
             :class="['sidebar-item', { active: currentTab === 'permissions', warning: true }]"
             @click="currentTab = 'permissions'"
             :title="isCollapsed ? '权限配置' : ''"
@@ -58,15 +66,6 @@
           >
             <span class="codicon codicon-robot"></span>
             <span class="sidebar-item-text">Agents</span>
-            <span class="codicon codicon-warning"></span>
-          </div>
-          <div
-            :class="['sidebar-item', { active: currentTab === 'skills', warning: true }]"
-            @click="currentTab = 'skills'"
-            :title="isCollapsed ? 'Skills' : ''"
-          >
-            <span class="codicon codicon-book"></span>
-            <span class="sidebar-item-text">Skills</span>
             <span class="codicon codicon-warning"></span>
           </div>
           <div
@@ -195,6 +194,14 @@
           <McpServerPanel />
         </div>
 
+        <!-- Skills -->
+        <div v-else-if="currentTab === 'skills'" class="config-section skills-section">
+          <h3 class="section-title">Skills</h3>
+          <p class="section-desc">管理自定义 Skills，为 Claude Code 扩展功能</p>
+
+          <SkillPanel />
+        </div>
+
         <!-- 其他标签页占位 -->
         <div v-else class="config-section">
           <h3 class="section-title">{{ currentTab }}</h3>
@@ -244,6 +251,7 @@ import AddProviderDialog from '../components/AddProviderDialog.vue';
 import MessageDialog from '../components/MessageDialog.vue';
 import UsageStatisticsSection from '../components/UsageStatisticsSection.vue';
 import McpServerPanel from '../components/McpServerPanel.vue';
+import SkillPanel from '../components/SkillPanel.vue';
 import { RuntimeKey } from '../composables/runtimeContext';
 
 defineEmits<{

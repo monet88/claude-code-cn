@@ -4,7 +4,7 @@
 
 import * as vscode from 'vscode';
 import { InstantiationServiceBuilder } from './di/instantiationServiceBuilder';
-import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService } from './services/serviceRegistry';
+import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService, ISkillService } from './services/serviceRegistry';
 import { VSCodeTransport } from './services/claude/transport/VSCodeTransport';
 import type { ClaudeProvider } from './services/ccSwitchSettingsService';
 import { getCurrentProjectStatistics, getAllProjectsAggregatedStatistics } from './services/usageStatisticsService';
@@ -41,6 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const ccSwitchSettingsService = accessor.get(ICCSwitchSettingsService);
 		const configurationService = accessor.get(IConfigurationService);
 		const mcpService = accessor.get(IMcpService);
+		const skillService = accessor.get(ISkillService);
 
 		// Initialize CC Switch settings (ensure default provider exists)
 		await ccSwitchSettingsService.initialize();
@@ -301,6 +302,137 @@ export function activate(context: vscode.ExtensionContext) {
 					webViewService.postMessage({
 						type: 'mcpServerValidated',
 						payload: { valid: false, errors: [String(error)] }
+					});
+				}
+				return;
+			}
+
+			// Handle Skills management
+			if (message.type === 'getAllSkills') {
+				try {
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const skills = await skillService.getAllSkills(workspaceRoot);
+					webViewService.postMessage({
+						type: 'allSkillsData',
+						payload: skills
+					});
+				} catch (error) {
+					logService.error(`Failed to get Skills: ${error}`);
+					webViewService.postMessage({
+						type: 'allSkillsData',
+						payload: { global: {}, local: {} }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'importSkill') {
+				try {
+					const { scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+					// 显示文件/文件夹选择对话框（支持多选）
+					const uris = await vscode.window.showOpenDialog({
+						canSelectFiles: true,
+						canSelectFolders: true,
+						canSelectMany: true,
+						openLabel: `导入到${scope === 'global' ? '全局' : '本项目'} Skills`
+					});
+
+					if (!uris || uris.length === 0) {
+						webViewService.postMessage({
+							type: 'skillImported',
+							payload: { success: false, error: '未选择文件或文件夹' }
+						});
+						return;
+					}
+
+					// 批量导入
+					const importedSkills = [];
+					const errors = [];
+
+					for (const uri of uris) {
+						try {
+							const skill = await skillService.importSkill(uri.fsPath, scope, workspaceRoot);
+							importedSkills.push(skill);
+						} catch (error) {
+							errors.push({ path: uri.fsPath, error: String(error) });
+						}
+					}
+
+					webViewService.postMessage({
+						type: 'skillImported',
+						payload: {
+							success: importedSkills.length > 0,
+							count: importedSkills.length,
+							total: uris.length,
+							errors: errors.length > 0 ? errors : undefined
+						}
+					});
+				} catch (error) {
+					logService.error(`Failed to import Skill: ${error}`);
+					webViewService.postMessage({
+						type: 'skillImported',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'deleteSkill') {
+				try {
+					const { id, scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const success = await skillService.deleteSkill(id, scope, workspaceRoot);
+					webViewService.postMessage({
+						type: 'skillDeleted',
+						payload: { success }
+					});
+				} catch (error) {
+					logService.error(`Failed to delete Skill: ${error}`);
+					webViewService.postMessage({
+						type: 'skillDeleted',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'openSkill') {
+				try {
+					const { skillPath } = message.payload;
+					const fs = await import('fs');
+					const path = await import('path');
+
+					let targetPath = skillPath;
+
+					// 检查是否是文件夹
+					const stats = fs.statSync(skillPath);
+					if (stats.isDirectory()) {
+						// 优先查找 skill.md，然后是 skills.md
+						const skillMdPath = path.join(skillPath, 'skill.md');
+						const skillsMdPath = path.join(skillPath, 'skills.md');
+
+						if (fs.existsSync(skillMdPath)) {
+							targetPath = skillMdPath;
+						} else if (fs.existsSync(skillsMdPath)) {
+							targetPath = skillsMdPath;
+						}
+						// 如果都不存在，保持原路径（打开文件夹）
+					}
+
+					// 在编辑器中打开文件/文件夹
+					const uri = vscode.Uri.file(targetPath);
+					await vscode.commands.executeCommand('vscode.open', uri);
+					webViewService.postMessage({
+						type: 'skillOpened',
+						payload: { success: true }
+					});
+				} catch (error) {
+					logService.error(`Failed to open Skill: ${error}`);
+					webViewService.postMessage({
+						type: 'skillOpened',
+						payload: { success: false, error: String(error) }
 					});
 				}
 				return;

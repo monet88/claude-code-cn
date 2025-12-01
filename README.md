@@ -19,8 +19,13 @@
 
 更新日志
 
-> [最新包：claude-code-cn-1.0.4.vsix 下载链接](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/claude-code-cn-1.0.4.vsix)
+> [最新包：claude-code-cn-1.0.5.vsix 下载链接](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/claude-code-cn-1.0.5.vsix)
 
+- 2025年12月1日（v1.0.5）
+  - [x] P0: 实现Skills功能（基础功能）
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/2.png" />
+  - [x] P1: 实现文件拖拽上传功能
+<img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/1.png" />
 - 2025年11月25日（v1.0.4）
   - [x] 增加简易MCP功能（切换不需要重启终端，正常需要重启，但是我适配了一下，不用重启）
   - [x] 优化输入框 @文件 功能

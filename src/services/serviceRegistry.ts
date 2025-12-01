@@ -26,6 +26,7 @@ import { IClaudeAgentService, ClaudeAgentService } from './claude/ClaudeAgentSer
 import { IClaudeSettingsService, ClaudeSettingsService } from './claudeSettingsService';
 import { ICCSwitchSettingsService, CCSwitchSettingsService } from './ccSwitchSettingsService';
 import { IMcpService, McpService } from './mcpService';
+import { ISkillService, SkillService } from './skillService';
 
 /**
  * Register all services to the builder
@@ -70,6 +71,9 @@ export function registerServices(
 
 	// MCP service
 	builder.define(IMcpService, new SyncDescriptor(McpService));
+
+	// Skill service
+	builder.define(ISkillService, new SyncDescriptor(SkillService));
 }
 
 // Export all service interfaces for convenience
@@ -89,5 +93,6 @@ export {
 	IClaudeAgentService,
 	IClaudeSettingsService,
 	ICCSwitchSettingsService,
-	IMcpService
+	IMcpService,
+	ISkillService
 };
