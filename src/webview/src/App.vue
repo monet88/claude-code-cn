@@ -47,15 +47,21 @@ import ToastContainer from './components/ToastContainer.vue';
 import './styles/claude-theme.css';
 import { useRuntime } from './composables/useRuntime';
 import { RuntimeKey } from './composables/runtimeContext';
+import { useThemeStore } from './stores/themeStore';
 // import IconTestPage from './pages/IconTestPage.vue';
 
 const currentPage = ref<'sessions' | 'chat' | 'settings'>('chat');
 const pageAnimation = ref({ opacity: 1, x: 0 });
 
+// 初始化主题
+const themeStore = useThemeStore();
+
 // 初始化运行时（通信与状态逻辑）
 const runtime = useRuntime();
 onMounted(() => {
   console.log('[App] runtime initialized', runtime);
+  // 初始化主题系统
+  themeStore.init();
 });
 provide(RuntimeKey, runtime);
 

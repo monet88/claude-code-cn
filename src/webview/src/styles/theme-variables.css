@@ -1,0 +1,329 @@
+/*!
+ * 独立主题变量系统
+ * 完全替代VSCode变量，实现独立的主题切换
+ */
+
+/* 默认主题变量（亮色） */
+:root {
+  /* 主要颜色 */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f5f5f5;
+  --theme-bg-tertiary: #ebebeb;
+  --theme-fg-primary: #333333;
+  --theme-fg-secondary: #666666;
+  --theme-fg-tertiary: #999999;
+
+  /* 编辑器颜色 */
+  --theme-editor-bg: #ffffff;
+  --theme-editor-fg: #333333;
+  --theme-sidebar-bg: #f5f5f5;
+  --theme-panel-bg: #f8f8f8;
+  --theme-panel-border: #e0e0e0;
+
+  /* 输入框 */
+  --theme-input-bg: #ffffff;
+  --theme-input-fg: #333333;
+  --theme-input-border: #e0e0e0;
+  --theme-input-border-focus: #007acc;
+  --theme-input-placeholder: #999999;
+
+  /* 按钮 */
+  --theme-button-bg: #007acc;
+  --theme-button-fg: #ffffff;
+  --theme-button-hover-bg: #0062a3;
+  --theme-button-disabled-bg: #cccccc;
+
+  /* 列表 */
+  --theme-list-hover-bg: #e8e8e8;
+  --theme-list-active-bg: #e0e0e0;
+  --theme-list-active-fg: #333333;
+  --theme-list-selection-bg: #cce5ff;
+  --theme-list-selection-fg: #333333;
+
+  /* 菜单 */
+  --theme-menu-bg: #ffffff;
+  --theme-menu-fg: #333333;
+  --theme-menu-border: #e0e0e0;
+  --theme-menu-selection-bg: #e8e8e8;
+  --theme-menu-selection-fg: #333333;
+
+  /* Badge徽章 */
+  --theme-badge-bg: #007acc;
+  --theme-badge-fg: #ffffff;
+
+  /* 滚动条 */
+  --theme-scrollbar-bg: transparent;
+  --theme-scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --theme-scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  --theme-scrollbar-thumb-active: rgba(0, 0, 0, 0.4);
+
+  /* 链接 */
+  --theme-link-fg: #0366d6;
+  --theme-link-active-fg: #0062a3;
+
+  /* 错误/警告/信息 */
+  --theme-error-fg: #d73a49;
+  --theme-warning-fg: #e36209;
+  --theme-info-fg: #0366d6;
+  --theme-success-fg: #28a745;
+
+  /* 特殊颜色 */
+  --theme-focus-border: #007acc;
+  --theme-selection-bg: #add6ff;
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+  --theme-overlay-bg: rgba(0, 0, 0, 0.5);
+
+  /* Claude特色 */
+  --theme-claude-orange: #d97757;
+  --theme-claude-orange-hover: #c6613f;
+
+  /* 代码高亮 */
+  --theme-code-bg: #f6f8fa;
+  --theme-code-fg: #333333;
+  --theme-code-border: #e1e4e8;
+}
+
+/* 暗色主题 */
+body.custom-theme-dark {
+  /* 主要颜色 */
+  --theme-bg-primary: #1e1e1e;
+  --theme-bg-secondary: #252526;
+  --theme-bg-tertiary: #2d2e2f;
+  --theme-fg-primary: #cccccc;
+  --theme-fg-secondary: #999999;
+  --theme-fg-tertiary: #666666;
+
+  /* 编辑器颜色 */
+  --theme-editor-bg: #1e1e1e;
+  --theme-editor-fg: #cccccc;
+  --theme-sidebar-bg: #252526;
+  --theme-panel-bg: #1e1e1e;
+  --theme-panel-border: #464647;
+
+  /* 输入框 */
+  --theme-input-bg: #3c3c3c;
+  --theme-input-fg: #cccccc;
+  --theme-input-border: #464647;
+  --theme-input-border-focus: #007fd4;
+  --theme-input-placeholder: #666666;
+
+  /* 按钮 */
+  --theme-button-bg: #0e639c;
+  --theme-button-fg: #ffffff;
+  --theme-button-hover-bg: #1177bb;
+  --theme-button-disabled-bg: #4a4a4a;
+
+  /* 列表 */
+  --theme-list-hover-bg: #2a2d2e;
+  --theme-list-active-bg: #094771;
+  --theme-list-active-fg: #ffffff;
+  --theme-list-selection-bg: #094771;
+  --theme-list-selection-fg: #ffffff;
+
+  /* 菜单 */
+  --theme-menu-bg: #252526;
+  --theme-menu-fg: #cccccc;
+  --theme-menu-border: #464647;
+  --theme-menu-selection-bg: #094771;
+  --theme-menu-selection-fg: #ffffff;
+
+  /* Badge徽章 */
+  --theme-badge-bg: #4d4d4d;
+  --theme-badge-fg: #ffffff;
+
+  /* 滚动条 */
+  --theme-scrollbar-bg: transparent;
+  --theme-scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --theme-scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+  --theme-scrollbar-thumb-active: rgba(255, 255, 255, 0.4);
+
+  /* 链接 */
+  --theme-link-fg: #3794ff;
+  --theme-link-active-fg: #1177bb;
+
+  /* 错误/警告/信息 */
+  --theme-error-fg: #f48771;
+  --theme-warning-fg: #ffcc00;
+  --theme-info-fg: #3794ff;
+  --theme-success-fg: #89d185;
+
+  /* 特殊颜色 */
+  --theme-focus-border: #007fd4;
+  --theme-selection-bg: #264f78;
+  --theme-shadow: rgba(0, 0, 0, 0.3);
+  --theme-overlay-bg: rgba(0, 0, 0, 0.75);
+
+  /* Claude特色 */
+  --theme-claude-orange: #ff8c42;
+  --theme-claude-orange-hover: #ff7a29;
+
+  /* 代码高亮 */
+  --theme-code-bg: #2d2e2f;
+  --theme-code-fg: #cccccc;
+  --theme-code-border: #464647;
+}
+
+/* 亮色主题（备用类名） */
+body.custom-theme-light {
+  /* 主要颜色 */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f5f5f5;
+  --theme-bg-tertiary: #ebebeb;
+  --theme-fg-primary: #333333;
+  --theme-fg-secondary: #666666;
+  --theme-fg-tertiary: #999999;
+
+  /* 编辑器颜色 */
+  --theme-editor-bg: #ffffff;
+  --theme-editor-fg: #333333;
+  --theme-sidebar-bg: #f5f5f5;
+  --theme-panel-bg: #f8f8f8;
+  --theme-panel-border: #e0e0e0;
+
+  /* 输入框 */
+  --theme-input-bg: #ffffff;
+  --theme-input-fg: #333333;
+  --theme-input-border: #e0e0e0;
+  --theme-input-border-focus: #007acc;
+  --theme-input-placeholder: #999999;
+
+  /* 按钮 */
+  --theme-button-bg: #007acc;
+  --theme-button-fg: #ffffff;
+  --theme-button-hover-bg: #0062a3;
+  --theme-button-disabled-bg: #cccccc;
+
+  /* 列表 */
+  --theme-list-hover-bg: #e8e8e8;
+  --theme-list-active-bg: #e0e0e0;
+  --theme-list-active-fg: #333333;
+  --theme-list-selection-bg: #cce5ff;
+  --theme-list-selection-fg: #333333;
+
+  /* 菜单 */
+  --theme-menu-bg: #ffffff;
+  --theme-menu-fg: #333333;
+  --theme-menu-border: #e0e0e0;
+  --theme-menu-selection-bg: #e8e8e8;
+  --theme-menu-selection-fg: #333333;
+
+  /* Badge徽章 */
+  --theme-badge-bg: #007acc;
+  --theme-badge-fg: #ffffff;
+
+  /* 滚动条 */
+  --theme-scrollbar-bg: transparent;
+  --theme-scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --theme-scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  --theme-scrollbar-thumb-active: rgba(0, 0, 0, 0.4);
+
+  /* 链接 */
+  --theme-link-fg: #0366d6;
+  --theme-link-active-fg: #0062a3;
+
+  /* 错误/警告/信息 */
+  --theme-error-fg: #d73a49;
+  --theme-warning-fg: #e36209;
+  --theme-info-fg: #0366d6;
+  --theme-success-fg: #28a745;
+
+  /* 特殊颜色 */
+  --theme-focus-border: #007acc;
+  --theme-selection-bg: #add6ff;
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+  --theme-overlay-bg: rgba(0, 0, 0, 0.5);
+
+  /* Claude特色 */
+  --theme-claude-orange: #d97757;
+  --theme-claude-orange-hover: #c6613f;
+
+  /* 代码高亮 */
+  --theme-code-bg: #f6f8fa;
+  --theme-code-fg: #333333;
+  --theme-code-border: #e1e4e8;
+}
+
+/* VSCode 变量映射 - 将所有VSCode变量映射到我们的主题变量 */
+:root, body.custom-theme-light, body.custom-theme-dark {
+  /* 编辑器 */
+  --vscode-editor-background: var(--theme-editor-bg);
+  --vscode-editor-foreground: var(--theme-editor-fg);
+  --vscode-sideBar-background: var(--theme-sidebar-bg);
+  --vscode-panel-background: var(--theme-panel-bg);
+  --vscode-panel-border: var(--theme-panel-border);
+
+  /* 前景色 */
+  --vscode-foreground: var(--theme-fg-primary);
+  --vscode-descriptionForeground: var(--theme-fg-secondary);
+  --vscode-disabledForeground: var(--theme-fg-tertiary);
+
+  /* 输入框 */
+  --vscode-input-background: var(--theme-input-bg);
+  --vscode-input-foreground: var(--theme-input-fg);
+  --vscode-input-border: var(--theme-input-border);
+  --vscode-inputOption-activeBorder: var(--theme-input-border-focus);
+  --vscode-input-placeholderForeground: var(--theme-input-placeholder);
+  --vscode-inlineChatInput-border: var(--theme-input-border);
+
+  /* 按钮 */
+  --vscode-button-background: var(--theme-button-bg);
+  --vscode-button-foreground: var(--theme-button-fg);
+  --vscode-button-hoverBackground: var(--theme-button-hover-bg);
+
+  /* 列表 */
+  --vscode-list-hoverBackground: var(--theme-list-hover-bg);
+  --vscode-list-activeSelectionBackground: var(--theme-list-active-bg);
+  --vscode-list-activeSelectionForeground: var(--theme-list-active-fg);
+  --vscode-list-inactiveSelectionBackground: var(--theme-list-selection-bg);
+
+  /* 菜单 */
+  --vscode-menu-background: var(--theme-menu-bg);
+  --vscode-menu-foreground: var(--theme-menu-fg);
+  --vscode-menu-border: var(--theme-menu-border);
+  --vscode-menu-selectionBackground: var(--theme-menu-selection-bg);
+  --vscode-menu-selectionForeground: var(--theme-menu-selection-fg);
+  --vscode-dropdown-background: var(--theme-menu-bg);
+  --vscode-dropdown-foreground: var(--theme-menu-fg);
+  --vscode-dropdown-border: var(--theme-menu-border);
+
+  /* Badge */
+  --vscode-badge-background: var(--theme-badge-bg);
+  --vscode-badge-foreground: var(--theme-badge-fg);
+
+  /* 滚动条 */
+  --vscode-scrollbarSlider-background: var(--theme-scrollbar-thumb);
+  --vscode-scrollbarSlider-hoverBackground: var(--theme-scrollbar-thumb-hover);
+  --vscode-scrollbarSlider-activeBackground: var(--theme-scrollbar-thumb-active);
+  --vscode-scrollbar-shadow: var(--theme-shadow);
+
+  /* 边框和焦点 */
+  --vscode-focusBorder: var(--theme-focus-border);
+  --vscode-widget-border: var(--theme-panel-border);
+  --vscode-editorWidget-border: var(--theme-panel-border);
+  --vscode-sash-hoverBorder: var(--theme-focus-border);
+  --vscode-sideBarActivityBarTop-border: var(--theme-panel-border);
+  --vscode-commandCenter-inactiveBorder: var(--theme-panel-border);
+
+  /* 错误/警告/信息 */
+  --vscode-errorForeground: var(--theme-error-fg);
+  --vscode-warningForeground: var(--theme-warning-fg);
+  --vscode-infoForeground: var(--theme-info-fg);
+
+  /* 链接 */
+  --vscode-textLink-foreground: var(--theme-link-fg);
+  --vscode-textLink-activeForeground: var(--theme-link-active-fg);
+
+  /* 工具栏 */
+  --vscode-toolbar-hoverBackground: var(--theme-list-hover-bg);
+  --vscode-statusBarItem-hoverBackground: var(--theme-list-hover-bg);
+
+  /* 进度条 */
+  --vscode-progressBar-background: var(--theme-button-bg);
+
+  /* 编辑器高亮 */
+  --vscode-editor-lineHighlightBackground: var(--theme-list-hover-bg);
+
+  /* 特殊 */
+  --vscode-editor-font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  --vscode-editor-font-size: 13px;
+}
