@@ -17,6 +17,7 @@ import * as fs from 'fs';
 import { createDecorator } from '../../di/instantiation';
 import { ILogService } from '../logService';
 import { IConfigurationService } from '../configurationService';
+import { ICCSwitchSettingsService } from '../ccSwitchSettingsService';
 import { AsyncStream } from './transport';
 
 // SDK 类型导入
@@ -87,7 +88,8 @@ export class ClaudeSdkService implements IClaudeSdkService {
     constructor(
         private readonly context: vscode.ExtensionContext,
         @ILogService private readonly logService: ILogService,
-        @IConfigurationService private readonly configService: IConfigurationService
+        @IConfigurationService private readonly configService: IConfigurationService,
+        @ICCSwitchSettingsService private readonly ccSwitchSettingsService: ICCSwitchSettingsService
     ) {
         this.logService.info('[ClaudeSdkService] 已初始化');
     }
@@ -108,8 +110,26 @@ export class ClaudeSdkService implements IClaudeSdkService {
         this.logService.info(`  - resume: ${resume}`);
         this.logService.info(`  - maxThinkingTokens: ${maxThinkingTokens ?? 'undefined'}`);
 
-        // 参数转换
-        const modelParam = model === null ? "claude-sonnet-4-5" : model;
+        // 获取环境变量（包含 provider overlay）
+        const envVariables = await this.getEnvironmentVariablesAsync();
+
+        // 参数转换 - 处理 model 选择逻辑
+        let modelParam = model;
+
+        // 如果 model 是 'default' 或 null，使用 provider 配置或 fallback
+        if (modelParam === 'default' || modelParam === null) {
+            if (envVariables.ANTHROPIC_DEFAULT_MODEL) {
+                // Provider 配置了默认模型
+                modelParam = envVariables.ANTHROPIC_DEFAULT_MODEL;
+                this.logService.info(`[ClaudeSdkService] 使用 Provider 配置的默认模型: ${modelParam}`);
+            } else {
+                // 没有配置默认模型，使用 fallback
+                modelParam = "claude-sonnet-4-5";
+                this.logService.info(`[ClaudeSdkService] 使用 fallback 模型: ${modelParam}`);
+            }
+        } else {
+            this.logService.info(`[ClaudeSdkService] 使用用户选择的模型: ${modelParam}`);
+        }
         const permissionModeParam = permissionMode as PermissionMode;
         const cwdParam = cwd;
 
@@ -154,8 +174,8 @@ export class ClaudeSdkService implements IClaudeSdkService {
                 }
             },
 
-            // 环境变量
-            env: this.getEnvironmentVariables(),
+            // 环境变量（包含 provider overlay）
+            env: envVariables,
 
             // 系统提示追加
             systemPrompt: {
@@ -289,6 +309,38 @@ export class ClaudeSdkService implements IClaudeSdkService {
         }
 
         return env as Record<string, string>;
+    }
+
+    /**
+     * 获取环境变量 (异步版本，包含 provider overlay)
+     */
+    private async getEnvironmentVariablesAsync(): Promise<Record<string, string>> {
+        // 获取基础环境变量
+        const env = this.getEnvironmentVariables();
+
+        // 获取当前激活的 provider 配置并 overlay
+        try {
+            const activeProvider = await this.ccSwitchSettingsService.getActiveClaudeProvider();
+            if (activeProvider?.settingsConfig?.env) {
+                const providerEnv = activeProvider.settingsConfig.env;
+                this.logService.info('[ClaudeSdkService] Overlay provider env variables:');
+                for (const [key, value] of Object.entries(providerEnv)) {
+                    if (value !== undefined && value !== '') {
+                        env[key] = value;
+                        // 不要 log API key 完整值
+                        if (key.includes('TOKEN') || key.includes('KEY')) {
+                            this.logService.info(`  - ${key}: ***${value.slice(-4)}`);
+                        } else {
+                            this.logService.info(`  - ${key}: ${value}`);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            this.logService.warn(`[ClaudeSdkService] Failed to get active provider: ${error}`);
+        }
+
+        return env;
     }
 
     /**

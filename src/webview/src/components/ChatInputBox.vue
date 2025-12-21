@@ -1,13 +1,13 @@
 <template>
-  <!-- 融合式输入框容器 -->
+  <!-- Unified input container -->
   <div class="full-input-box">
     
-    <!-- 1. 附件预览区域 (横向滚动) -->
+    <!-- 1. Attachment preview area (horizontal scroll) -->
     <div
       v-if="imageAttachments.length || fileAttachments.length"
       class="attachments-scroll-view custom-scrollbar"
     >
-      <!-- 图片附件（使用 motion-v 增强添加 / 删除 / hover 动画） -->
+      <!-- Image attachments (motion-v enhances add/remove/hover animations) -->
       <template v-if="props.enableAttachmentMotion">
         <Motion
           v-for="(attachment, index) in imageAttachments"
@@ -22,12 +22,12 @@
           @click="handlePreviewImage(attachment)"
         >
           <img :src="getImageDataUrl(attachment)" :alt="attachment.fileName" class="attachment-thumb" />
-          <!-- 悬浮遮罩与删除按钮 -->
+          <!-- Hover overlay and delete button -->
           <div class="attachment-overlay">
             <button
               class="delete-btn"
               @click.stop="handleRemoveAttachment(attachment.id)"
-              :aria-label="`移除 ${attachment.fileName}`"
+              :aria-label="`Remove ${attachment.fileName}`"
             >
               <span class="codicon codicon-close" />
             </button>
@@ -43,12 +43,12 @@
           @click="handlePreviewImage(attachment)"
         >
           <img :src="getImageDataUrl(attachment)" :alt="attachment.fileName" class="attachment-thumb" />
-          <!-- 悬浮遮罩与删除按钮 -->
+          <!-- Hover overlay and delete button -->
           <div class="attachment-overlay">
             <button
               class="delete-btn"
               @click.stop="handleRemoveAttachment(attachment.id)"
-              :aria-label="`移除 ${attachment.fileName}`"
+              :aria-label="`Remove ${attachment.fileName}`"
             >
               <span class="codicon codicon-close" />
             </button>
@@ -56,7 +56,7 @@
         </div>
       </template>
 
-      <!-- 文件附件 -->
+      <!-- File attachments -->
       <div
         v-for="attachment in fileAttachments"
         :key="attachment.id"
@@ -69,14 +69,14 @@
         <button
           class="delete-btn-file"
           @click.stop="handleRemoveAttachment(attachment.id)"
-          :aria-label="`移除 ${attachment.fileName}`"
+          :aria-label="`Remove ${attachment.fileName}`"
         >
           <span class="codicon codicon-close" />
         </button>
       </div>
     </div>
 
-    <!-- 图片预览对话框 -->
+    <!-- Image preview dialog -->
     <ImagePreviewDialog
       :visible="previewVisible"
       :image-src="previewImageSrc"
@@ -84,7 +84,7 @@
       @close="handleClosePreview"
     />
 
-    <!-- 2. 输入框区域 -->
+    <!-- 2. Input box area -->
     <div
       ref="textareaRef"
       contenteditable="true"
@@ -96,7 +96,7 @@
       @paste="handlePaste"
     />
 
-    <!-- 3. 底部按钮区域 -->
+        <!-- 3. Bottom button area -->
     <div class="button-area-wrapper">
       <ButtonArea
         :disabled="isSubmitDisabled"
@@ -146,12 +146,12 @@
               />
             </template>
           </template>
-          <div v-else class="px-2 py-1 text-xs opacity-60">无匹配项</div>
+          <div v-else class="px-2 py-1 text-xs opacity-60">No matches</div>
         </div>
       </template>
     </Dropdown>
 
-    <!-- @ 文件引用 Dropdown -->
+    <!-- @ file reference dropdown -->
     <Dropdown
       v-if="fileCompletion.isOpen.value"
       :is-visible="fileCompletion.isOpen.value"
@@ -188,7 +188,7 @@
               </DropdownItem>
             </template>
           </template>
-          <div v-else class="px-2 py-1 text-xs opacity-60">无匹配项</div>
+          <div v-else class="px-2 py-1 text-xs opacity-60">No matches</div>
         </div>
       </template>
     </Dropdown>
@@ -222,9 +222,9 @@ interface Props {
   thinkingLevel?: string
   permissionMode?: PermissionMode
   /**
-   * 是否启用附件图片的 Motion 动画
-   * - 默认 true：用于主输入框，新增/删除/hover 都有轻动效
-   * - 编辑历史消息等场景可置为 false，避免重复加载动画干扰
+   * Whether to enable motion animations for attachment images
+   * - Default true: the main input shows motion on add/remove/hover
+   * - Set to false in contexts like editing history to avoid repeated animation noise
    */
   enableAttachmentMotion?: boolean
 }
@@ -248,7 +248,7 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: '',
   readonly: false,
   showSearch: false,
-  selectedModel: 'claude-sonnet-4-5',
+  selectedModel: 'default',
   conversationWorking: false,
   attachments: () => [],
   thinkingLevel: 'default_on',
@@ -264,13 +264,13 @@ const content = ref('')
 const isLoading = ref(false)
 const textareaRef = ref<HTMLDivElement | null>(null)
 
-// 图片预览状态
+// Image preview state
 const previewVisible = ref(false)
 const previewImageSrc = ref('')
 const previewImageAlt = ref('')
 
-// 动态placeholder
-const placeholderText = computed(() => props.placeholder || '@ 引用文件，/ 执行命令...')
+// Dynamic placeholder
+const placeholderText = computed(() => props.placeholder || '@ reference file, / execute command...')
 
 const attachmentsList = computed(() => props.attachments ?? [])
 const imageAttachments = computed(() => attachmentsList.value.filter(a => isImageAttachment(a)))
@@ -280,9 +280,9 @@ const isSubmitDisabled = computed(() => {
   return !content.value.trim() || isLoading.value
 })
 
-// === 使用新的 Completion Dropdown Composable ===
+// === Using the new Completion Dropdown composable ===
 
-// Slash Command 补全
+// Slash command completion
 const slashCompletion = useCompletionDropdown({
   mode: 'inline',
   trigger: '/',
@@ -290,24 +290,24 @@ const slashCompletion = useCompletionDropdown({
   toDropdownItem: commandToDropdownItem,
   onSelect: (command, query) => {
     if (query) {
-      // 替换文本
+      // Replace text
       const updated = slashCompletion.replaceText(content.value, `${command.label} `)
       content.value = updated
 
-      // 更新 DOM
+      // Update DOM
       if (textareaRef.value) {
         textareaRef.value.textContent = updated
         placeCaretAtEnd(textareaRef.value)
       }
 
-      // 触发输入事件
+      // Emit input event
       emit('input', updated)
     }
   },
   anchorElement: textareaRef
 })
 
-// @ 文件引用补全
+// @ file reference completion
 const fileCompletion = useCompletionDropdown({
   mode: 'inline',
   trigger: '@',
@@ -315,24 +315,24 @@ const fileCompletion = useCompletionDropdown({
   toDropdownItem: fileToDropdownItem,
   onSelect: (file, query) => {
     if (query) {
-      // 替换文本，插入文件路径
+      // Replace text and insert the file path
       const updated = fileCompletion.replaceText(content.value, `@${file.path} `)
       content.value = updated
 
-      // 更新 DOM
+      // Update DOM
       if (textareaRef.value) {
         textareaRef.value.textContent = updated
         placeCaretAtEnd(textareaRef.value)
       }
 
-      // 触发输入事件
+      // Emit input event
       emit('input', updated)
     }
   },
   anchorElement: textareaRef
 })
 
-// 将光标移至末尾
+// Move the caret to the end
 function placeCaretAtEnd(node: HTMLElement) {
   const range = document.createRange()
   range.selectNodeContents(node)
@@ -342,7 +342,7 @@ function placeCaretAtEnd(node: HTMLElement) {
   selection?.addRange(range)
 }
 
-// 获取光标的客户端矩形
+// Get the caret's client rect
 function getCaretClientRect(editable: HTMLElement | null): DOMRect | undefined {
   if (!editable) return undefined
 
@@ -352,19 +352,19 @@ function getCaretClientRect(editable: HTMLElement | null): DOMRect | undefined {
   const range = sel.getRangeAt(0).cloneRange()
   if (!editable.contains(range.startContainer)) return undefined
 
-  // collapsed range 一般有 0 宽度，但有行高；用 getClientRects 优先
+  // Collapsed ranges usually have zero width but nonzero height; prefer getClientRects first
   const rects = range.getClientRects()
   const rect = rects[0] || range.getBoundingClientRect()
   if (!rect) return undefined
 
-  // 兜底行高，避免 0 高导致 Dropdown 内部计算异常
+  // Use fallback line height to avoid dropdown layout issues when height is zero
   const lh = parseFloat(getComputedStyle(editable).lineHeight || '0') || 16
   const height = rect.height || lh
 
   return new DOMRect(rect.left, rect.top, rect.width, height)
 }
 
-// 根据字符偏移获取矩形（用于锚定在触发词开头）
+// Get rect at character offset (used to anchor at the trigger start)
 function getRectAtCharOffset(editable: HTMLElement, charOffset: number): DOMRect | undefined {
   const walker = document.createTreeWalker(editable, NodeFilter.SHOW_TEXT)
   let remaining = charOffset
@@ -388,7 +388,7 @@ function getRectAtCharOffset(editable: HTMLElement, charOffset: number): DOMRect
   return undefined
 }
 
-// 更新 dropdown 位置
+// Update dropdown position
 function updateDropdownPosition(
   completion: typeof slashCompletion | typeof fileCompletion,
   anchor: 'caret' | 'queryStart' = 'queryStart'
@@ -398,17 +398,17 @@ function updateDropdownPosition(
 
   let rect: DOMRect | undefined
 
-  // 优先锚定在触发词开头
+  // Prefer anchoring at the trigger start
   if (anchor === 'queryStart' && completion.triggerQuery.value) {
     rect = getRectAtCharOffset(el, completion.triggerQuery.value.start)
   }
 
-  // 兜底：锚定在光标位置
+  // Fallback: anchor at the caret position
   if (!rect && anchor === 'caret') {
     rect = getCaretClientRect(el)
   }
 
-  // 最终兜底：使用输入框自身矩形
+  // Final fallback: use the input's own rect
   if (!rect) {
     const r = el.getBoundingClientRect()
     rect = new DOMRect(r.left, r.top, r.width, r.height)
@@ -426,7 +426,7 @@ function handleInput(event: Event) {
   const target = event.target as HTMLDivElement
   const textContent = target.textContent || ''
 
-  // 只有在完全没有内容时才清理 div
+  // Clear the div only when it is completely empty
   if (textContent.length === 0) {
     target.innerHTML = ''
   }
@@ -434,11 +434,11 @@ function handleInput(event: Event) {
   content.value = textContent
   emit('input', textContent)
 
-  // 评估补全（slash 和 @）
+  // Evaluate slash and @ completions
   slashCompletion.evaluateQuery(textContent)
   fileCompletion.evaluateQuery(textContent)
 
-  // 更新 dropdown 位置（锚定在触发词开头）
+  // Update dropdown position (anchor at trigger start)
   if (slashCompletion.isOpen.value) {
     nextTick(() => {
       updateDropdownPosition(slashCompletion, 'queryStart')
@@ -450,7 +450,7 @@ function handleInput(event: Event) {
     })
   }
 
-  // 自适应高度
+  // Auto resize the textarea
   autoResizeTextarea()
 }
 
@@ -460,20 +460,20 @@ function autoResizeTextarea() {
   nextTick(() => {
     const divElement = textareaRef.value!
 
-    // 重置高度以获取准确的 scrollHeight
+    // Reset height to measure scrollHeight accurately
     divElement.style.height = '20px'
 
-    // 计算所需高度
+    // Compute the required height
     const scrollHeight = divElement.scrollHeight
     const minHeight = 20
     const maxHeight = 240
 
     if (scrollHeight <= maxHeight) {
-      // 内容未超出最大高度，调整高度并隐藏滚动条
+      // Content fits within max height: adjust height and hide scrollbar
       divElement.style.height = Math.max(scrollHeight, minHeight) + 'px'
       divElement.style.overflowY = 'hidden'
     } else {
-      // 内容超出最大高度，设置最大高度并显示滚动条
+      // Content exceeds max height: cap height and show scrollbar
       divElement.style.height = maxHeight + 'px'
       divElement.style.overflowY = 'auto'
     }
@@ -481,25 +481,25 @@ function autoResizeTextarea() {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  // 优先处理补全菜单的键盘事件
+  // Let completion menus handle keyboard events first
   if (slashCompletion.isOpen.value) {
     slashCompletion.handleKeydown(event)
     return
   }
 
-  // 处理文件引用补全的键盘事件
+  // Handle keyboard events for file completions
   if (fileCompletion.isOpen.value) {
     fileCompletion.handleKeydown(event)
     return
   }
 
-  // 其他按键处理
+  // Handle other keys
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
     handleSubmit()
   }
 
-  // 延迟检查内容是否为空（在按键处理后）
+  // Delay checking for empty content (after key handling)
   if (event.key === 'Backspace' || event.key === 'Delete') {
     setTimeout(() => {
       const target = event.target as HTMLDivElement
@@ -535,12 +535,12 @@ function handlePaste(event: ClipboardEvent) {
 
   if (files.length > 0) {
     event.preventDefault()
-    // 创建 FileList-like 对象
+    // Create a FileList-like object
     const dataTransfer = new DataTransfer()
     for (const file of files) {
       dataTransfer.items.add(file)
     }
-    // 触发附件添加
+    // Trigger attachment addition
     handleAddFiles(dataTransfer.files)
   }
 }
@@ -549,14 +549,14 @@ function handleSubmit() {
   if (!content.value.trim()) return
 
   if (props.conversationWorking) {
-    // 对话工作中，添加到队列
+    // Conversation is working; queue the message
     emit('queueMessage', content.value)
   } else {
-    // 对话未工作，直接发送
+    // Conversation is idle; send immediately
     emit('submit', content.value)
   }
 
-  // 清空输入框
+  // Clear the input
   content.value = ''
   if (textareaRef.value) {
     textareaRef.value.textContent = ''
@@ -570,20 +570,20 @@ function handleStop() {
 function handleMention(filePath?: string) {
   if (!filePath) return
 
-  // 在光标位置插入 @文件路径
+  // Insert @file path at the caret position
   const updatedContent = content.value + `@${filePath} `
   content.value = updatedContent
 
-  // 更新 DOM
+  // Update the DOM
   if (textareaRef.value) {
     textareaRef.value.textContent = updatedContent
     placeCaretAtEnd(textareaRef.value)
   }
 
-  // 触发输入事件
+  // Emit an input event
   emit('input', updatedContent)
 
-  // 自动聚焦到输入框
+  // Automatically focus the input
   nextTick(() => {
     textareaRef.value?.focus()
   })
@@ -597,17 +597,17 @@ function handleRemoveAttachment(id: string) {
   emit('removeAttachment', id)
 }
 
-// 检查附件是否为图片
+// Check whether the attachment is an image
 function isImageAttachment(attachment: AttachmentItem): boolean {
   return IMAGE_MEDIA_TYPES.includes(attachment.mediaType as any)
 }
 
-// 获取图片的 data URL（用于预览）
+// Get the data URL for the image preview
 function getImageDataUrl(attachment: AttachmentItem): string {
   return `data:${attachment.mediaType};base64,${attachment.data}`
 }
 
-// 打开图片预览
+// Open the image preview
 function handlePreviewImage(attachment: AttachmentItem) {
   if (!isImageAttachment(attachment)) return
 
@@ -616,14 +616,14 @@ function handlePreviewImage(attachment: AttachmentItem) {
   previewVisible.value = true
 }
 
-// 关闭图片预览
+// Close the image preview
 function handleClosePreview() {
   previewVisible.value = false
   previewImageSrc.value = ''
   previewImageAlt.value = ''
 }
 
-// 监听光标位置变化（仅在下拉菜单已打开时更新位置，避免重复触发请求）
+// Watch caret position changes (only update while dropdown is open to avoid duplicate requests)
 function handleSelectionChange() {
   if (!content.value || !textareaRef.value) return
 
@@ -639,7 +639,7 @@ function handleSelectionChange() {
   }
 }
 
-// 添加/移除 selectionchange 监听
+// Add/remove selectionchange listener
 onMounted(() => {
   document.addEventListener('selectionchange', handleSelectionChange)
 })
@@ -648,9 +648,9 @@ onUnmounted(() => {
   document.removeEventListener('selectionchange', handleSelectionChange)
 })
 
-// 暴露方法：供父组件设置内容与聚焦
+// Expose methods for parents to set content and manage focus
 defineExpose({
-  /** 设置输入框内容并同步内部状态 */
+  /** Set the input content and sync the internal state */
   setContent(text: string) {
     content.value = text || ''
     if (textareaRef.value) {
@@ -658,12 +658,12 @@ defineExpose({
     }
     autoResizeTextarea()
   },
-  /** 聚焦到输入框，并将光标移动到最后一个字符 */
+  /** Focus the input and move the caret to the end */
   focus() {
     nextTick(() => {
       const el = textareaRef.value
       if (!el) return
-      // 先将光标移动到末尾，再聚焦，确保编辑时从最后一个字继续输入
+      // Move the caret to the end before focusing so editing resumes at the last character
       placeCaretAtEnd(el)
       el.focus()
     })
@@ -673,7 +673,7 @@ defineExpose({
 </script>
 
 <style scoped>
-/* 全局输入框容器：融合式设计 */
+/* Unified input container layout */
 .full-input-box {
   position: relative;
   display: flex;
@@ -685,13 +685,13 @@ defineExpose({
   transition: border-color 0.2s ease;
 }
 
-/* 聚焦时高亮边框 */
+/* Highlight border when focused */
 .full-input-box:focus-within {
   border-color: var(--vscode-focusBorder);
   outline: none;
 }
 
-/* 附件预览区域：横向滚动 */
+/* Attachment preview area with horizontal scroll */
 .attachments-scroll-view {
   display: flex;
   align-items: center;
@@ -702,7 +702,7 @@ defineExpose({
   scrollbar-width: thin;
 }
 
-/* 附件卡片基础样式 */
+/* Attachment card base styles */
 .attachment-card {
   position: relative;
   flex-shrink: 0;
@@ -718,7 +718,7 @@ defineExpose({
   border-color: var(--vscode-focusBorder);
 }
 
-/* 图片附件卡片 */
+/* Image attachment card */
 .attachment-card.is-image {
   width: 56px;
   height: 56px;
@@ -734,7 +734,7 @@ defineExpose({
   display: block;
 }
 
-/* 更多图片计数器 */
+/* More images counter */
 .attachment-card.more-count {
   display: flex;
   align-items: center;
@@ -750,14 +750,14 @@ defineExpose({
   opacity: 0.9;
 }
 
-/* 图片悬浮遮罩 */
+/* Image hover overlay */
 .attachment-overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.1);
   opacity: 0;
   transition: opacity 0.2s ease;
-  /* 改为 block 以便绝对定位子元素 */
+  /* Use block layout so absolutely positioned children align correctly */
   display: block;
 }
 
@@ -765,7 +765,7 @@ defineExpose({
   opacity: 1;
 }
 
-/* 删除按钮（图片） */
+/* Delete button (image) */
 .delete-btn {
   position: absolute;
   top: 2px;
@@ -791,7 +791,7 @@ defineExpose({
   font-size: 14px;
 }
 
-/* 文件附件卡片 (Chip 样式) */
+/* File chip-style card */
 .attachment-card.is-file {
   display: flex;
   align-items: center;
@@ -815,7 +815,7 @@ defineExpose({
   text-overflow: ellipsis;
 }
 
-/* 文件删除按钮 */
+/* File delete button */
 .delete-btn-file {
   background: none;
   border: none;
@@ -837,7 +837,7 @@ defineExpose({
   opacity: 1;
 }
 
-/* 输入框样式 */
+/* Input area styles */
 .aislash-editor-input {
   min-width: 0;
   line-height: 1.5;
@@ -856,12 +856,12 @@ defineExpose({
   pointer-events: none;
 }
 
-/* 按钮区域容器 */
+/* Button area container */
 .button-area-wrapper {
   padding: 2px 8px 6px 8px;
 }
 
-/* 隐藏横向滚动条 */
+/* Hide horizontal scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   height: 4px;
 }

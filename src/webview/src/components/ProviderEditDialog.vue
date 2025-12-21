@@ -2,32 +2,32 @@
   <div class="dialog-overlay" @click.self="$emit('close')">
     <div class="dialog-container">
       <div class="dialog-header">
-        <h3>编辑供应商</h3>
+        <h3>Edit Provider</h3>
         <button class="close-btn" @click="$emit('close')">
           <span class="codicon codicon-close"></span>
         </button>
       </div>
 
       <div class="dialog-body">
-        <p class="dialog-subtitle">更新配置后将立即应用到当前供应商。</p>
+        <p class="dialog-subtitle">Fixture changes take effect immediately.</p>
 
-        <!-- 表单部分 -->
+        <!-- Form section -->
         <div class="form-section">
           <div class="form-group">
             <label class="form-label">
-              供应商名称
+              Provider name
               <span class="required">*</span>
             </label>
             <input
               v-model="formData.name"
               type="text"
               class="form-input"
-              placeholder="输入供应商名称"
+              placeholder="Enter provider name"
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">官网链接</label>
+            <label class="form-label">Website</label>
             <div class="input-with-link">
               <input
                 v-model="formData.websiteUrl"
@@ -40,7 +40,7 @@
                 :href="formData.websiteUrl"
                 target="_blank"
                 class="link-btn"
-                title="访问官网"
+                title="Visit website"
               >
                 <span class="codicon codicon-link-external"></span>
               </a>
@@ -57,13 +57,13 @@
                 v-model="formData.apiKey"
                 :type="showApiKey ? 'text' : 'password'"
                 class="form-input"
-                placeholder="输入 API Key"
+                placeholder="Enter API key"
               />
               <button
                 type="button"
                 class="visibility-toggle"
                 @click="showApiKey = !showApiKey"
-                :title="showApiKey ? '隐藏' : '显示'"
+                :title="showApiKey ? 'Hide' : 'Show'"
               >
                 <span :class="['codicon', showApiKey ? 'codicon-eye-closed' : 'codicon-eye']"></span>
               </button>
@@ -72,7 +72,7 @@
 
           <div class="form-group">
             <label class="form-label">
-              请求地址 (API Endpoint)
+              Request URL (API Endpoint)
               <span class="required">*</span>
             </label>
             <div class="input-with-actions">
@@ -82,76 +82,76 @@
                 class="form-input"
                 placeholder="https://api.example.com"
               />
-              <!-- 测速功能暂时隐藏 -->
+              <!-- Speed test feature hidden for now -->
               <button
                 v-if="false"
                 class="test-btn"
                 @click="showSpeedTestDialog = true"
-                title="测速"
+                title="Test speed"
               >
                 <span class="codicon codicon-zap"></span>
-                测速
+                Test speed
               </button>
             </div>
             <p class="field-hint">
               <span class="codicon codicon-info"></span>
-              填写兼容 Claude API 的服务端点地址
+              Provide an endpoint URL compatible with the Claude API
             </p>
           </div>
 
-          <!-- 高级选项（可折叠） -->
+          <!-- Advanced options (collapsible) -->
           <details class="advanced-section">
             <summary class="advanced-toggle">
               <span class="codicon codicon-chevron-right"></span>
-              高级选项
+              Advanced options
             </summary>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">主模型</label>
+                 <label class="form-label">Main model</label>
                 <input
                   v-model="formData.mainModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-opus"
+                   placeholder="e.g., claude-3-opus"
                 />
               </div>
               <div class="form-group">
-                <label class="form-label">Haiku 默认模型</label>
+                 <label class="form-label">Haiku default model</label>
                 <input
                   v-model="formData.haikuModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-haiku"
+                   placeholder="e.g., claude-3-haiku"
                 />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Sonnet 默认模型</label>
+                 <label class="form-label">Sonnet default model</label>
                 <input
                   v-model="formData.sonnetModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-sonnet"
+                   placeholder="e.g., claude-3-sonnet"
                 />
               </div>
               <div class="form-group">
-                <label class="form-label">Opus 默认模型</label>
+                 <label class="form-label">Opus default model</label>
                 <input
                   v-model="formData.opusModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-opus"
+                   placeholder="e.g., claude-3-opus"
                 />
               </div>
             </div>
           </details>
 
-          <!-- JSON 配置编辑器 -->
+          <!-- JSON configuration editor -->
           <details class="advanced-section" open>
             <summary class="advanced-toggle">
               <span class="codicon codicon-chevron-right"></span>
-              配置 JSON
+              Configuration JSON
             </summary>
             <div class="json-config-section">
               <div class="json-editor-wrapper">
@@ -170,28 +170,28 @@
           </details>
         </div>
 
-        <!-- 统计信息（可选） -->
+        <!-- Statistics (optional) -->
         <div class="stats-section" v-if="showStats">
           <h4 class="stats-title">
             <span class="codicon codicon-graph"></span>
-            使用统计
+            Usage statistics
           </h4>
           <div class="stats-grid">
             <div class="stat-item">
-              <span class="stat-label">总请求数</span>
+              <span class="stat-label">Total requests</span>
               <span class="stat-value">{{ stats.totalRequests || 0 }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">成功率</span>
+              <span class="stat-label">Success rate</span>
               <span class="stat-value">{{ stats.successRate || '100%' }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">平均响应时间</span>
+              <span class="stat-label">Average response time</span>
               <span class="stat-value">{{ stats.avgResponseTime || '0ms' }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">最后使用</span>
-              <span class="stat-value">{{ stats.lastUsed || '未使用' }}</span>
+              <span class="stat-label">Last used</span>
+              <span class="stat-value">{{ stats.lastUsed || 'Not used yet' }}</span>
             </div>
           </div>
         </div>
@@ -202,26 +202,26 @@
           <button
             class="danger-btn"
             :disabled="totalProviders === 1"
-            :title="totalProviders === 1 ? '至少保留一个供应商' : '删除供应商'"
+            :title="totalProviders === 1 ? 'Keep at least one provider' : 'Remove provider'"
             @click="handleDelete"
           >
             <span class="codicon codicon-trash"></span>
-            删除供应商
+            Remove provider
           </button>
         </div>
         <div class="footer-right">
           <button class="cancel-btn" @click="$emit('close')">
-            取消
+            Cancel
           </button>
           <button class="save-btn" :disabled="!isValid" @click="handleSave">
             <span class="codicon codicon-save"></span>
-            保存更改
+            Save changes
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 端点测速对话框 -->
+    <!-- Endpoint speed test dialog -->
     <EndpointSpeedTestDialog
       v-if="showSpeedTestDialog"
       :initialUrl="formData.baseUrl || ''"
@@ -265,11 +265,15 @@ const formData = ref<Partial<ProviderConfig>>({
   opusModel: props.provider.opusModel
 });
 
-// JSON 配置
+// JSON configuration
 const jsonConfig = ref(JSON.stringify({
   env: {
     ANTHROPIC_AUTH_TOKEN: props.provider.apiKey || '',
-    ANTHROPIC_BASE_URL: props.provider.baseUrl || ''
+    ANTHROPIC_BASE_URL: props.provider.baseUrl || '',
+    ANTHROPIC_DEFAULT_MODEL: props.provider.mainModel || '',
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: props.provider.haikuModel || '',
+    ANTHROPIC_DEFAULT_SONNET_MODEL: props.provider.sonnetModel || '',
+    ANTHROPIC_DEFAULT_OPUS_MODEL: props.provider.opusModel || ''
   }
 }, null, 2));
 
@@ -277,17 +281,17 @@ const stats = ref({
   totalRequests: 0,
   successRate: '100%',
   avgResponseTime: '0ms',
-  lastUsed: '未使用'
+  lastUsed: 'Not used yet'
 });
 
-// 验证表单
+// Validate form
 const isValid = computed(() => {
   return formData.value.name &&
          formData.value.apiKey &&
          formData.value.baseUrl;
 });
 
-// 验证 URL
+// Validate URL
 function isValidUrl(url: string): boolean {
   try {
     new URL(url);
@@ -297,7 +301,7 @@ function isValidUrl(url: string): boolean {
   }
 }
 
-// 监听 provider 变化
+// Watch provider changes
 watch(
   () => props.provider,
   (newProvider) => {
@@ -312,75 +316,95 @@ watch(
       opusModel: newProvider.opusModel
     };
 
-    // 更新 JSON 配置
+    // Update JSON configuration
     jsonConfig.value = JSON.stringify({
       env: {
         ANTHROPIC_AUTH_TOKEN: newProvider.apiKey || '',
-        ANTHROPIC_BASE_URL: newProvider.baseUrl || ''
+        ANTHROPIC_BASE_URL: newProvider.baseUrl || '',
+        ANTHROPIC_DEFAULT_MODEL: newProvider.mainModel || '',
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: newProvider.haikuModel || '',
+        ANTHROPIC_DEFAULT_SONNET_MODEL: newProvider.sonnetModel || '',
+        ANTHROPIC_DEFAULT_OPUS_MODEL: newProvider.opusModel || ''
       }
     }, null, 2);
   }
 );
 
-// 监听表单字段变化，同步到 JSON
+// Watch form fields and sync to JSON
 watch(
-  () => [formData.value.apiKey, formData.value.baseUrl],
-  ([apiKey, baseUrl]) => {
+  () => [formData.value.apiKey, formData.value.baseUrl, formData.value.mainModel, formData.value.haikuModel, formData.value.sonnetModel, formData.value.opusModel],
+  ([apiKey, baseUrl, mainModel, haikuModel, sonnetModel, opusModel]) => {
     try {
       const config = JSON.parse(jsonConfig.value);
       if (!config.env) config.env = {};
       config.env.ANTHROPIC_AUTH_TOKEN = apiKey || '';
       config.env.ANTHROPIC_BASE_URL = baseUrl || '';
+      config.env.ANTHROPIC_DEFAULT_MODEL = mainModel || '';
+      config.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = haikuModel || '';
+      config.env.ANTHROPIC_DEFAULT_SONNET_MODEL = sonnetModel || '';
+      config.env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel || '';
       jsonConfig.value = JSON.stringify(config, null, 2);
     } catch (error) {
-      // 忽略解析错误
+      // Ignore parse errors
     }
   }
 );
 
-// JSON 配置变化处理
+// Handle JSON configuration changes
 function handleJsonChange() {
   jsonError.value = '';
   try {
     const config = JSON.parse(jsonConfig.value);
-    // 验证 JSON 格式
+    // Validate JSON format
     if (config.env) {
-      // 同步更新表单字段
-      if (config.env.ANTHROPIC_AUTH_TOKEN) {
+      // Sync values back to the form fields
+      if (config.env.ANTHROPIC_AUTH_TOKEN !== undefined) {
         formData.value.apiKey = config.env.ANTHROPIC_AUTH_TOKEN;
       }
-      if (config.env.ANTHROPIC_BASE_URL) {
+      if (config.env.ANTHROPIC_BASE_URL !== undefined) {
         formData.value.baseUrl = config.env.ANTHROPIC_BASE_URL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_MODEL !== undefined) {
+        formData.value.mainModel = config.env.ANTHROPIC_DEFAULT_MODEL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_HAIKU_MODEL !== undefined) {
+        formData.value.haikuModel = config.env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_SONNET_MODEL !== undefined) {
+        formData.value.sonnetModel = config.env.ANTHROPIC_DEFAULT_SONNET_MODEL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_OPUS_MODEL !== undefined) {
+        formData.value.opusModel = config.env.ANTHROPIC_DEFAULT_OPUS_MODEL;
       }
     }
   } catch (error) {
-    jsonError.value = error instanceof Error ? error.message : 'JSON 格式错误';
+    jsonError.value = error instanceof Error ? error.message : 'JSON format error';
   }
 }
 
-// 端点测速保存
+// Save endpoint speed test result
 function handleSpeedTestSave(url: string) {
   formData.value.baseUrl = url;
-  // 同步更新 JSON 配置
+  // Sync changes back to the JSON configuration
   try {
     const config = JSON.parse(jsonConfig.value);
     if (!config.env) config.env = {};
     config.env.ANTHROPIC_BASE_URL = url;
     jsonConfig.value = JSON.stringify(config, null, 2);
   } catch (error) {
-    // 忽略错误
+    // Ignore errors
   }
 }
 
-// 保存更改
+// Save changes
 function handleSave() {
   if (isValid.value) {
-    // 验证 JSON 配置
+    // Validate the JSON configuration
     if (jsonConfig.value.trim()) {
       try {
         JSON.parse(jsonConfig.value);
       } catch (error) {
-        jsonError.value = 'JSON 格式错误，请检查后再保存';
+        jsonError.value = 'Invalid JSON format. Please check and save again.';
         return;
       }
     }
@@ -388,9 +412,9 @@ function handleSave() {
   }
 }
 
-// 删除供应商
+// Delete provider
 function handleDelete() {
-  // 发出删除事件，让父组件处理确认逻辑
+  // Emit delete event so the parent handles confirmation
   emit('delete', props.provider.id);
 }
 </script>
@@ -477,7 +501,7 @@ function handleDelete() {
   margin: 0 0 20px 0;
 }
 
-/* 信息部分 */
+/* Info section */
 .info-section {
   display: flex;
   align-items: center;
@@ -508,7 +532,7 @@ function handleDelete() {
   color: var(--vscode-descriptionForeground);
 }
 
-/* 表单部分 */
+/* Form section */
 .form-section {
   margin-bottom: 20px;
 }
@@ -618,7 +642,7 @@ function handleDelete() {
   gap: 12px;
 }
 
-/* 高级选项 */
+/* Advanced options */
 .advanced-section {
   margin-top: 20px;
   border-top: 1px solid var(--vscode-panel-border);
@@ -649,7 +673,7 @@ function handleDelete() {
   transition: transform 0.2s;
 }
 
-/* JSON 配置部分 */
+/* JSON configuration section */
 .json-config-section {
   margin-top: 12px;
 }
@@ -691,7 +715,7 @@ function handleDelete() {
   color: var(--vscode-errorForeground);
 }
 
-/* 统计部分 */
+/* Statistics section */
 .stats-section {
   margin-top: 24px;
   padding-top: 20px;
@@ -737,7 +761,7 @@ function handleDelete() {
   color: var(--vscode-foreground);
 }
 
-/* 对话框底部 */
+/* Dialog footer */
 .dialog-footer {
   display: flex;
   justify-content: space-between;
@@ -806,7 +830,7 @@ function handleDelete() {
   cursor: not-allowed;
 }
 
-/* 响应式适配 - 360px 小屏幕 */
+/* Responsive - 360px screens */
 @media (max-width: 480px) {
   .dialog-container {
     width: 95%;

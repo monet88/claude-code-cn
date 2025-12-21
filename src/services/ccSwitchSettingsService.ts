@@ -464,10 +464,43 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         delete updates.category;
       }
 
+      const existingProvider = config.claude.providers[id];
+
+      // Deep merge settingsConfig to preserve nested properties like permissions
+      let mergedSettingsConfig = existingProvider.settingsConfig;
+      if (updates.settingsConfig) {
+        // 合并 env，处理 undefined 值（删除对应 key）
+        const mergedEnv = { ...existingProvider.settingsConfig?.env };
+        if (updates.settingsConfig?.env) {
+          for (const [key, value] of Object.entries(updates.settingsConfig.env)) {
+            if (value === undefined || value === '') {
+              // 删除空值或 undefined 的 key
+              delete mergedEnv[key];
+            } else {
+              mergedEnv[key] = value;
+            }
+          }
+        }
+
+        mergedSettingsConfig = {
+          ...existingProvider.settingsConfig,
+          ...updates.settingsConfig,
+          env: mergedEnv
+        };
+        // Preserve permissions if they exist
+        if (existingProvider.settingsConfig?.permissions) {
+          mergedSettingsConfig.permissions = {
+            ...existingProvider.settingsConfig.permissions,
+            ...updates.settingsConfig?.permissions
+          };
+        }
+      }
+
       // 更新供应商
       config.claude.providers[id] = {
-        ...config.claude.providers[id],
+        ...existingProvider,
         ...updates,
+        settingsConfig: mergedSettingsConfig,
         id // 保持 ID 不变
       };
 

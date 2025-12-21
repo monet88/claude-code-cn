@@ -383,7 +383,13 @@ export class ClaudeAgentService implements IClaudeAgentService {
                 inputStream,
                 resume,
                 async (toolName, input, options) => {
-                    // 工具权限回调：通过 RPC 请求 WebView 确认
+                    // Agent mode (acceptEdits): 自动允许所有工具，类似 --dangerously-skip-permissions
+                    if (permissionMode === 'acceptEdits') {
+                        this.logService.info(`🔧 [Agent Mode] 自动允许工具: ${toolName}`);
+                        return { behavior: 'allow' as const };
+                    }
+
+                    // 其他模式：通过 RPC 请求 WebView 确认
                     this.logService.info(`🔧 工具权限请求: ${toolName}`);
                     return this.requestToolPermission(
                         channelId,

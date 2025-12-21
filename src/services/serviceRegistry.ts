@@ -63,11 +63,11 @@ export function registerServices(
 	builder.define(IWebViewService, new SyncDescriptor(WebViewService, [context]));
 
 	// Claude services
+	builder.define(IClaudeSettingsService, new SyncDescriptor(ClaudeSettingsService));
+	builder.define(ICCSwitchSettingsService, new SyncDescriptor(CCSwitchSettingsService));
 	builder.define(IClaudeSdkService, new SyncDescriptor(ClaudeSdkService, [context]));
 	builder.define(IClaudeSessionService, new SyncDescriptor(ClaudeSessionService));
 	builder.define(IClaudeAgentService, new SyncDescriptor(ClaudeAgentService));
-	builder.define(IClaudeSettingsService, new SyncDescriptor(ClaudeSettingsService));
-	builder.define(ICCSwitchSettingsService, new SyncDescriptor(CCSwitchSettingsService));
 
 	// MCP service
 	builder.define(IMcpService, new SyncDescriptor(McpService));

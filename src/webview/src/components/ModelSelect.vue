@@ -16,25 +16,16 @@
 
     <template #content="{ close }">
       <DropdownItem
+        v-for="(option, index) in modelOptions"
+        :key="option.id"
         :item="{
-          id: 'claude-sonnet-4-5',
-          label: 'Sonnet 4.5',
-          checked: selectedModel === 'claude-sonnet-4-5',
+          id: option.id,
+          label: option.label,
+          checked: selectedModel === option.id,
           type: 'model'
         }"
-        :is-selected="selectedModel === 'claude-sonnet-4-5'"
-        :index="0"
-        @click="(item) => handleModelSelect(item, close)"
-      />
-      <DropdownItem
-        :item="{
-          id: 'claude-opus-4-5-20251101',
-          label: 'Opus 4.5',
-          checked: selectedModel === 'claude-opus-4-5-20251101',
-          type: 'model'
-        }"
-        :is-selected="selectedModel === 'claude-opus-4-5-20251101'"
-        :index="1"
+        :is-selected="selectedModel === option.id"
+        :index="index"
         @click="(item) => handleModelSelect(item, close)"
       />
     </template>
@@ -44,6 +35,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DropdownTrigger, DropdownItem, type DropdownItemData } from './Dropdown'
+import { useProviderStore } from '../stores/providerStore'
 
 interface Props {
   selectedModel?: string
@@ -54,20 +46,60 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  selectedModel: 'claude-sonnet-4-5'
+  selectedModel: 'default'
 })
 
 const emit = defineEmits<Emits>()
+const providerStore = useProviderStore()
 
-// 计算显示的模型名称
+// Get model options from active provider or use defaults
+const modelOptions = computed(() => {
+  const activeProvider = providerStore.activeProvider
+  const options: Array<{ id: string; label: string }> = []
+
+  // Always add "Default" option first - uses provider's ANTHROPIC_DEFAULT_MODEL
+  options.push({ id: 'default', label: 'Default' })
+
+  if (activeProvider?.haikuModel) {
+    options.push({ id: activeProvider.haikuModel, label: 'Haiku' })
+  }
+  if (activeProvider?.sonnetModel) {
+    options.push({ id: activeProvider.sonnetModel, label: 'Sonnet' })
+  }
+  if (activeProvider?.opusModel) {
+    options.push({ id: activeProvider.opusModel, label: 'Opus' })
+  }
+
+  // If only "Default" option (no custom models), add fallback options
+  if (options.length === 1) {
+    options.push(
+      { id: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
+      { id: 'claude-opus-4-5-20251101', label: 'Opus 4.5' }
+    )
+  }
+
+  return options
+})
+
+// Compute the display name for the model
 const selectedModelLabel = computed(() => {
+  // Handle "default" specially
+  if (props.selectedModel === 'default') {
+    return 'Default'
+  }
+
+  const option = modelOptions.value.find(o => o.id === props.selectedModel)
+  if (option) return option.label
+
+  // Fallback labels for known models
   switch (props.selectedModel) {
     case 'claude-sonnet-4-5':
       return 'Sonnet 4.5'
     case 'claude-opus-4-5-20251101':
       return 'Opus 4.5'
     default:
-      return 'Sonnet 4.5'
+      // Show model ID if unknown
+      return props.selectedModel || 'Default'
   }
 })
 
@@ -75,13 +107,13 @@ function handleModelSelect(item: DropdownItemData, close: () => void) {
   console.log('Selected model:', item)
   close()
 
-  // 发送模型切换事件
+  // Emit a model switch event
   emit('modelSelect', item.id)
 }
 </script>
 
 <style scoped>
-/* Model 下拉样式 - 简洁透明样式 */
+/* Model dropdown styling - sleek transparent look */
 .model-dropdown {
   display: flex;
   gap: 4px;
@@ -104,7 +136,7 @@ function handleModelSelect(item: DropdownItemData, close: () => void) {
   background-color: var(--vscode-inputOption-hoverBackground);
 }
 
-/* 共享的 Dropdown 样式 */
+/* Shared Dropdown styles */
 .dropdown-content {
   display: flex;
   align-items: center;

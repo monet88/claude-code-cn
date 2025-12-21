@@ -46,10 +46,9 @@ export interface IClaudeSettingsService {
 
   /**
    * 更新供应商配置
-   * @param apiKey API Key
-   * @param baseUrl API 基础 URL
+   * @param env 环境变量配置对象
    */
-  updateProvider(apiKey: string, baseUrl: string): Promise<void>;
+  updateProvider(env: Record<string, string | undefined>): Promise<void>;
 
   /**
    * 获取当前供应商配置
@@ -128,20 +127,28 @@ export class ClaudeSettingsService implements IClaudeSettingsService {
   /**
    * 更新供应商配置
    */
-  async updateProvider(apiKey: string, baseUrl: string): Promise<void> {
+  async updateProvider(env: Record<string, string | undefined>): Promise<void> {
     try {
       // 读取当前配置
       const settings = await this.readSettings();
 
-      // 更新环境变量
+      // 更新环境变量 - 合并新的 env 到现有配置
       settings.env = settings.env || {};
-      settings.env.ANTHROPIC_AUTH_TOKEN = apiKey;
-      settings.env.ANTHROPIC_BASE_URL = baseUrl;
+      
+      // 遍历新的 env 对象，更新或删除值
+      for (const [key, value] of Object.entries(env)) {
+        if (value !== undefined && value !== '') {
+          settings.env[key] = value;
+        } else {
+          // 如果值为空或 undefined，删除该 key
+          delete settings.env[key];
+        }
+      }
 
       // 写回配置文件
       await this.writeSettings(settings);
 
-      this.logService.info(`Successfully updated Claude provider: ${baseUrl}`);
+      this.logService.info(`Successfully updated Claude provider settings`);
     } catch (error) {
       this.logService.error(`Failed to update Claude provider: ${error}`);
       throw error;

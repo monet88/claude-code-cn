@@ -19,7 +19,7 @@
       <DropdownItem
         :item="{
           id: 'default',
-          label: '默认模式',
+          label: 'Default',
           icon: 'codicon-chat text-[14px]!',
           checked: permissionMode === 'default',
           type: 'default-mode'
@@ -31,7 +31,7 @@
       <DropdownItem
         :item="{
           id: 'acceptEdits',
-          label: '代理模式',
+          label: 'Agent',
           icon: 'codicon-infinity text-[14px]!',
           checked: permissionMode === 'acceptEdits',
           type: 'agent-mode'
@@ -43,7 +43,7 @@
       <DropdownItem
         :item="{
           id: 'plan',
-          label: '规划模式',
+          label: 'Plan',
           icon: 'codicon-todos text-[14px]!',
           checked: permissionMode === 'plan',
           type: 'plan-mode'
@@ -75,21 +75,21 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// 计算显示的模式名称
+// Compute the display name for each mode
 const selectedModeLabel = computed(() => {
   switch (props.permissionMode) {
     case 'acceptEdits':
-      return '代理模式'
+      return 'Proxy mode'
     case 'plan':
-      return '规划模式'
+      return 'Plan mode'
     case 'default':
-      return '默认模式'
+      return 'Default mode'
     default:
-      return '默认模式'
+      return 'Default mode'
   }
 })
 
-// 计算显示的图标
+// Compute the display icon
 const selectedModeIcon = computed(() => {
   switch (props.permissionMode) {
     case 'acceptEdits':
@@ -107,13 +107,13 @@ function handleModeSelect(item: DropdownItemData, close: () => void) {
   console.log('Selected mode:', item)
   close()
 
-  // 发送模式切换事件
+  // Emit mode switch events
   emit('modeSelect', item.id as PermissionMode)
 }
 </script>
 
 <style scoped>
-/* Mode 下拉样式 - 匹配 Agent 按钮样式 */
+/* Mode dropdown styles - match the agent buttons */
 .mode-dropdown {
   display: flex;
   gap: 4px;

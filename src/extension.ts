@@ -71,7 +71,11 @@ export function activate(context: vscode.ExtensionContext) {
 						baseUrl: p.settingsConfig.env.ANTHROPIC_BASE_URL || '',
 						websiteUrl: p.websiteUrl,
 						isActive: false, // 将在下面设置
-						createdAt: p.createdAt
+						createdAt: p.createdAt,
+						mainModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_MODEL || '',
+						haikuModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
+						sonnetModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_SONNET_MODEL || '',
+						opusModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
 					}));
 
 					// 获取当前激活的供应商
@@ -94,16 +98,29 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (message.type === 'addProvider') {
 				try {
+					// 构建 env 对象，只包含有值的字段
+					const env: Record<string, string> = {
+						ANTHROPIC_AUTH_TOKEN: message.payload.apiKey,
+						ANTHROPIC_BASE_URL: message.payload.baseUrl
+					};
+					if (message.payload.mainModel) {
+						env.ANTHROPIC_DEFAULT_MODEL = message.payload.mainModel;
+					}
+					if (message.payload.haikuModel) {
+						env.ANTHROPIC_DEFAULT_HAIKU_MODEL = message.payload.haikuModel;
+					}
+					if (message.payload.sonnetModel) {
+						env.ANTHROPIC_DEFAULT_SONNET_MODEL = message.payload.sonnetModel;
+					}
+					if (message.payload.opusModel) {
+						env.ANTHROPIC_DEFAULT_OPUS_MODEL = message.payload.opusModel;
+					}
+
 					// 转换前端格式到 CC Switch 格式
 					const provider: ClaudeProvider = {
 						id: `provider_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 						name: message.payload.name,
-						settingsConfig: {
-							env: {
-								ANTHROPIC_AUTH_TOKEN: message.payload.apiKey,
-								ANTHROPIC_BASE_URL: message.payload.baseUrl
-							}
-						},
+						settingsConfig: { env },
 						websiteUrl: message.payload.websiteUrl,
 						category: 'custom',
 						createdAt: Date.now()
@@ -127,16 +144,23 @@ export function activate(context: vscode.ExtensionContext) {
 			if (message.type === 'updateProvider') {
 				try {
 					const { id, updates } = message.payload;
+
+					// 构建 env 对象，只包含有值的字段
+					const env: Record<string, string | undefined> = {
+						ANTHROPIC_AUTH_TOKEN: updates.apiKey,
+						ANTHROPIC_BASE_URL: updates.baseUrl
+					};
+					// 对于 model 字段，空字符串表示删除，有值表示设置
+					env.ANTHROPIC_DEFAULT_MODEL = updates.mainModel || undefined;
+					env.ANTHROPIC_DEFAULT_HAIKU_MODEL = updates.haikuModel || undefined;
+					env.ANTHROPIC_DEFAULT_SONNET_MODEL = updates.sonnetModel || undefined;
+					env.ANTHROPIC_DEFAULT_OPUS_MODEL = updates.opusModel || undefined;
+
 					// 转换更新数据到 CC Switch 格式
 					const providerUpdates: Partial<ClaudeProvider> = {
 						name: updates.name,
 						websiteUrl: updates.websiteUrl,
-						settingsConfig: {
-							env: {
-								ANTHROPIC_AUTH_TOKEN: updates.apiKey,
-								ANTHROPIC_BASE_URL: updates.baseUrl
-							}
-						}
+						settingsConfig: { env }
 					};
 
 					await ccSwitchSettingsService.updateClaudeProvider(id, providerUpdates);
@@ -183,7 +207,11 @@ export function activate(context: vscode.ExtensionContext) {
 							apiKey: activeProvider.settingsConfig.env.ANTHROPIC_AUTH_TOKEN || '',
 							baseUrl: activeProvider.settingsConfig.env.ANTHROPIC_BASE_URL || '',
 							websiteUrl: activeProvider.websiteUrl,
-							isActive: true
+							isActive: true,
+							mainModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_MODEL || '',
+							haikuModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
+							sonnetModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_SONNET_MODEL || '',
+							opusModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
 						};
 						webViewService.postMessage({
 							type: 'activeProviderData',
@@ -204,19 +232,10 @@ export function activate(context: vscode.ExtensionContext) {
 			if (message.type === 'switchProvider') {
 				try {
 					const { id } = message.payload;
-					// 1. 切换到新的供应商
+					// 1. 切换到新的供应商（只更新 cc-switch config，不修改 ~/.claude/settings.json）
 					await ccSwitchSettingsService.switchClaudeProvider(id);
 
-					// 2. 获取新供应商的配置
-					const provider = await ccSwitchSettingsService.getActiveClaudeProvider();
-					if (provider) {
-						// 3. 更新 Claude settings.json
-						const apiKey = provider.settingsConfig.env.ANTHROPIC_AUTH_TOKEN || '';
-						const baseUrl = provider.settingsConfig.env.ANTHROPIC_BASE_URL || '';
-						await claudeSettingsService.updateProvider(apiKey, baseUrl);
-					}
-
-					// 4. 关闭所有现有会话，以便使用新的供应商配置
+					// 2. 关闭所有现有会话，新会话将通过 env overlay 使用新的 provider 配置
 					await claudeAgentService.closeAllChannelsWithCredentialChange();
 					logService.info('已关闭所有现有会话，供应商切换完成');
 

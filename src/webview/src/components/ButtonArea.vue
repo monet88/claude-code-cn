@@ -24,22 +24,22 @@
           :percentage="normalizedProgress"
         />
 
-        <!-- Thinking Toggle Button - 已隐藏 -->
+        <!-- Thinking toggle button (hidden) -->
         <!-- <button
           class="action-button think-button"
           :class="{ 'thinking-active': isThinkingOn }"
           @click="handleThinkingToggle"
-          :aria-label="isThinkingOn ? '思考模式开启' : '思考模式关闭'"
-          :title="isThinkingOn ? '思考模式开启' : '思考模式关闭'"
+          :aria-label="isThinkingOn ? 'Thinking mode on' : 'Thinking mode off'"
+          :title="isThinkingOn ? 'Thinking mode on' : 'Thinking mode off'"
         >
           <span class="codicon codicon-brain text-[16px]!" />
         </button> -->
 
-        <!-- Command Button with Dropdown - 已隐藏 -->
+        <!-- Command button with dropdown (hidden) -->
         <!-- <DropdownTrigger
           ref="commandDropdownRef"
           :show-search="true"
-          :search-placeholder="'筛选命令...'"
+          :search-placeholder="'Filter commands...'"
           align="left"
           :selected-index="commandCompletion.activeIndex.value"
           :data-nav="commandCompletion.navigationMode.value"
@@ -50,7 +50,7 @@
           <template #trigger>
             <button
               class="action-button"
-              :aria-label="'斜杠命令'"
+              :aria-label="'Slash command'"
             >
               <span class="codicon codicon-italic text-[16px]!" />
             </button>
@@ -74,11 +74,11 @@
           </template>
         </DropdownTrigger> -->
 
-        <!-- Mention Button with Dropdown - 已隐藏 -->
+        <!-- Mention button with dropdown (hidden) -->
         <!-- <DropdownTrigger
           ref="mentionDropdownRef"
           :show-search="true"
-          :search-placeholder="'搜索文件...'"
+          :search-placeholder="'Search files...'"
           align="left"
           :selected-index="fileCompletion.activeIndex.value"
           :data-nav="fileCompletion.navigationMode.value"
@@ -89,7 +89,7 @@
           <template #trigger>
             <button
               class="action-button"
-              :aria-label="'引用文件'"
+              :aria-label="'Reference file'"
             >
               <span class="codicon codicon-mention text-[16px]!" />
             </button>
@@ -114,11 +114,11 @@
           </template>
         </DropdownTrigger> -->
 
-        <!-- Sparkle Button - 已隐藏 -->
+        <!-- Sparkle button (hidden) -->
         <!-- <button
           class="action-button"
           @click="handleSparkleClick"
-          :aria-label="'智能建议'"
+          :aria-label="'Smart suggestions'"
         >
           <span class="codicon codicon-wand text-[16px]!" />
         </button> -->
@@ -127,7 +127,7 @@
         <button
           class="action-button"
           @click="handleAttachClick"
-          :aria-label="'添加附件'"
+          :aria-label="'Add attachment'"
           :disabled="isActionDisabled"
         >
           <span class="codicon codicon-attach text-[16px]!" />
@@ -146,7 +146,7 @@
           @click="handleSubmit"
           :disabled="submitVariant === 'disabled'"
           :data-variant="submitVariant"
-          :aria-label="submitVariant === 'stop' ? '停止对话' : '发送消息'"
+          :aria-label="submitVariant === 'stop' ? 'Stop conversation' : 'Send message'"
         >
           <span
             v-if="submitVariant === 'stop'"
@@ -202,7 +202,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   loading: false,
-  selectedModel: 'claude-sonnet-4-5',
+  selectedModel: 'default',
   conversationWorking: false,
   hasInputContent: false,
   showProgress: true,
@@ -217,34 +217,34 @@ const fileInputRef = ref<HTMLInputElement>()
 const commandDropdownRef = ref<InstanceType<typeof DropdownTrigger>>()
 const mentionDropdownRef = ref<InstanceType<typeof DropdownTrigger>>()
 
-// 获取 runtime 以访问 CommandRegistry
+// Get runtime to access CommandRegistry
 const runtime = inject(RuntimeKey)
 
-// === 使用新的 Completion Dropdown Composable ===
+// === Using the new Completion Dropdown composable ===
 
-// Slash Command 补全
+// Slash command completion
 const commandCompletion = useCompletionDropdown({
   mode: 'manual',
   provider: (query, signal) => getSlashCommands(query, runtime, signal),
   toDropdownItem: commandToDropdownItem,
   onSelect: (command) => {
-    // 执行命令
+    // Execute the command
     if (runtime) {
       runtime.appContext.commandRegistry.executeCommand(command.id)
     }
     commandCompletion.close()
   },
-  showSectionHeaders: false, // 目前不显示分组，保持简洁
+  showSectionHeaders: false, // Section headers are hidden for simplicity
   searchFields: ['label', 'description']
 })
 
-// @ 文件引用补全
+// @ file reference completion
 const fileCompletion = useCompletionDropdown({
   mode: 'manual',
   provider: (query, signal) => getFileReferences(query, runtime, signal),
   toDropdownItem: fileToDropdownItem,
   onSelect: (file) => {
-    // 触发 mention 事件并传递文件路径
+    // Emit a mention event with the file path
     emit('mention', file.path)
     fileCompletion.close()
   },
@@ -266,7 +266,7 @@ const shouldShowTokenIndicator = computed(() => props.showProgress)
 const isThinkingOn = computed(() => props.thinkingLevel !== 'off')
 
 const submitVariant = computed(() => {
-  // 对齐 React：busy 时始终显示停止按钮
+  // Match React: always show the stop button while busy
   if (props.conversationWorking) {
     return 'stop'
   }
@@ -275,12 +275,12 @@ const submitVariant = computed(() => {
     return 'disabled'
   }
 
-  // 未 busy 且无输入 -> 禁用
+  // Disabled when not busy and there is no input
   if (!props.hasInputContent) {
     return 'disabled'
   }
 
-  // 其余 -> 可发送
+  // Otherwise allow sending
   return 'enabled'
 })
 
@@ -296,16 +296,16 @@ function handleSubmit() {
 function handleCommandClick(item: any, close: () => void) {
   console.log('Command clicked:', item)
 
-  // 使用 commandCompletion 选择命令
+  // Use commandCompletion to choose the command
   if (item.data?.command) {
-    // 找到命令在列表中的索引并选择
+    // Find the command index in the list and select it
     const index = commandCompletion.items.value.findIndex(i => i.id === item.id)
     if (index !== -1) {
       commandCompletion.selectIndex(index)
     }
   }
 
-  // 关闭菜单
+  // Close the menu
   close()
 }
 
@@ -313,17 +313,17 @@ function handleCommandClick(item: any, close: () => void) {
 function handleFileClick(item: any, close: () => void) {
   console.log('File clicked:', item)
 
-  // 使用 fileCompletion 选择文件
+  // Use fileCompletion to select the file
   if (item.data?.file) {
     const index = fileCompletion.items.value.findIndex(i => i.id === item.id)
     if (index !== -1) {
-      // 先设置 activeIndex，再调用 selectActive
+      // Set activeIndex first, then call selectActive
       fileCompletion.activeIndex.value = index
       fileCompletion.selectActive()
     }
   }
 
-  // 关闭菜单
+  // Close the menu
   close()
 }
 
@@ -343,55 +343,55 @@ function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     emit('addAttachment', target.files)
-    // 清空 input，允许重复选择同一文件
+    // Clear the input so the same file can be chosen again
     target.value = ''
   }
 }
 
-// Command dropdown - 打开时的处理
+// Command dropdown - open handling
 function handleDropdownOpen() {
   commandCompletion.open()
-  // 添加键盘事件监听
+  // Add keyboard event listeners
   document.addEventListener('keydown', handleCommandKeydown)
 }
 
-// Command dropdown - 关闭时的处理
+// Command dropdown - close handling
 function handleDropdownClose() {
   commandCompletion.close()
-  // 移除键盘事件监听
+  // Remove keyboard event listeners
   document.removeEventListener('keydown', handleCommandKeydown)
 }
 
-// Command dropdown - 搜索事件处理
+// Command dropdown - search handling
 function handleSearch(term: string) {
   commandCompletion.handleSearch(term)
 }
 
-// Command dropdown - 键盘事件处理
+// Command dropdown - keyboard handling
 function handleCommandKeydown(event: KeyboardEvent) {
   commandCompletion.handleKeydown(event)
 }
 
-// Mention dropdown - 打开时的处理
+// Mention dropdown - open handling
 function handleMentionDropdownOpen() {
   fileCompletion.open()
-  // 添加键盘事件监听
+  // Add keyboard event listeners
   document.addEventListener('keydown', handleMentionKeydown)
 }
 
-// Mention dropdown - 关闭时的处理
+// Mention dropdown - close handling
 function handleMentionDropdownClose() {
   fileCompletion.close()
-  // 移除键盘事件监听
+  // Remove keyboard event listeners
   document.removeEventListener('keydown', handleMentionKeydown)
 }
 
-// Mention dropdown - 搜索事件处理
+// Mention dropdown - search handling
 function handleMentionSearch(term: string) {
   fileCompletion.handleSearch(term)
 }
 
-// Mention dropdown - 键盘事件处理
+// Mention dropdown - keyboard handling
 function handleMentionKeydown(event: KeyboardEvent) {
   fileCompletion.handleKeydown(event)
 }
@@ -473,12 +473,12 @@ function handleMentionKeydown(event: KeyboardEvent) {
   opacity: 1;
 }
 
-/* Think 按钮专用：取消 hover opacity 效果，避免 off 状态下的误解 */
+/* Think button detail: remove hover opacity to prevent confusion when off */
 .action-button.think-button:hover:not(.thinking-active) {
-  opacity: 0.5; /* 保持默认 opacity，不增加到 1 */
+  opacity: 0.5; /* Keep base opacity without ramping to 1 */
 }
 
-/* 激活状态下的 hover 可以保持 */
+/* Hover behavior can remain when active */
 .action-button.think-button.thinking-active:hover {
   opacity: 1;
 }

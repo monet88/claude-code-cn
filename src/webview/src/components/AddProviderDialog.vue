@@ -2,25 +2,25 @@
   <div class="dialog-overlay" @click.self="$emit('close')">
     <div class="dialog-container">
       <div class="dialog-header">
-        <h3>添加 Claude Code 供应商</h3>
+        <h3>Add Claude Code Provider</h3>
         <button class="close-btn" @click="$emit('close')">
           <span class="codicon codicon-close"></span>
         </button>
       </div>
 
       <div class="dialog-body">
-        <p class="dialog-subtitle">配置API密钥、模型选择、代理等基础设置</p>
+        <p class="dialog-subtitle">Configure API key, model selection, proxy, and other foundational settings</p>
 
-        <!-- 预设供应商选择器 - 暂时隐藏 -->
+        <!-- Preset provider selector - temporarily hidden -->
         <!-- <div class="preset-section">
-          <h4 class="preset-title">选择预设模板</h4>
+          <h4 class="preset-title">Choose a preset template</h4>
 
           <button
             :class="['preset-btn', 'preset-btn-custom', { selected: selectedPreset === 'custom' }]"
             @click="handleSelectCustom"
           >
             <span class="codicon codicon-settings-gear"></span>
-            自定义配置
+            Custom configuration
           </button>
 
           <div v-if="selectedCategory" class="category-hint">
@@ -32,7 +32,7 @@
             <div v-if="groupedProviders.official?.length" class="category-group">
               <h5 class="category-label">
                 <span class="codicon codicon-verified-filled"></span>
-                官方供应商
+                Official providers
               </h5>
               <div class="preset-grid">
                 <button
@@ -51,7 +51,7 @@
             <div v-if="groupedProviders.cn_official?.length" class="category-group">
               <h5 class="category-label">
                 <span class="codicon codicon-globe"></span>
-                国产官方
+                Domestic official
               </h5>
               <div class="preset-grid">
                 <button
@@ -71,7 +71,7 @@
             <div v-if="groupedProviders.aggregator?.length" class="category-group">
               <h5 class="category-label">
                 <span class="codicon codicon-layers"></span>
-                聚合服务
+                Aggregator services
               </h5>
               <div class="preset-grid">
                 <button
@@ -94,7 +94,7 @@
             <div v-if="groupedProviders.third_party?.length" class="category-group">
               <h5 class="category-label">
                 <span class="codicon codicon-plug"></span>
-                第三方供应商
+                Third-party providers
               </h5>
               <div class="preset-grid">
                 <button
@@ -112,23 +112,23 @@
           </div>
         </div> -->
 
-        <!-- 表单 -->
+        <!-- Form -->
         <div class="form-section">
           <div class="form-group">
             <label class="form-label">
-              供应商名称
+              Provider name
               <span class="required">*</span>
             </label>
             <input
               v-model="formData.name"
               type="text"
               class="form-input"
-              placeholder="例如：Claude 官方"
+              placeholder="e.g., Claude Official"
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">官网链接</label>
+            <label class="form-label">Official website</label>
             <div class="input-with-link">
               <input
                 v-model="formData.websiteUrl"
@@ -141,7 +141,7 @@
                 :href="formData.websiteUrl"
                 target="_blank"
                 class="link-btn"
-                title="访问官网"
+                title="Visit website"
               >
                 <span class="codicon codicon-link-external"></span>
               </a>
@@ -158,13 +158,13 @@
                 v-model="formData.apiKey"
                 :type="showApiKey ? 'text' : 'password'"
                 class="form-input"
-                placeholder="输入 API Key"
+                placeholder="Enter API key"
               />
               <button
                 type="button"
                 class="visibility-toggle"
                 @click="showApiKey = !showApiKey"
-                :title="showApiKey ? '隐藏' : '显示'"
+                :title="showApiKey ? 'Hide' : 'Show'"
               >
                 <span :class="['codicon', showApiKey ? 'codicon-eye-closed' : 'codicon-eye']"></span>
               </button>
@@ -177,7 +177,7 @@
 
           <div class="form-group">
             <label class="form-label">
-              请求地址 (API Endpoint)
+              Request URL (API Endpoint)
               <span class="required">*</span>
             </label>
             <div class="input-with-actions">
@@ -187,16 +187,16 @@
                 class="form-input"
                 placeholder="https://api.example.com"
               />
-              <!-- 测速功能暂时隐藏 -->
+              <!-- Speed test feature hidden for now -->
               <button
                 v-if="false"
                 class="test-btn"
                 type="button"
                 @click="showSpeedTestDialog = true"
-                title="测速"
+                title="Test speed"
               >
                 <span class="codicon codicon-zap"></span>
-                测速
+                Test speed
               </button>
             </div>
             <p v-if="baseUrlHint" class="field-hint">
@@ -205,59 +205,59 @@
             </p>
           </div>
 
-          <!-- 高级选项（可折叠） -->
+          <!-- Advanced options (collapsible) -->
           <details class="advanced-section">
             <summary class="advanced-toggle">
               <span class="codicon codicon-chevron-right"></span>
-              高级选项
+              Advanced options
             </summary>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">主模型</label>
+                <label class="form-label">Main model</label>
                 <input
                   v-model="formData.mainModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-opus"
+                  placeholder="e.g., claude-3-opus"
                 />
               </div>
               <div class="form-group">
-                <label class="form-label">Haiku 默认模型</label>
+                <label class="form-label">Haiku default model</label>
                 <input
                   v-model="formData.haikuModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-haiku"
+                  placeholder="e.g., claude-3-haiku"
                 />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Sonnet 默认模型</label>
+                <label class="form-label">Sonnet default model</label>
                 <input
                   v-model="formData.sonnetModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-sonnet"
+                  placeholder="e.g., claude-3-sonnet"
                 />
               </div>
               <div class="form-group">
-                <label class="form-label">Opus 默认模型</label>
+                <label class="form-label">Opus default model</label>
                 <input
                   v-model="formData.opusModel"
                   type="text"
                   class="form-input"
-                  placeholder="例如：claude-3-opus"
+                  placeholder="e.g., claude-3-opus"
                 />
               </div>
             </div>
           </details>
 
-          <!-- JSON 配置编辑器 -->
+          <!-- JSON configuration editor -->
           <details class="advanced-section" open>
             <summary class="advanced-toggle">
               <span class="codicon codicon-chevron-right"></span>
-              配置 JSON
+              Configuration JSON
             </summary>
             <div class="json-config-section">
               <div class="json-editor-wrapper">
@@ -279,16 +279,16 @@
 
       <div class="dialog-footer">
         <button class="cancel-btn" @click="$emit('close')">
-          取消
+          Cancel
         </button>
         <button class="add-btn" :disabled="!isValid" @click="handleAdd">
           <span class="codicon codicon-add"></span>
-          添加供应商
+          Add provider
         </button>
       </div>
     </div>
 
-    <!-- 端点测速对话框 -->
+    <!-- Endpoint speed test dialog -->
     <EndpointSpeedTestDialog
       v-if="showSpeedTestDialog"
       :initialUrl="formData.baseUrl || ''"
@@ -310,7 +310,7 @@ const emit = defineEmits<{
   add: [provider: ProviderConfig];
 }>();
 
-// 分组预设供应商
+// Group preset providers
 const groupedProviders = computed(() => {
   const grouped: Record<string, PresetProvider[]> = {};
   PRESET_PROVIDERS.forEach(preset => {
@@ -340,22 +340,26 @@ const formData = ref<Partial<ProviderConfig>>({
   opusModel: ''
 });
 
-// JSON 配置
+// JSON configuration
 const jsonConfig = ref(JSON.stringify({
   env: {
     ANTHROPIC_AUTH_TOKEN: '',
-    ANTHROPIC_BASE_URL: ''
+    ANTHROPIC_BASE_URL: '',
+    ANTHROPIC_DEFAULT_MODEL: '',
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: '',
+    ANTHROPIC_DEFAULT_SONNET_MODEL: '',
+    ANTHROPIC_DEFAULT_OPUS_MODEL: ''
   }
 }, null, 2));
 
-// 验证表单
+// Validate form
 const isValid = computed(() => {
   return formData.value.name &&
          formData.value.apiKey &&
          formData.value.baseUrl;
 });
 
-// 验证 URL
+// Validate URL
 function isValidUrl(url: string): boolean {
   try {
     new URL(url);
@@ -365,49 +369,49 @@ function isValidUrl(url: string): boolean {
   }
 }
 
-// 获取分类提示
+// Get category hints
 function getCategoryHint(category: ProviderCategory): string {
   switch (category) {
     case 'official':
-      return '官方供应商使用官方 API，需要国外信用卡支付';
+      return 'Official providers use the official API and may require an international credit card.';
     case 'cn_official':
-      return '国产官方供应商只需填写 API Key，请求地址已预设';
+      return 'Domestic official providers only need to enter the API key; the endpoint is preconfigured.';
     case 'aggregator':
-      return '聚合服务供应商只需填写 API Key 即可使用';
+      return 'Aggregator services work with just an API key.';
     case 'third_party':
-      return '第三方供应商需要填写 API Key 和请求地址';
+      return 'Third-party providers require both an API key and an endpoint URL.';
     case 'custom':
     default:
-      return '自定义配置需手动填写所有必要字段';
+      return 'Custom configurations require manually filling in every required field.';
   }
 }
 
-// API Key 提示
+// API key hints
 const apiKeyHint = computed(() => {
   if (selectedCategory.value === 'official') {
-    return '需要在 Anthropic 官网申请 API Key';
+    return 'Requires an API key from the Anthropic website.';
   }
   if (selectedCategory.value === 'cn_official') {
-    return '在供应商官网申请 API Key';
+    return "Apply for an API key on the provider's website.";
   }
   if (selectedCategory.value === 'aggregator') {
-    return '在聚合服务平台获取 API Key';
+    return 'Obtain an API key from the aggregator platform.';
   }
   return '';
 });
 
-// Base URL 提示
+// Base URL hints
 const baseUrlHint = computed(() => {
   if (selectedCategory.value === 'official') {
-    return '使用官方 API 端点';
+    return 'Use the official API endpoint.';
   }
   if (selectedCategory.value === 'third_party') {
-    return '联系供应商获取 API 端点地址';
+    return 'Contact the provider for the API endpoint.';
   }
   return '';
 });
 
-// 获取预设按钮样式
+// Determine preset button styles
 function getPresetStyle(preset: PresetProvider, isSelected: boolean) {
   if (!isSelected || !preset.theme?.backgroundColor) {
     return undefined;
@@ -419,57 +423,73 @@ function getPresetStyle(preset: PresetProvider, isSelected: boolean) {
   };
 }
 
-// 监听表单字段变化，同步到 JSON
+// Watch form fields and sync changes back to JSON
 watch(
-  () => [formData.value.apiKey, formData.value.baseUrl],
-  ([apiKey, baseUrl]) => {
+  () => [formData.value.apiKey, formData.value.baseUrl, formData.value.mainModel, formData.value.haikuModel, formData.value.sonnetModel, formData.value.opusModel],
+  ([apiKey, baseUrl, mainModel, haikuModel, sonnetModel, opusModel]) => {
     try {
       const config = JSON.parse(jsonConfig.value);
       if (!config.env) config.env = {};
       config.env.ANTHROPIC_AUTH_TOKEN = apiKey || '';
       config.env.ANTHROPIC_BASE_URL = baseUrl || '';
+      config.env.ANTHROPIC_DEFAULT_MODEL = mainModel || '';
+      config.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = haikuModel || '';
+      config.env.ANTHROPIC_DEFAULT_SONNET_MODEL = sonnetModel || '';
+      config.env.ANTHROPIC_DEFAULT_OPUS_MODEL = opusModel || '';
       jsonConfig.value = JSON.stringify(config, null, 2);
     } catch (error) {
-      // 忽略解析错误
+      // Ignore parsing errors
     }
   }
 );
 
-// JSON 配置变化处理
+// Handle JSON configuration changes
 function handleJsonChange() {
   jsonError.value = '';
   try {
     const config = JSON.parse(jsonConfig.value);
-    // 验证 JSON 格式
+    // Validate JSON format
     if (config.env) {
-      // 同步更新表单字段
-      if (config.env.ANTHROPIC_AUTH_TOKEN) {
+      // Sync updated values back to the form fields
+      if (config.env.ANTHROPIC_AUTH_TOKEN !== undefined) {
         formData.value.apiKey = config.env.ANTHROPIC_AUTH_TOKEN;
       }
-      if (config.env.ANTHROPIC_BASE_URL) {
+      if (config.env.ANTHROPIC_BASE_URL !== undefined) {
         formData.value.baseUrl = config.env.ANTHROPIC_BASE_URL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_MODEL !== undefined) {
+        formData.value.mainModel = config.env.ANTHROPIC_DEFAULT_MODEL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_HAIKU_MODEL !== undefined) {
+        formData.value.haikuModel = config.env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_SONNET_MODEL !== undefined) {
+        formData.value.sonnetModel = config.env.ANTHROPIC_DEFAULT_SONNET_MODEL;
+      }
+      if (config.env.ANTHROPIC_DEFAULT_OPUS_MODEL !== undefined) {
+        formData.value.opusModel = config.env.ANTHROPIC_DEFAULT_OPUS_MODEL;
       }
     }
   } catch (error) {
-    jsonError.value = error instanceof Error ? error.message : 'JSON 格式错误';
+    jsonError.value = error instanceof Error ? error.message : 'JSON format error';
   }
 }
 
-// 端点测速保存
+// Save endpoint speed test result
 function handleSpeedTestSave(url: string) {
   formData.value.baseUrl = url;
-  // 同步更新 JSON 配置
+  // Sync back to the JSON configuration
   try {
     const config = JSON.parse(jsonConfig.value);
     if (!config.env) config.env = {};
     config.env.ANTHROPIC_BASE_URL = url;
     jsonConfig.value = JSON.stringify(config, null, 2);
   } catch (error) {
-    // 忽略错误
+    // Ignore errors
   }
 }
 
-// 选择自定义配置
+// Select custom configuration
 function handleSelectCustom() {
   selectedPreset.value = 'custom';
   selectedCategory.value = 'custom';
@@ -483,16 +503,20 @@ function handleSelectCustom() {
     sonnetModel: '',
     opusModel: ''
   };
-  // 重置 JSON 配置
+  // Reset JSON configuration
   jsonConfig.value = JSON.stringify({
     env: {
       ANTHROPIC_AUTH_TOKEN: '',
-      ANTHROPIC_BASE_URL: ''
+      ANTHROPIC_BASE_URL: '',
+      ANTHROPIC_DEFAULT_MODEL: '',
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: '',
+      ANTHROPIC_DEFAULT_SONNET_MODEL: '',
+      ANTHROPIC_DEFAULT_OPUS_MODEL: ''
     }
   }, null, 2);
 }
 
-// 选择预设供应商
+// Select preset provider
 function handleSelectPreset(preset: PresetProvider) {
   selectedPreset.value = preset.id;
   selectedCategory.value = preset.category || 'custom';
@@ -506,24 +530,28 @@ function handleSelectPreset(preset: PresetProvider) {
     haikuModel: ''
   };
 
-  // 更新 JSON 配置
+  // Update JSON configuration
   jsonConfig.value = JSON.stringify({
     env: {
       ANTHROPIC_AUTH_TOKEN: '',
-      ANTHROPIC_BASE_URL: preset.baseUrl || ''
+      ANTHROPIC_BASE_URL: preset.baseUrl || '',
+      ANTHROPIC_DEFAULT_MODEL: '',
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: '',
+      ANTHROPIC_DEFAULT_SONNET_MODEL: '',
+      ANTHROPIC_DEFAULT_OPUS_MODEL: ''
     }
   }, null, 2);
 }
 
-// 添加供应商
+// Add provider
 function handleAdd() {
   if (isValid.value) {
-    // 验证 JSON 配置
+    // Validate the JSON configuration
     if (jsonConfig.value.trim()) {
       try {
         JSON.parse(jsonConfig.value);
       } catch (error) {
-        jsonError.value = 'JSON 格式错误，请检查后再添加';
+        jsonError.value = 'Invalid JSON format. Please check before adding.';
         return;
       }
     }
@@ -626,7 +654,7 @@ function handleAdd() {
   margin: 0 0 20px 0;
 }
 
-/* 预设选择器部分 */
+/* Preset selector section */
 .preset-section {
   margin-bottom: 24px;
 }
@@ -746,7 +774,7 @@ function handleAdd() {
   color: white;
 }
 
-/* 表单部分 */
+/* Form section */
 .form-section {
   margin-top: 24px;
 }
@@ -851,7 +879,7 @@ function handleAdd() {
   gap: 12px;
 }
 
-/* 高级选项 */
+/* Advanced options */
 .advanced-section {
   margin-top: 20px;
   border-top: 1px solid var(--vscode-panel-border);
@@ -882,7 +910,7 @@ function handleAdd() {
   transition: transform 0.2s;
 }
 
-/* JSON 配置部分 */
+/* JSON configuration section */
 .json-config-section {
   margin-top: 12px;
 }
@@ -924,7 +952,7 @@ function handleAdd() {
   color: var(--vscode-errorForeground);
 }
 
-/* 对话框底部 */
+/* Dialog footer */
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
@@ -970,7 +998,7 @@ function handleAdd() {
   cursor: not-allowed;
 }
 
-/* 响应式适配 - 360px 小屏幕 */
+/* Responsive tweaks for 360px viewports */
 @media (max-width: 480px) {
   .dialog-container {
     width: 95%;
