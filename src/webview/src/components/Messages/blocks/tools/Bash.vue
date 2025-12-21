@@ -65,9 +65,9 @@ const hasOutput = computed(() => {
   return outputContent.value && !props.toolResult?.is_error;
 });
 
-// 默认展开条件: 有输出或有错误
+// Default collapsed - user clicks to expand
 const shouldExpand = computed(() => {
-  return hasOutput.value || !!props.toolResult?.is_error;
+  return false;
 });
 </script>
 

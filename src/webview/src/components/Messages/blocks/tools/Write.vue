@@ -104,15 +104,9 @@ const hasContentView = computed(() => {
   return !!content.value && !props.toolResult?.is_error;
 });
 
-// Determine if it is a permission request stage
-const isPermissionRequest = computed(() => {
-  // No result or result is not an error = permission request or execution in progress
-  return !props.toolResult || !props.toolResult.is_error;
-});
-
-// Expand in permission request stage
+// Default collapsed - user clicks to expand
 const shouldExpand = computed(() => {
-  return hasContentView.value && isPermissionRequest.value;
+  return false;
 });
 
 // DOM reference

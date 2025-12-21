@@ -353,7 +353,7 @@ export abstract class BaseTransport {
       const permissionRequest = new PermissionRequest(
         channelId,
         request.toolName,
-        request.inputs,
+        request.inputs ?? {},  // Ensure inputs is never undefined
         request.suggestions ?? []
       );
       trackedRequest = permissionRequest;

@@ -25,7 +25,12 @@ export class PermissionRequest {
     updatedInput: Record<string, unknown> = this.inputs,
     updatedPermissions: PermissionUpdate[] = this.suggestions
   ): void {
-    this.resolved.emit({ behavior: 'allow', updatedInput, updatedPermissions });
+    // Ensure updatedInput is never undefined (SDK Zod validation requires object)
+    this.resolved.emit({
+      behavior: 'allow',
+      updatedInput: updatedInput ?? this.inputs ?? {},
+      updatedPermissions: updatedPermissions ?? []
+    });
   }
 
   reject(message: string = 'Denied by user', interrupt: boolean = true): void {
