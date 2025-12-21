@@ -70,15 +70,15 @@ export function activate(context: vscode.ExtensionContext) {
 					const formattedProviders = providers.map(p => ({
 						id: p.id,
 						name: p.name,
-						apiKey: p.settingsConfig.env.ANTHROPIC_AUTH_TOKEN || '',
-						baseUrl: p.settingsConfig.env.ANTHROPIC_BASE_URL || '',
+						apiKey: p.settingsConfig.env?.ANTHROPIC_AUTH_TOKEN || '',
+						baseUrl: p.settingsConfig.env?.ANTHROPIC_BASE_URL || '',
 						websiteUrl: p.websiteUrl,
 						isActive: false, // Will be set below
 						createdAt: p.createdAt,
-						mainModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_MODEL || '',
-						haikuModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
-						sonnetModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_SONNET_MODEL || '',
-						opusModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
+						mainModel: p.settingsConfig.env?.ANTHROPIC_DEFAULT_MODEL || '',
+						haikuModel: p.settingsConfig.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
+						sonnetModel: p.settingsConfig.env?.ANTHROPIC_DEFAULT_SONNET_MODEL || '',
+						opusModel: p.settingsConfig.env?.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
 					}));
 
 					// Get current active provider
@@ -207,14 +207,14 @@ export function activate(context: vscode.ExtensionContext) {
 						const formatted = {
 							id: activeProvider.id,
 							name: activeProvider.name,
-							apiKey: activeProvider.settingsConfig.env.ANTHROPIC_AUTH_TOKEN || '',
-							baseUrl: activeProvider.settingsConfig.env.ANTHROPIC_BASE_URL || '',
+							apiKey: activeProvider.settingsConfig.env?.ANTHROPIC_AUTH_TOKEN || '',
+							baseUrl: activeProvider.settingsConfig.env?.ANTHROPIC_BASE_URL || '',
 							websiteUrl: activeProvider.websiteUrl,
 							isActive: true,
-							mainModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_MODEL || '',
-							haikuModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
-							sonnetModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_SONNET_MODEL || '',
-							opusModel: activeProvider.settingsConfig.env.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
+							mainModel: activeProvider.settingsConfig.env?.ANTHROPIC_DEFAULT_MODEL || '',
+							haikuModel: activeProvider.settingsConfig.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
+							sonnetModel: activeProvider.settingsConfig.env?.ANTHROPIC_DEFAULT_SONNET_MODEL || '',
+							opusModel: activeProvider.settingsConfig.env?.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
 						};
 						webViewService.postMessage({
 							type: 'activeProviderData',
