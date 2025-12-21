@@ -331,11 +331,23 @@ export class ClaudeSdkService implements IClaudeSdkService {
 
     /**
      * Get Claude CLI executable path
+     * Priority: 1. Global CLI (latest) -> 2. Native binary -> 3. Bundled cli.js
      */
     private getClaudeExecutablePath(): string {
         const binaryName = process.platform === "win32" ? "claude.exe" : "claude";
         const arch = process.arch;
 
+        // 1. Check for global CLI installation (typically has latest version)
+        const globalCliPath = process.platform === "win32"
+            ? `${process.env.USERPROFILE}\\.local\\bin\\claude.exe`
+            : `${process.env.HOME}/.local/bin/claude`;
+
+        if (fs.existsSync(globalCliPath)) {
+            this.logService.info(`[ClaudeSdkService] Using global CLI: ${globalCliPath}`);
+            return globalCliPath;
+        }
+
+        // 2. Check for native binary in extension
         const nativePath = this.context.asAbsolutePath(
             `resources/native-binaries/${process.platform}-${arch}/${binaryName}`
         );
@@ -344,6 +356,7 @@ export class ClaudeSdkService implements IClaudeSdkService {
             return nativePath;
         }
 
+        // 3. Fallback to bundled cli.js
         return this.context.asAbsolutePath("resources/claude-code/cli.js");
     }
 }
