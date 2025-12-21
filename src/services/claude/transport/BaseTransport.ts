@@ -1,17 +1,17 @@
 /**
- * BaseTransport - 传输层抽象接口
+ * BaseTransport - Transport Layer Abstract Interface
  *
- * 定义 Transport 的基本契约，用于在 Agent 和客户端之间传递消息
+ * Defines the basic contract for Transport to pass messages between Agent and client
  *
- * 实现类：
- * - VSCodeTransport: VSCode WebView 传输实现
- * - NestJSTransport: NestJS WebSocket 传输实现（未来）
- * - ElectronTransport: Electron IPC 传输实现（未来）
+ * Implementations:
+ * - VSCodeTransport: VSCode WebView transport implementation
+ * - NestJSTransport: NestJS WebSocket transport implementation (future)
+ * - ElectronTransport: Electron IPC transport implementation (future)
  *
- * 设计原则：
- * - 双向通信：send() 发送消息，onMessage() 接收消息
- * - 平台无关：不依赖具体的宿主环境 API
- * - 简单抽象：只定义最核心的传输能力
+ * Design Principles:
+ * - Bidirectional communication: send() to send messages, onMessage() to receive messages
+ * - Platform agnostic: does not depend on specific host environment APIs
+ * - Simple abstraction: defines only the core transport capabilities
  */
 
 /**

@@ -1,6 +1,7 @@
 .vscode/**
 .claude/**
 .serena/**
+.beads/**
 .gitignore
 .esbuild.ts
 .mcp.json

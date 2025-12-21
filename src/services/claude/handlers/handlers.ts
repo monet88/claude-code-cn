@@ -1,8 +1,8 @@
 /**
- * Claude Agent Handlers - 统一处理器文件
+ * Claude Agent Handlers - Unified Handler File
  *
- * 职责：处理所有来自 WebView 的请求
- * 依赖：通过 HandlerContext 注入所有服务
+ * Responsibilities: Handle all requests from WebView
+ * Dependencies: Inject all services via HandlerContext
  */
 
 import * as vscode from 'vscode';
@@ -57,11 +57,11 @@ import type { PermissionMode, SDKUserMessage } from '@anthropic-ai/claude-agent-
 import { AsyncStream } from '../transport/AsyncStream';
 
 // ============================================================================
-// Handler 实现
+// Handler Implementations
 // ============================================================================
 
 /**
- * 初始化请求
+ * Initialization request
  */
 export async function handleInit(
     _request: InitRequest,
@@ -69,21 +69,21 @@ export async function handleInit(
 ): Promise<InitResponse> {
     const { configService, workspaceService, logService, agentService } = context;
 
-    logService.info('[handleInit] 处理初始化请求');
+    logService.info('[handleInit] Processing initialization request');
 
-    // TODO: 从 AuthManager 获取认证状态
+    // TODO: Get auth status from AuthManager
     // const authStatus = null;
 
-    // 获取模型设置
+    // Get model settings
     const modelSetting = configService.getValue<string>('claudecodecn.selectedModel') || 'default';
 
-    // 获取默认工作目录
+    // Get default working directory
     const defaultCwd = workspaceService.getDefaultWorkspaceFolder()?.uri.fsPath || process.cwd();
 
     // TODO: 从配置获取 openNewInTab
     const openNewInTab = false;
 
-    // 获取 thinking level (默认值)
+    // Get thinking level (default value)
     const thinkingLevel = 'default_on';
 
     return {
@@ -100,7 +100,7 @@ export async function handleInit(
 }
 
 /**
- * 获取 Claude 状态
+ * Get Claude state
  */
 export async function handleGetClaudeState(
     _request: GetClaudeStateRequest,
@@ -108,7 +108,7 @@ export async function handleGetClaudeState(
 ): Promise<GetClaudeStateResponse> {
     const { logService } = context;
 
-    logService.info('[handleGetClaudeState] 获取 Claude 状态');
+    logService.info('[handleGetClaudeState] Fetching Claude state');
 
     const config = await loadConfig(context);
 
@@ -119,7 +119,7 @@ export async function handleGetClaudeState(
 }
 
 /**
- * 获取 MCP 服务器
+ * Get MCP servers
  */
 export async function handleGetMcpServers(
     _request: GetMcpServersRequest,
@@ -143,7 +143,7 @@ export async function handleGetAssetUris(
 }
 
 /**
- * 打开文件
+ * Open file
  */
 export async function handleOpenFile(
     request: OpenFileRequest,
@@ -185,13 +185,13 @@ export async function handleOpenFile(
         return { type: "open_file_response" };
     } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-        logService.error(`[handleOpenFile] 打开文件失败: ${errorMsg}`);
+        logService.error(`[handleOpenFile] Failed to open file: ${errorMsg}`);
         throw new Error(`Failed to open file: ${errorMsg}`);
     }
 }
 
 /**
- * 获取当前编辑器选区
+ * Get current editor selection
  */
 export async function handleGetCurrentSelection(
     context: HandlerContext
@@ -221,7 +221,7 @@ export async function handleGetCurrentSelection(
 }
 
 /**
- * 显示通知
+ * Show notification
  */
 export async function handleShowNotification(
     request: ShowNotificationRequest,
@@ -250,7 +250,7 @@ export async function handleShowNotification(
 }
 
 /**
- * 新建会话标签页（聚焦侧边栏）
+ * Create new conversation tab (focus sidebar)
  */
 export async function handleNewConversationTab(
     _request: NewConversationTabRequest,
@@ -270,7 +270,7 @@ export async function handleNewConversationTab(
 }
 
 /**
- * 重命名标签（目前仅占位）
+ * Rename tab (placeholder for now)
  */
 export async function handleRenameTab(
     _request: RenameTabRequest,
@@ -282,7 +282,7 @@ export async function handleRenameTab(
 }
 
 /**
- * 打开 Diff 编辑器
+ * Open Diff editor
  */
 export async function handleOpenDiff(
     request: OpenDiffRequest,
@@ -331,7 +331,7 @@ export async function handleOpenDiff(
 }
 
 /**
- * 列出历史会话
+ * List session history
  */
 export async function handleListSessions(
     _request: ListSessionsRequest,
@@ -343,7 +343,7 @@ export async function handleListSessions(
         const cwd = workspaceService.getDefaultWorkspaceFolder()?.uri.fsPath || process.cwd();
         const sessions = await sessionService.listSessions(cwd);
 
-        // 添加 worktree 和 isCurrentWorkspace 字段
+        // Add worktree and isCurrentWorkspace fields
         const sessionsWithMeta = sessions.map(session => ({
             ...session,
             worktree: undefined,
@@ -364,7 +364,7 @@ export async function handleListSessions(
 }
 
 /**
- * 获取会话详情
+ * Get session details
  */
 export async function handleGetSession(
     request: GetSessionRequest,
@@ -390,7 +390,7 @@ export async function handleGetSession(
 }
 
 /**
- * 执行命令
+ * Execute command
  */
 export async function handleExec(
     request: ExecRequest,
@@ -439,7 +439,7 @@ export async function handleExec(
 }
 
 /**
- * 列出文件
+ * List files
  */
 export async function handleListFiles(
     request: ListFilesRequest,
@@ -455,7 +455,7 @@ export async function handleListFiles(
 }
 
 /**
- * 打开内容（临时文件编辑）
+ * Open content (temporary file editing)
  */
 export async function handleOpenContent(
     request: OpenContentRequest,
@@ -493,7 +493,7 @@ export async function handleOpenContent(
 }
 
 /**
- * 打开 URL
+ * Open URL
  */
 export async function handleOpenURL(
     request: OpenURLRequest,
@@ -511,7 +511,7 @@ export async function handleOpenURL(
 }
 
 /**
- * 获取认证状态
+ * Get auth status
  */
 // export async function handleGetAuthStatus(
 //     _request: GetAuthStatusRequest,
@@ -527,7 +527,7 @@ export async function handleOpenURL(
 // }
 
 /**
- * 登录
+ * Login
  */
 // export async function handleLogin(
 //     request: LoginRequest,
@@ -539,7 +539,7 @@ export async function handleOpenURL(
 //     // TODO: 实现认证流程
 //     logService.info(`Login requested with method: ${method}`);
 
-//     // 关闭所有现有通道
+//     // Close all existing channels
 //     await agentService.closeAllChannelsWithCredentialChange();
 
 //     return {
@@ -551,7 +551,7 @@ export async function handleOpenURL(
 // }
 
 /**
- * 提交 OAuth 代码
+ * Submit OAuth code
  */
 // export async function handleSubmitOAuthCode(
 //     request: SubmitOAuthCodeRequest,
@@ -569,7 +569,7 @@ export async function handleOpenURL(
 // }
 
 /**
- * 打开配置文件
+ * Open configuration file
  */
 export async function handleOpenConfigFile(
     request: OpenConfigFileRequest,
@@ -578,11 +578,11 @@ export async function handleOpenConfigFile(
     const { configType } = request;
 
     try {
-        // VS Code 设置
+        // VS Code settings
         if (configType === "vscode") {
             await vscode.commands.executeCommand('workbench.action.openSettings', 'claudecodecn');
         }
-        // 用户配置文件
+        // User configuration file
         else {
             const configPath = getConfigFilePath(configType);
             const uri = vscode.Uri.file(configPath);
@@ -597,7 +597,7 @@ export async function handleOpenConfigFile(
 }
 
 /**
- * 在终端打开 Claude
+ * Open Claude in terminal
  */
 export async function handleOpenClaudeInTerminal(
     _request: OpenClaudeInTerminalRequest,
@@ -623,11 +623,11 @@ export async function handleOpenClaudeInTerminal(
 }
 
 // ============================================================================
-// 配置和状态管理
+// Configuration and State Management
 // ============================================================================
 
 /**
- * 加载配置缓存
+ * Load configuration cache
  */
 async function loadConfig(context: HandlerContext): Promise<any> {
     const { logService, sdkService, workspaceService } = context;
@@ -664,7 +664,7 @@ async function loadConfig(context: HandlerContext): Promise<any> {
 }
 
 /**
- * 获取 MCP 服务器状态
+ * Get MCP server status
  */
 async function getMcpServers(
     context: HandlerContext,
@@ -734,7 +734,7 @@ function getAssetUris(context: HandlerContext): Record<string, { light: string; 
 }
 
 // ============================================================================
-// 辅助方法
+// Helper Methods
 // ============================================================================
 
 async function prepareDiffRightFile(

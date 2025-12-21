@@ -1,16 +1,16 @@
 /**
- * AsyncStream - 手动控制的异步迭代器
+ * AsyncStream - Manually controlled asynchronous iterator
  *
- * 实现生产者-消费者模式，用于：
- * 1. Extension 接收来自 WebView 的消息
- * 2. Extension 向 SDK 发送用户消息
- * 3. WebView 接收来自 Extension 的消息
+ * Implements producer-consumer pattern for:
+ * 1. Extension receiving messages from WebView
+ * 2. Extension sending user messages to SDK
+ * 3. WebView receiving messages from Extension
  *
- * 特点：
- * - 支持异步迭代 (for await...of)
- * - 自动背压控制（队列缓冲）
- * - 可手动结束流
- * - 支持错误传播
+ * Features:
+ * - Supports asynchronous iteration (for await...of)
+ * - Automatic backpressure control (queue buffering)
+ * - Manually end the stream
+ * - Supports error propagation
  */
 
 export class AsyncStream<T> implements AsyncIterable<T>, AsyncIterator<T> {

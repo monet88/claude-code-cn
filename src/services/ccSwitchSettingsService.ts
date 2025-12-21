@@ -1,7 +1,7 @@
 /**
- * CC Switch 配置文件服务
- * 用于读写 ~/.cc-switch/config.json
- * 与 CC Switch 共享配置格式
+ * CC Switch Configuration File Service
+ * Used for reading/writing ~/.cc-switch/config.json
+ * Shares configuration format with CC Switch
  */
 
 import * as fs from 'fs';
@@ -14,26 +14,26 @@ import { IClaudeSettingsService } from './claudeSettingsService';
 export const ICCSwitchSettingsService = createDecorator<ICCSwitchSettingsService>('ccSwitchSettingsService');
 
 /**
- * 供应商分类
+ * Provider Category
  */
 export type ProviderCategory =
-  | 'official'      // 官方
-  | 'cn_official'   // 开源官方
-  | 'aggregator'    // 聚合网站
-  | 'third_party'   // 第三方供应商
-  | 'custom';       // 自定义
+  | 'official'      // Official
+  | 'cn_official'   // Open Source Official
+  | 'aggregator'    // Aggregator Website
+  | 'third_party'   // Third-party Provider
+  | 'custom';       // Custom
 
 /**
- * 供应商元数据
+ * Provider Metadata
  */
 export interface ProviderMeta {
-  /** 自定义端点 */
+  /** Custom endpoints */
   custom_endpoints?: Record<string, {
     url: string;
     addedAt: number;
     lastUsed?: number;
   }>;
-  /** 用量查询脚本配置 */
+  /** Usage query script configuration */
   usage_script?: {
     enabled: boolean;
     language: string;
@@ -45,100 +45,100 @@ export interface ProviderMeta {
     userId?: string;
     autoQueryInterval?: number;
   };
-  /** 是否为官方合作伙伴 */
+  /** Whether this is an official partner */
   isPartner?: boolean;
-  /** 合作伙伴促销 key */
+  /** Partner promotion key */
   partnerPromotionKey?: string;
 }
 
 /**
- * Claude 供应商配置
+ * Claude Provider Configuration
  */
 export interface ClaudeProvider {
-  /** 供应商唯一 ID */
+  /** Provider unique ID */
   id: string;
-  /** 供应商名称 */
+  /** Provider name */
   name: string;
   /** 
-   * Claude settings.json 的完整配置内容 (动态)
-   * 直接 copy 用户的 ~/.claude/settings.json，不硬编码结构
+   * Full Claude settings.json configuration content (dynamic)
+   * Directly copies user's ~/.claude/settings.json, no hardcoded structure
    */
   settingsConfig: {
-    /** 环境变量 - 唯一需要特殊处理用于 overlay */
+    /** Environment variables - only needs special handling for overlay */
     env?: Record<string, any>;
-    /** 其他任意配置 - 动态从 settings.json 读取 */
+    /** Other arbitrary configuration - dynamically read from settings.json */
     [key: string]: any;
   };
-  /** 官网链接 */
+  /** Website URL */
   websiteUrl?: string;
-  /** 供应商分类 */
+  /** Provider category */
   category?: ProviderCategory;
-  /** 创建时间戳（毫秒） */
+  /** Creation timestamp (milliseconds) */
   createdAt?: number;
-  /** 排序索引 */
+  /** Sort index */
   sortIndex?: number;
-  /** 是否为商业合作伙伴 */
+  /** Whether this is a commercial partner */
   isPartner?: boolean;
-  /** 供应商元数据 */
+  /** Provider metadata */
   meta?: ProviderMeta;
 }
 
 /**
- * Codex 供应商配置
+ * Codex Provider Configuration
  */
 export interface CodexProvider {
-  /** 供应商唯一 ID */
+  /** Provider unique ID */
   id: string;
-  /** 供应商名称 */
+  /** Provider name */
   name: string;
-  /** Codex 配置内容 */
+  /** Codex configuration content */
   settingsConfig: {
     auth: {
       OPENAI_API_KEY?: string;
       [key: string]: any;
     };
-    config: string; // TOML 格式字符串
+    config: string; // TOML format string
   };
-  /** 官网链接 */
+  /** Website URL */
   websiteUrl?: string;
-  /** 供应商分类 */
+  /** Provider category */
   category?: ProviderCategory;
-  /** 创建时间戳（毫秒） */
+  /** Creation timestamp (milliseconds) */
   createdAt?: number;
-  /** 排序索引 */
+  /** Sort index */
   sortIndex?: number;
-  /** 是否为商业合作伙伴 */
+  /** Whether this is a commercial partner */
   isPartner?: boolean;
-  /** 供应商元数据 */
+  /** Provider metadata */
   meta?: ProviderMeta;
 }
 
 /**
- * 应用类型
+ * Application Type
  */
 export type AppType = 'claude' | 'codex' | 'gemini';
 
 /**
- * CC Switch 配置文件结构
+ * CC Switch Configuration File Structure
  */
 export interface CCSwitchConfig {
-  /** 配置版本 */
+  /** Configuration version */
   version: number;
-  /** Claude 应用配置 */
+  /** Claude application configuration */
   claude?: {
-    /** 供应商列表 */
+    /** Provider list */
     providers: Record<string, ClaudeProvider>;
-    /** 当前激活的供应商 ID */
+    /** Currently active provider ID */
     current: string;
   };
-  /** Codex 应用配置 */
+  /** Codex application configuration */
   codex?: {
-    /** 供应商列表 */
+    /** Provider list */
     providers: Record<string, CodexProvider>;
-    /** 当前激活的供应商 ID */
+    /** Currently active provider ID */
     current: string;
   };
-  /** MCP 配置 */
+  /** MCP configuration */
   mcp?: {
     claude?: {
       servers: Record<string, any>;
@@ -150,11 +150,11 @@ export interface CCSwitchConfig {
 }
 
 /**
- * 默认 Claude 供应商（官方）
+ * Default Claude Provider (Official)
  */
 const DEFAULT_CLAUDE_PROVIDER: ClaudeProvider = {
   id: 'default',
-  name: 'Claude官方',
+  name: 'Claude Official',
   settingsConfig: {
     env: {
       ANTHROPIC_AUTH_TOKEN: '',
@@ -167,75 +167,75 @@ const DEFAULT_CLAUDE_PROVIDER: ClaudeProvider = {
 };
 
 /**
- * CC Switch 配置文件服务接口
+ * CC Switch Configuration File Service Interface
  */
 export interface ICCSwitchSettingsService {
   readonly _serviceBrand: undefined;
 
   /**
-   * 获取 CC Switch 配置文件路径
+   * Get CC Switch configuration file path
    */
   getConfigPath(): string;
 
   /**
-   * 读取完整配置
+   * Read full configuration
    */
   readConfig(): Promise<CCSwitchConfig>;
 
   /**
-   * 写入完整配置
+   * Write full configuration
    */
   writeConfig(config: CCSwitchConfig): Promise<void>;
 
   /**
-   * 获取 Claude 供应商列表
+   * Get Claude provider list
    */
   getClaudeProviders(): Promise<ClaudeProvider[]>;
 
   /**
-   * 添加 Claude 供应商
-   * @param provider 供应商配置
+   * Add Claude provider
+   * @param provider Provider configuration
    */
   addClaudeProvider(provider: ClaudeProvider): Promise<void>;
 
   /**
-   * 更新 Claude 供应商
-   * @param id 供应商 ID
-   * @param updates 更新的字段
+   * Update Claude provider
+   * @param id Provider ID
+   * @param updates Fields to update
    */
   updateClaudeProvider(id: string, updates: Partial<ClaudeProvider>): Promise<void>;
 
   /**
-   * 删除 Claude 供应商
-   * @param id 供应商 ID
-   * @throws 如果供应商不存在
+   * Delete Claude provider
+   * @param id Provider ID
+   * @throws If provider does not exist
    */
   deleteClaudeProvider(id: string): Promise<void>;
 
   /**
-   * 切换 Claude 供应商
-   * @param id 供应商 ID
+   * Switch Claude provider
+   * @param id Provider ID
    */
   switchClaudeProvider(id: string): Promise<void>;
 
   /**
-   * 获取当前激活的 Claude 供应商
+   * Get currently active Claude provider
    */
   getActiveClaudeProvider(): Promise<ClaudeProvider | null>;
 
   /**
-   * 初始化配置（确保默认供应商存在）
+   * Initialize configuration (ensure default provider exists)
    */
   initialize(): Promise<void>;
 
   /**
-   * 备份配置文件
+   * Backup configuration file
    */
   backupConfig(): Promise<void>;
 }
 
 /**
- * CC Switch 配置文件服务实现
+ * CC Switch Configuration File Service Implementation
  */
 export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   readonly _serviceBrand: undefined;
@@ -246,7 +246,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   ) {}
 
   /**
-   * 获取 CC Switch 配置文件路径
+   * Get CC Switch configuration file path
    */
   getConfigPath(): string {
     const homeDir = os.homedir();
@@ -254,7 +254,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 获取备份文件路径
+   * Get backup file path
    */
   private getBackupPath(): string {
     const homeDir = os.homedir();
@@ -262,56 +262,56 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 从 ~/.claude/settings.json 创建默认供应商配置
-   * 如果 settings.json 不存在或读取失败，返回硬编码的默认配置
+   * Create default provider configuration from ~/.claude/settings.json
+   * If settings.json doesn't exist or fails to read, returns hardcoded default configuration
    */
   private async createDefaultProviderFromClaudeSettings(): Promise<ClaudeProvider> {
     try {
-      // 尝试读取 Claude settings (完整的 settings.json)
+      // Try to read Claude settings (full settings.json)
       const settings = await this.claudeSettingsService.readSettings();
 
-      // 检查是否有有效的配置
+      // Check if there's valid configuration
       if (settings.env && (settings.env.ANTHROPIC_AUTH_TOKEN || settings.env.ANTHROPIC_BASE_URL)) {
         this.logService.info('Loading FULL config from ~/.claude/settings.json into provider');
 
         const baseUrl = settings.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com';
 
-        // Copy 全部 settings.json 内容到 settingsConfig
+        // Copy all settings.json content to settingsConfig
         return {
           id: 'default',
           name: 'default',
-          settingsConfig: { ...settings },  // Copy toàn bộ settings
+          settingsConfig: { ...settings },  // Copy all settings
           websiteUrl: baseUrl,
           category: 'official',
           createdAt: Date.now()
         };
       }
 
-      // 如果没有有效配置，返回硬编码的默认值
+      // If no valid configuration, return hardcoded defaults
       this.logService.info('No valid config in ~/.claude/settings.json, using hardcoded defaults');
       return DEFAULT_CLAUDE_PROVIDER;
     } catch (error) {
-      // 读取失败，返回硬编码的默认值
+      // Read failed, return hardcoded defaults
       this.logService.warn(`Failed to read Claude settings for default provider: ${error}`);
       return DEFAULT_CLAUDE_PROVIDER;
     }
   }
 
   /**
-   * 读取完整配置
+   * Read full configuration
    */
   async readConfig(): Promise<CCSwitchConfig> {
     const configPath = this.getConfigPath();
 
     try {
-      // 检查文件是否存在
+      // Check if file exists
       if (!fs.existsSync(configPath)) {
         this.logService.warn(`CC Switch config file not found: ${configPath}`);
 
-        // 尝试从 ~/.claude/settings.json 读取配置作为默认值
+        // Try to read configuration from ~/.claude/settings.json as default
         const defaultProvider = await this.createDefaultProviderFromClaudeSettings();
 
-        // 返回默认配置
+        // Return default configuration
         return {
           version: 2,
           claude: {
@@ -323,11 +323,11 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         };
       }
 
-      // 读取文件内容
+      // Read file content
       const content = await fs.promises.readFile(configPath, 'utf-8');
       const config = JSON.parse(content) as CCSwitchConfig;
 
-      // 确保 Claude 配置存在
+      // Ensure Claude configuration exists
       if (!config.claude) {
         config.claude = {
           providers: {},
@@ -335,7 +335,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         };
       }
 
-      // 确保 providers 对象存在
+      // Ensure providers object exists
       if (!config.claude.providers) {
         config.claude.providers = {};
       }
@@ -345,10 +345,10 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
     } catch (error) {
       this.logService.error(`Failed to read CC Switch config: ${error}`);
 
-      // 尝试从 ~/.claude/settings.json 读取配置作为默认值
+      // Try to read configuration from ~/.claude/settings.json as default
       const defaultProvider = await this.createDefaultProviderFromClaudeSettings();
 
-      // 返回默认配置
+      // Return default configuration
       return {
         version: 2,
         claude: {
@@ -362,20 +362,20 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 写入完整配置
+   * Write full configuration
    */
   async writeConfig(config: CCSwitchConfig): Promise<void> {
     const configPath = this.getConfigPath();
 
     try {
-      // 确保目录存在
+      // Ensure directory exists
       const configDir = path.dirname(configPath);
       if (!fs.existsSync(configDir)) {
         await fs.promises.mkdir(configDir, { recursive: true });
         this.logService.info(`Created CC Switch config directory: ${configDir}`);
       }
 
-      // 写入文件（格式化 JSON）
+      // Write file (formatted JSON)
       const content = JSON.stringify(config, null, 2);
       await fs.promises.writeFile(configPath, content, 'utf-8');
 
@@ -387,7 +387,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 获取 Claude 供应商列表
+   * Get Claude provider list
    */
   async getClaudeProviders(): Promise<ClaudeProvider[]> {
     const config = await this.readConfig();
@@ -398,13 +398,13 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 添加 Claude 供应商
+   * Add Claude provider
    */
   async addClaudeProvider(provider: ClaudeProvider): Promise<void> {
     try {
       const config = await this.readConfig();
 
-      // 确保 Claude 配置存在
+      // Ensure Claude configuration exists
       if (!config.claude) {
         config.claude = {
           providers: {},
@@ -412,25 +412,25 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         };
       }
 
-      // 检查 ID 是否已存在
+      // Check if ID already exists
       if (config.claude.providers[provider.id]) {
         throw new Error(`Provider with id '${provider.id}' already exists`);
       }
 
-      // 添加创建时间
+      // Add creation time
       if (!provider.createdAt) {
         provider.createdAt = Date.now();
       }
 
-      // 添加供应商
+      // Add provider
       config.claude.providers[provider.id] = provider;
 
-      // 如果没有当前供应商，设置为新添加的
+      // If no current provider, set to the newly added one
       if (!config.claude.current) {
         config.claude.current = provider.id;
       }
 
-      // 备份并写入配置
+      // Backup and write configuration
       await this.backupConfig();
       await this.writeConfig(config);
 
@@ -442,7 +442,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 更新 Claude 供应商
+   * Update Claude provider
    */
   async updateClaudeProvider(id: string, updates: Partial<ClaudeProvider>): Promise<void> {
     try {
@@ -452,7 +452,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         throw new Error(`Provider with id '${id}' not found`);
       }
 
-      // 不允许修改默认供应商的某些字段
+      // Don't allow modifying certain fields of the default provider
       if (id === 'default') {
         delete updates.id;
         delete updates.category;
@@ -463,12 +463,12 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
       // Deep merge settingsConfig to preserve nested properties like permissions
       let mergedSettingsConfig = existingProvider.settingsConfig;
       if (updates.settingsConfig) {
-        // 合并 env，处理 undefined 值（删除对应 key）
+        // Merge env, handle undefined values (delete corresponding key)
         const mergedEnv = { ...existingProvider.settingsConfig?.env };
         if (updates.settingsConfig?.env) {
           for (const [key, value] of Object.entries(updates.settingsConfig.env)) {
             if (value === undefined || value === '') {
-              // 删除空值或 undefined 的 key
+              // Delete empty or undefined keys
               delete mergedEnv[key];
             } else {
               mergedEnv[key] = value;
@@ -490,15 +490,15 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         }
       }
 
-      // 更新供应商
+      // Update provider
       config.claude.providers[id] = {
         ...existingProvider,
         ...updates,
         settingsConfig: mergedSettingsConfig,
-        id // 保持 ID 不变
+        id // Keep ID unchanged
       };
 
-      // 备份并写入配置
+      // Backup and write configuration
       await this.backupConfig();
       await this.writeConfig(config);
 
@@ -510,7 +510,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 删除 Claude 供应商
+   * Delete Claude provider
    */
   async deleteClaudeProvider(id: string): Promise<void> {
     try {
@@ -520,24 +520,24 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         throw new Error(`Provider with id '${id}' not found`);
       }
 
-      // 删除供应商
+      // Delete provider
       delete config.claude.providers[id];
 
-      // 如果删除的是当前激活的供应商，切换到第一个可用的供应商
+      // If deleted provider was the currently active one, switch to the first available provider
       if (config.claude.current === id) {
         const remainingProviders = Object.keys(config.claude.providers);
         if (remainingProviders.length > 0) {
-          // 切换到第一个可用的供应商
+          // Switch to the first available provider
           config.claude.current = remainingProviders[0];
           this.logService.info(`Switched to provider: ${config.claude.current}`);
         } else {
-          // 没有剩余供应商，设置为空
+          // No remaining providers, set to empty
           config.claude.current = '';
           this.logService.warn('No remaining providers after deletion');
         }
       }
 
-      // 备份并写入配置
+      // Backup and write configuration
       await this.backupConfig();
       await this.writeConfig(config);
 
@@ -549,7 +549,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 切换 Claude 供应商
+   * Switch Claude provider
    */
   async switchClaudeProvider(id: string): Promise<void> {
     try {
@@ -559,10 +559,10 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         throw new Error(`Provider with id '${id}' not found`);
       }
 
-      // 更新当前供应商
+      // Update current provider
       config.claude.current = id;
 
-      // 备份并写入配置
+      // Backup and write configuration
       await this.backupConfig();
       await this.writeConfig(config);
 
@@ -574,7 +574,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 获取当前激活的 Claude 供应商
+   * Get currently active Claude provider
    */
   async getActiveClaudeProvider(): Promise<ClaudeProvider | null> {
     try {
@@ -593,7 +593,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 初始化配置（确保默认供应商存在）
+   * Initialize configuration (ensure default provider exists)
    */
   async initialize(): Promise<void> {
     try {
@@ -601,13 +601,13 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
 
       let needsSave = false;
 
-      // 确保版本号
+      // Ensure version number
       if (!config.version) {
         config.version = 2;
         needsSave = true;
       }
 
-      // 确保 Claude 配置存在
+      // Ensure Claude configuration exists
       if (!config.claude) {
         config.claude = {
           providers: {},
@@ -616,7 +616,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
         needsSave = true;
       }
 
-      // 确保 providers 对象存在
+      // Ensure providers object exists
       if (!config.claude.providers) {
         config.claude.providers = {};
         needsSave = true;
@@ -633,7 +633,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
   }
 
   /**
-   * 备份配置文件
+   * Backup configuration file
    */
   async backupConfig(): Promise<void> {
     try {
@@ -646,7 +646,7 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
       }
     } catch (error) {
       this.logService.warn(`Failed to backup config: ${error}`);
-      // 备份失败不应该影响主流程
+      // Backup failure should not affect the main flow
     }
   }
 }

@@ -1,11 +1,11 @@
 /**
- * WebView 服务 / WebView Service
+ * WebView Service
  *
- * 职责：
- * 1. 实现 vscode.WebviewViewProvider 接口
- * 2. 管理 WebView 实例和生命周期
- * 3. 生成 WebView HTML 内容
- * 4. 提供消息收发接口
+ * Responsibilities:
+ * 1. Implement vscode.WebviewViewProvider interface
+ * 2. Manage WebView instances and lifecycle
+ * 3. Generate WebView HTML content
+ * 4. Provide message sending and receiving interface
  */
 
 import * as vscode from 'vscode';
@@ -19,23 +19,23 @@ export interface IWebViewService extends vscode.WebviewViewProvider {
 	readonly _serviceBrand: undefined;
 
 	/**
-	 * 获取当前的 WebView 实例
+	 * Get current WebView instance
 	 */
 	getWebView(): vscode.Webview | undefined;
 
 	/**
-	 * 发送消息到 WebView
+	 * Send message to WebView
 	 */
 	postMessage(message: any): void;
 
 	/**
-	 * 设置消息接收处理器
+	 * Set message reception handler
 	 */
 	setMessageHandler(handler: (message: any) => void): void;
 }
 
 /**
- * WebView 服务实现
+ * WebView Service Implementation
  */
 export class WebViewService implements IWebViewService {
 	readonly _serviceBrand: undefined;
@@ -46,19 +46,19 @@ export class WebViewService implements IWebViewService {
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		@ILogService private readonly logService: ILogService
-	) {}
+	) { }
 
 	/**
-	 * 实现 WebviewViewProvider.resolveWebviewView
+	 * Implement WebviewViewProvider.resolveWebviewView
 	 */
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
 		context: vscode.WebviewViewResolveContext,
 		_token: vscode.CancellationToken
 	): void | Thenable<void> {
-		this.logService.info('开始解析 WebView 视图');
+		this.logService.info('Starting to resolve WebView view');
 
-		// 配置 WebView 选项
+		// Configure WebView options
 		webviewView.webview.options = {
 			enableScripts: true,
 			localResourceRoots: [
@@ -67,13 +67,13 @@ export class WebViewService implements IWebViewService {
 			]
 		};
 
-		// 保存 WebView 实例
+		// Save WebView instance
 		this.webview = webviewView.webview;
 
-		// 连接消息处理器
+		// Connect message handler
 		webviewView.webview.onDidReceiveMessage(
 			message => {
-				this.logService.info(`[WebView → Extension] 收到消息: ${message.type}`);
+				this.logService.info(`[WebView → Extension] Received message: ${message.type}`);
 				if (this.messageHandler) {
 					this.messageHandler(message);
 				}
@@ -82,21 +82,21 @@ export class WebViewService implements IWebViewService {
 			this.context.subscriptions
 		);
 
-		// 设置 WebView HTML（根据开发/生产模式切换）
+		// Set WebView HTML (switch based on dev/prod mode)
 		webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
 
-		this.logService.info('WebView 视图解析完成');
+		this.logService.info('WebView view resolution completed');
 	}
 
 	/**
-	 * 获取当前的 WebView 实例
+	 * Get the current WebView instance
 	 */
 	getWebView(): vscode.Webview | undefined {
 		return this.webview;
 	}
 
 	/**
-	 * 发送消息到 WebView
+	 * Send message to WebView
 	 */
 	postMessage(message: any): void {
 		if (!this.webview) {
@@ -109,14 +109,14 @@ export class WebViewService implements IWebViewService {
 	}
 
 	/**
-	 * 设置消息接收处理器
+	 * Set message reception handler
 	 */
 	setMessageHandler(handler: (message: any) => void): void {
 		this.messageHandler = handler;
 	}
 
 	/**
-	 * 生成 WebView HTML
+	 * Generate WebView HTML
 	 */
 	private getHtmlForWebview(webview: vscode.Webview): string {
 		const isDev = this.context.extensionMode === vscode.ExtensionMode.Development;
@@ -145,7 +145,7 @@ export class WebViewService implements IWebViewService {
 		].join(' ');
 
 		return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="${csp}" />
@@ -161,7 +161,7 @@ export class WebViewService implements IWebViewService {
 	}
 
 	private getDevHtml(webview: vscode.Webview, nonce: string): string {
-		// 读取 dev server 地址（可通过环境变量覆盖）
+		// Read dev server address (can be overridden by environment variables)
 		const devServer = process.env.VITE_DEV_SERVER_URL
 			|| process.env.WEBVIEW_DEV_SERVER_URL
 			|| `http://localhost:${process.env.VITE_DEV_PORT || 5173}`;
@@ -174,11 +174,11 @@ export class WebViewService implements IWebViewService {
 			const wsProtocol = u.protocol === 'https:' ? 'wss:' : 'ws:';
 			wsUrl = `${wsProtocol}//${u.hostname}${u.port ? `:${u.port}` : ''}`;
 		} catch {
-			origin = devServer; // 回退（尽量允许）
+			origin = devServer; // Fallback (try to allow)
 			wsUrl = 'ws://localhost:5173';
 		}
 
-		// Vite 开发场景的 CSP：允许连接 devServer 与 HMR 的 ws
+		// CSP for Vite development scenario: allow connection to devServer and HMR websocket
 		const csp = [
 			`default-src 'none';`,
 			`img-src ${webview.cspSource} https: data:;`,
@@ -193,7 +193,7 @@ export class WebViewService implements IWebViewService {
 		const entry = `${origin}/src/main.ts`;
 
 		return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="${csp}" />
@@ -210,7 +210,7 @@ export class WebViewService implements IWebViewService {
 	}
 
 	/**
-	 * 生成随机 nonce
+	 * Generate random nonce
 	 */
 	private getNonce(): string {
 		let text = '';

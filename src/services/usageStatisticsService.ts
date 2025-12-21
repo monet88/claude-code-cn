@@ -1,5 +1,5 @@
 /**
- * Token 使用统计服务
+ * Token Usage Statistics Service
  */
 
 import * as fs from 'fs';
@@ -20,7 +20,7 @@ export interface SessionSummary {
   model: string;
   usage: UsageData;
   cost: number;
-  summary?: string;  // 添加会话标题字段
+  summary?: string;  // Session title field
 }
 
 export interface ModelUsage {
@@ -54,7 +54,7 @@ export interface WeeklyComparison {
     tokens: number;
   };
   trends: {
-    sessions: number; // 百分比变化
+    sessions: number; // Percentage change
     cost: number;
     tokens: number;
   };
@@ -74,7 +74,7 @@ export interface ProjectStatistics {
 }
 
 /**
- * Token 定价（基于 Claude API 官方定价，每百万 tokens）
+ * Token Pricing (Based on Claude API official pricing, per million tokens)
  */
 const MODEL_PRICING = {
   // Claude Opus 4 pricing (per million tokens)
@@ -101,10 +101,10 @@ const MODEL_PRICING = {
 };
 
 /**
- * 根据模型名称获取定价
+ * Get pricing based on model name
  */
 function getModelPricing(model: string) {
-  // 检测模型类型
+  // Detect model type
   const modelLower = model.toLowerCase();
 
   if (modelLower.includes('opus-4') || modelLower.includes('claude-opus-4')) {
@@ -115,38 +115,38 @@ function getModelPricing(model: string) {
     return MODEL_PRICING['claude-sonnet-4'];
   }
 
-  // 默认使用 Sonnet 4 定价
+  // Default to Sonnet 4 pricing
   return MODEL_PRICING['claude-sonnet-4'];
 }
 
 /**
- * 将项目路径转换为 ~/.claude/projects 中的文件夹名称
+ * Convert project path to folder name in ~/.claude/projects
  *
- * 示例：
+ * Example:
  * - Mac: /Users/username/Desktop/project -> -Users-username-Desktop-project
  * - Windows: C:\Users\Admin\Desktop\project -> c--Users-Admin-Desktop-project
  */
 function getProjectFolderName(projectPath: string): string {
-  // 标准化路径：将反斜杠转换为正斜杠（处理Windows路径）
+  // Standardize path: convert backslashes to forward slashes (handle Windows paths)
   let normalizedPath = projectPath.replace(/\\/g, '/');
 
-  // 处理Windows盘符：C:/Users/... -> c-/Users/...
-  // 盘符转小写，冒号转为连字符
+  // Handle Windows drive letter: C:/Users/... -> c-/Users/...
+  // Drive letter to lowercase, colon to hyphen
   if (/^[a-zA-Z]:/.test(normalizedPath)) {
     normalizedPath = normalizedPath[0].toLowerCase() + '-' + normalizedPath.substring(2);
   }
 
-  // 处理中文和特殊字符：将非ASCII字符替换为 '-'
+  // Handle Chinese and special characters: replace non-ASCII characters with '-'
   const cleanPath = normalizedPath.replace(/[^\x00-\x7F]/g, '-');
 
-  // 将 '/' 替换为 '-'
+  // Replace '/' with '-'
   // Mac: /Users/... → -Users-...
   // Windows: c-/Users/... → c--Users-...
   return cleanPath.replace(/\//g, '-');
 }
 
 /**
- * 读取并解析单个会话文件（带去重机制）
+ * Read and parse a single session file (with deduplication mechanism)
  */
 async function parseSessionFile(
   filePath: string,
@@ -169,43 +169,43 @@ async function parseSessionFile(
     let totalCost = 0;
     let sessionSummary: string | undefined;
 
-    // 解析每一行 JSON
+    // Parse each JSON line
     for (const line of lines) {
       try {
         const data = JSON.parse(line);
 
-        // 记录第一条消息的时间戳
+        // Record timestamp of the first message
         if (!firstTimestamp && data.timestamp) {
-          // 处理不同格式的时间戳
+          // Handle different timestamp formats
           if (typeof data.timestamp === 'string') {
-            // ISO 字符串格式，如 "2025-11-18T03:33:37.934Z"
+            // ISO string format, e.g., "2025-11-18T03:33:37.934Z"
             firstTimestamp = new Date(data.timestamp).getTime();
           } else if (typeof data.timestamp === 'number') {
-            // 数字格式，判断是秒还是毫秒
+            // Number format, determine if it's seconds or milliseconds
             firstTimestamp = data.timestamp < 1000000000000 ? data.timestamp * 1000 : data.timestamp;
           }
         }
 
-        // 查找 summary 类型的消息
+        // Find summary type messages
         if (data.type === 'summary' && data.summary) {
           sessionSummary = data.summary;
         }
 
-        // 查找 assistant 消息中的 usage 数据
+        // Find usage data in assistant messages
         if (data.type === 'assistant' && data.message && data.message.usage) {
           const message = data.message;
           const msgUsage = message.usage;
 
-          // 去重检查：使用 message.id + requestId 作为唯一标识
+          // Deduplication check: use message.id + requestId as unique identifier
           if (message.id && data.requestId) {
             const uniqueHash = `${message.id}:${data.requestId}`;
             if (processedHashes.has(uniqueHash)) {
-              continue; // 跳过重复的条目
+              continue; // Skip duplicate entries
             }
             processedHashes.add(uniqueHash);
           }
 
-          // 跳过无意义的空 token 条目
+          // Skip meaningless empty token entries
           const hasTokens =
             (msgUsage.input_tokens || 0) > 0 ||
             (msgUsage.output_tokens || 0) > 0 ||
@@ -216,12 +216,12 @@ async function parseSessionFile(
             continue;
           }
 
-          // 提取模型名称
+          // Extract model name
           if (message.model && model === 'unknown') {
             model = message.model;
           }
 
-          // 累加 token 使用量
+          // Accumulate token usage
           const inputTokens = msgUsage.input_tokens || 0;
           const outputTokens = msgUsage.output_tokens || 0;
           const cacheWriteTokens = msgUsage.cache_creation_input_tokens || 0;
@@ -232,11 +232,11 @@ async function parseSessionFile(
           usage.cacheWriteTokens += cacheWriteTokens;
           usage.cacheReadTokens += cacheReadTokens;
 
-          // 计算成本（优先使用 API 返回的成本）
+          // Calculate cost (prioritize using API returned cost)
           if (data.costUSD) {
             totalCost += data.costUSD;
           } else if (message.model) {
-            // 自行计算成本
+            // Calculate cost manually
             const pricing = getModelPricing(message.model);
             const cost =
               (inputTokens * pricing.input) / 1_000_000 +
@@ -247,26 +247,26 @@ async function parseSessionFile(
           }
         }
       } catch (err) {
-        // 跳过无法解析的行
+        // Skip unparseable lines
         continue;
       }
     }
 
-    // 计算总 token 数
+    // Calculate total token count
     usage.totalTokens =
       usage.inputTokens +
       usage.outputTokens +
       usage.cacheWriteTokens +
       usage.cacheReadTokens;
 
-    // 如果没有任何 token 使用，返回 null
+    // If no token usage, return null
     if (usage.totalTokens === 0) {
       return null;
     }
 
     const sessionId = path.basename(filePath, '.jsonl');
 
-    // 确保 timestamp 是有效的数字
+    // Ensure timestamp is a valid number
     const validTimestamp = firstTimestamp && !isNaN(firstTimestamp) && firstTimestamp > 0
       ? firstTimestamp
       : Date.now();
@@ -277,7 +277,7 @@ async function parseSessionFile(
       model,
       usage,
       cost: totalCost,
-      summary: sessionSummary,  // 添加会话标题
+      summary: sessionSummary,  // Session title
     };
   } catch (err) {
     console.error(`Failed to parse session file ${filePath}:`, err);
@@ -286,7 +286,7 @@ async function parseSessionFile(
 }
 
 /**
- * 计算费用（基于模型和使用量）
+ * Calculate fee (based on model and usage)
  */
 function calculateCost(usage: UsageData, model: string = 'claude-sonnet-4'): number {
   const pricing = getModelPricing(model);
@@ -299,13 +299,13 @@ function calculateCost(usage: UsageData, model: string = 'claude-sonnet-4'): num
 }
 
 /**
- * 聚合日期数据
+ * Aggregate daily data
  */
 function aggregateDailyUsage(sessions: SessionSummary[]): DailyUsage[] {
   const dailyMap = new Map<string, DailyUsage>();
 
   sessions.forEach(session => {
-    // 时间戳已经是毫秒单位
+    // Timestamp is already in milliseconds
     const date = new Date(session.timestamp).toISOString().split('T')[0];
 
     if (!dailyMap.has(date)) {
@@ -333,18 +333,18 @@ function aggregateDailyUsage(sessions: SessionSummary[]): DailyUsage[] {
     daily.usage.totalTokens += session.usage.totalTokens;
     daily.cost += session.cost;
 
-    // 记录使用的模型
+    // Record models used
     if (session.model && !daily.modelsUsed.includes(session.model)) {
       daily.modelsUsed.push(session.model);
     }
   });
 
-  // 按日期排序
+  // Sort by date
   return Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /**
- * 聚合按模型的数据
+ * Aggregate data by model
  */
 function aggregateByModel(sessions: SessionSummary[]): ModelUsage[] {
   const modelMap = new Map<string, ModelUsage>();
@@ -373,12 +373,12 @@ function aggregateByModel(sessions: SessionSummary[]): ModelUsage[] {
     modelStat.sessionCount += 1;
   });
 
-  // 按总成本降序排序
+  // Sort by total cost descending
   return Array.from(modelMap.values()).sort((a, b) => b.totalCost - a.totalCost);
 }
 
 /**
- * 计算周对比数据
+ * Calculate weekly comparison data
  */
 function calculateWeeklyComparison(sessions: SessionSummary[]): WeeklyComparison {
   const now = new Date();
@@ -386,15 +386,15 @@ function calculateWeeklyComparison(sessions: SessionSummary[]): WeeklyComparison
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
   const currentWeekSessions = sessions.filter(s => {
-    // 时间戳已经是毫秒单位
+    // Timestamp is already in milliseconds
     return s.timestamp > oneWeekAgo.getTime();
   });
   const lastWeekSessions = sessions.filter(s => {
-    // 时间戳已经是毫秒单位
+    // Timestamp is already in milliseconds
     return s.timestamp > twoWeeksAgo.getTime() && s.timestamp <= oneWeekAgo.getTime();
   });
 
-  // 聚合当前周数据
+  // Aggregate current week data
   const currentWeek = {
     sessions: currentWeekSessions.length,
     cost: 0,
@@ -406,7 +406,7 @@ function calculateWeeklyComparison(sessions: SessionSummary[]): WeeklyComparison
     currentWeek.cost += s.cost;
   });
 
-  // 聚合上周数据
+  // Aggregate last week data
   const lastWeek = {
     sessions: lastWeekSessions.length,
     cost: 0,
@@ -418,7 +418,7 @@ function calculateWeeklyComparison(sessions: SessionSummary[]): WeeklyComparison
     lastWeek.cost += s.cost;
   });
 
-  // 计算趋势（百分比）
+  // Calculate trends (percentage)
   const trends = {
     sessions: lastWeek.sessions === 0 ? 0 :
       ((currentWeek.sessions - lastWeek.sessions) / lastWeek.sessions) * 100,
@@ -436,7 +436,7 @@ function calculateWeeklyComparison(sessions: SessionSummary[]): WeeklyComparison
 }
 
 /**
- * 获取当前项目的使用统计
+ * Get usage statistics for current project
  */
 export async function getCurrentProjectStatistics(
   projectPath: string
@@ -446,13 +446,13 @@ export async function getCurrentProjectStatistics(
     const projectFolderName = getProjectFolderName(projectPath);
     const projectDir = path.join(claudeDir, projectFolderName);
 
-    // 检查项目目录是否存在
+    // Check if project directory exists
     if (!fs.existsSync(projectDir)) {
       console.log(`Project directory not found: ${projectDir}`);
       return null;
     }
 
-    // 读取所有会话文件
+    // Read all session files
     const files = fs.readdirSync(projectDir).filter((f) => f.endsWith('.jsonl'));
 
     if (files.length === 0) {
@@ -480,9 +480,9 @@ export async function getCurrentProjectStatistics(
       };
     }
 
-    // 解析所有会话文件（带去重）
+    // Parse all session files (with deduplication)
     const sessions: SessionSummary[] = [];
-    const processedHashes = new Set<string>(); // 用于去重
+    const processedHashes = new Set<string>(); // Used for deduplication
     const totalUsage: UsageData = {
       inputTokens: 0,
       outputTokens: 0,
@@ -499,7 +499,7 @@ export async function getCurrentProjectStatistics(
       if (session) {
         sessions.push(session);
 
-        // 累加总使用量
+        // Accumulate total usage
         totalUsage.inputTokens += session.usage.inputTokens;
         totalUsage.outputTokens += session.usage.outputTokens;
         totalUsage.cacheWriteTokens += session.usage.cacheWriteTokens;
@@ -509,42 +509,42 @@ export async function getCurrentProjectStatistics(
       }
     }
 
-    // 创建两个排序版本的会话数组
+    // Create two sorted versions of the sessions array
     const sessionsByTime = [...sessions].sort((a, b) => {
-      // 时间戳已经是毫秒单位
+      // Timestamp is already in milliseconds
       return b.timestamp - a.timestamp;
     });
     const sessionsByCost = [...sessions].sort((a, b) => b.cost - a.cost);
 
-    // 合并两个数组，去重，保留最相关的会话
+    // Merge two arrays, deduplicate, and keep the most relevant sessions
     const topSessions = new Map<string, SessionSummary>();
 
-    // 先添加最近100个会话
+    // Add recent 100 sessions first
     sessionsByTime.slice(0, 100).forEach(session => {
       topSessions.set(session.sessionId, session);
     });
 
-    // 再添加消费最高的100个会话
+    // Add 100 highest consumption sessions second
     sessionsByCost.slice(0, 100).forEach(session => {
       if (!topSessions.has(session.sessionId)) {
         topSessions.set(session.sessionId, session);
       }
     });
 
-    // 转回数组，按时间戳排序（默认显示顺序）
+    // Convert back to array, sort by timestamp (default display order)
     const finalSessions = Array.from(topSessions.values())
       .sort((a, b) => {
-        // 时间戳已经是毫秒单位
+        // Timestamp is already in milliseconds
         return b.timestamp - a.timestamp;
       });
 
-    // 聚合日期数据
+    // Aggregate daily data
     const dailyUsage = aggregateDailyUsage(sessions);
 
-    // 聚合按模型数据
+    // Aggregate data by model
     const byModel = aggregateByModel(sessions);
 
-    // 计算周对比
+    // Calculate weekly comparison
     const weeklyComparison = calculateWeeklyComparison(sessions);
 
     return {
@@ -553,8 +553,8 @@ export async function getCurrentProjectStatistics(
       totalSessions: sessions.length,
       totalUsage,
       estimatedCost: totalCost,
-      sessions: finalSessions, // 返回最相关的会话（最近的和消费最高的）
-      dailyUsage: dailyUsage.slice(-30), // 只返回最近 30 天
+      sessions: finalSessions, // Returns the most relevant sessions (recent and highest cost)
+      dailyUsage: dailyUsage.slice(-30), // Returns only the most recent 30 days
       weeklyComparison,
       byModel,
       lastUpdated: Date.now(),
@@ -566,7 +566,7 @@ export async function getCurrentProjectStatistics(
 }
 
 /**
- * 获取所有项目的统计列表（用于未来扩展）
+ * Get statistics list for all projects (for future extension)
  */
 export async function getAllProjectsStatistics(): Promise<ProjectStatistics[]> {
   try {
@@ -584,7 +584,7 @@ export async function getAllProjectsStatistics(): Promise<ProjectStatistics[]> {
     const results: ProjectStatistics[] = [];
 
     for (const folder of projectFolders) {
-      // 将文件夹名转回路径
+      // Convert folder name back to path
       // -Users-username-Desktop-project -> /Users/username/Desktop/project
       const projectPath = folder.substring(1).replace(/-/g, '/');
 
@@ -594,7 +594,7 @@ export async function getAllProjectsStatistics(): Promise<ProjectStatistics[]> {
       }
     }
 
-    // 按总费用排序
+    // Sort by total cost
     results.sort((a, b) => b.estimatedCost - a.estimatedCost);
 
     return results;
@@ -605,7 +605,7 @@ export async function getAllProjectsStatistics(): Promise<ProjectStatistics[]> {
 }
 
 /**
- * 获取所有项目的聚合统计数据
+ * Get aggregated statistics for all projects
  */
 export async function getAllProjectsAggregatedStatistics(): Promise<ProjectStatistics | null> {
   try {
@@ -620,7 +620,7 @@ export async function getAllProjectsAggregatedStatistics(): Promise<ProjectStati
       return fs.statSync(fullPath).isDirectory();
     });
 
-    // 聚合所有项目的数据
+    // Aggregate data for all projects
     const allSessions: SessionSummary[] = [];
     const totalUsage: UsageData = {
       inputTokens: 0,
@@ -630,12 +630,12 @@ export async function getAllProjectsAggregatedStatistics(): Promise<ProjectStati
       totalTokens: 0,
     };
     let totalCost = 0;
-    const processedHashes = new Set<string>(); // 用于全局去重
+    const processedHashes = new Set<string>(); // Global deduplication
 
     for (const folder of projectFolders) {
       const projectDir = path.join(claudeDir, folder);
 
-      // 读取该项目的所有会话文件
+      // Read all session files for this project
       const files = fs.readdirSync(projectDir).filter((f) => f.endsWith('.jsonl'));
 
       for (const file of files) {
@@ -645,7 +645,7 @@ export async function getAllProjectsAggregatedStatistics(): Promise<ProjectStati
         if (session) {
           allSessions.push(session);
 
-          // 累加总使用量
+          // Accumulate total usage
           totalUsage.inputTokens += session.usage.inputTokens;
           totalUsage.outputTokens += session.usage.outputTokens;
           totalUsage.cacheWriteTokens += session.usage.cacheWriteTokens;
@@ -659,7 +659,7 @@ export async function getAllProjectsAggregatedStatistics(): Promise<ProjectStati
     if (allSessions.length === 0) {
       return {
         projectPath: 'all',
-        projectName: '所有项目',
+        projectName: 'All projects',
         totalSessions: 0,
         totalUsage: {
           inputTokens: 0,
@@ -681,52 +681,52 @@ export async function getAllProjectsAggregatedStatistics(): Promise<ProjectStati
       };
     }
 
-    // 创建两个排序版本的会话数组
+    // Create two sorted versions of the sessions array
     const sessionsByTime = [...allSessions].sort((a, b) => {
-      // 时间戳已经是毫秒单位
+      // Timestamp is already in milliseconds
       return b.timestamp - a.timestamp;
     });
     const sessionsByCost = [...allSessions].sort((a, b) => b.cost - a.cost);
 
-    // 合并两个数组，去重，保留最相关的会话
+    // Merge two arrays, deduplicate, and keep the most relevant sessions
     const topSessions = new Map<string, SessionSummary>();
 
-    // 先添加最近100个会话
+    // Add recent 100 sessions first
     sessionsByTime.slice(0, 100).forEach(session => {
       topSessions.set(session.sessionId, session);
     });
 
-    // 再添加消费最高的100个会话
+    // Add 100 highest consumption sessions second
     sessionsByCost.slice(0, 100).forEach(session => {
       if (!topSessions.has(session.sessionId)) {
         topSessions.set(session.sessionId, session);
       }
     });
 
-    // 转回数组，按时间戳排序（默认显示顺序）
+    // Convert back to array, sort by timestamp (default display order)
     const finalSessions = Array.from(topSessions.values())
       .sort((a, b) => {
-        // 时间戳已经是毫秒单位
+        // Timestamp is already in milliseconds
         return b.timestamp - a.timestamp;
       });
 
-    // 聚合日期数据
+    // Aggregate daily data
     const dailyUsage = aggregateDailyUsage(allSessions);
 
-    // 聚合按模型数据
+    // Aggregate data by model
     const byModel = aggregateByModel(allSessions);
 
-    // 计算周对比
+    // Calculate weekly comparison
     const weeklyComparison = calculateWeeklyComparison(allSessions);
 
     return {
       projectPath: 'all',
-      projectName: '所有项目',
+      projectName: 'All projects',
       totalSessions: allSessions.length,
       totalUsage,
       estimatedCost: totalCost,
-      sessions: finalSessions, // 返回最相关的会话（最近的和消费最高的）
-      dailyUsage: dailyUsage.slice(-30), // 只返回最近 30 天
+      sessions: finalSessions, // Returns the most relevant sessions (recent and highest consumption)
+      dailyUsage: dailyUsage.slice(-30), // Returns only the most recent 30 days
       weeklyComparison,
       byModel,
       lastUpdated: Date.now(),

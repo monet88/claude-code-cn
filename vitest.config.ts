@@ -1,6 +1,6 @@
 /**
- * Vitest 测试配置 / Vitest Test Configuration
- * 基于 vscode-copilot-chat 的配置简化版
+ * Vitest Test Configuration
+ * Simplified version based on vscode-copilot-chat configuration
  */
 
 import * as path from 'path';

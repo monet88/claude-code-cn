@@ -27,6 +27,8 @@ import { IClaudeSettingsService, ClaudeSettingsService } from './claudeSettingsS
 import { ICCSwitchSettingsService, CCSwitchSettingsService } from './ccSwitchSettingsService';
 import { IMcpService, McpService } from './mcpService';
 import { ISkillService, SkillService } from './skillService';
+import { IAgentConfigService, AgentConfigService } from './agentConfigService';
+import { ICommandConfigService, CommandConfigService } from './commandConfigService';
 
 /**
  * Register all services to the builder
@@ -74,6 +76,12 @@ export function registerServices(
 
 	// Skill service
 	builder.define(ISkillService, new SyncDescriptor(SkillService));
+
+	// Agent config service
+	builder.define(IAgentConfigService, new SyncDescriptor(AgentConfigService));
+
+	// Command config service
+	builder.define(ICommandConfigService, new SyncDescriptor(CommandConfigService));
 }
 
 // Export all service interfaces for convenience
@@ -94,5 +102,7 @@ export {
 	IClaudeSettingsService,
 	ICCSwitchSettingsService,
 	IMcpService,
-	ISkillService
+	ISkillService,
+	IAgentConfigService,
+	ICommandConfigService
 };

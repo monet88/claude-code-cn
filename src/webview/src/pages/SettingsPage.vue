@@ -51,22 +51,20 @@
             <span class="sidebar-item-text">Skills</span>
           </div>
           <div
-            :class="['sidebar-item', { active: currentTab === 'permissions', warning: true }]"
-            @click="currentTab = 'permissions'"
-            :title="isCollapsed ? '权限配置' : ''"
+            :class="['sidebar-item', { active: currentTab === 'commands' }]"
+            @click="currentTab = 'commands'"
+            :title="isCollapsed ? 'Commands' : ''"
           >
-            <span class="codicon codicon-shield"></span>
-            <span class="sidebar-item-text">Permissions</span>
-            <span class="codicon codicon-warning"></span>
+            <span class="codicon codicon-terminal"></span>
+            <span class="sidebar-item-text">Commands</span>
           </div>
           <div
-            :class="['sidebar-item', { active: currentTab === 'agents', warning: true }]"
+            :class="['sidebar-item', { active: currentTab === 'agents' }]"
             @click="currentTab = 'agents'"
             :title="isCollapsed ? 'Agents' : ''"
           >
             <span class="codicon codicon-robot"></span>
             <span class="sidebar-item-text">Agents</span>
-            <span class="codicon codicon-warning"></span>
           </div>
           <div
             :class="['sidebar-item', { active: currentTab === 'community' }]"
@@ -257,10 +255,26 @@
           <SkillPanel />
         </div>
 
+        <!-- Commands -->
+        <div v-else-if="currentTab === 'commands'" class="config-section commands-section">
+          <h3 class="section-title">Commands</h3>
+          <p class="section-desc">Manage slash commands that can be used in conversations.</p>
+
+          <CommandPanel />
+        </div>
+
+        <!-- Agents -->
+        <div v-else-if="currentTab === 'agents'" class="config-section agents-section">
+          <h3 class="section-title">Agents</h3>
+          <p class="section-desc">Manage custom AI agents that can be invoked during conversations.</p>
+
+          <AgentPanel />
+        </div>
+
         <!-- Other tabs are placeholders. -->
         <div v-else class="config-section">
           <h3 class="section-title">{{ currentTab }}</h3>
-          <p class="section-desc">More settings coming soon...</p>
+          <p class="section-desc">More settings</p>
         </div>
       </div>
     </div>
@@ -308,6 +322,8 @@ import MessageDialog from '../components/MessageDialog.vue';
 import UsageStatisticsSection from '../components/UsageStatisticsSection.vue';
 import McpServerPanel from '../components/McpServerPanel.vue';
 import SkillPanel from '../components/SkillPanel.vue';
+import AgentPanel from '../components/AgentPanel.vue';
+import CommandPanel from '../components/CommandPanel.vue';
 import { RuntimeKey } from '../composables/runtimeContext';
 
 defineEmits<{

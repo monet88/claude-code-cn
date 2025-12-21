@@ -1,6 +1,6 @@
 /**
- * Claude 配置文件服务
- * 用于读写 ~/.claude/settings.json
+ * Claude Configuration File Service
+ * Used to read and write ~/.claude/settings.json
  */
 
 import * as vscode from 'vscode';
@@ -13,61 +13,61 @@ import { ILogService } from './logService';
 export const IClaudeSettingsService = createDecorator<IClaudeSettingsService>('claudeSettingsService');
 
 /**
- * Claude 配置结构 (动态 ~/.claude/settings.json)
- * 完全动态，不硬编码任何字段
+ * Claude Configuration Structure (Dynamic ~/.claude/settings.json)
+ * Entirely dynamic, does not hardcode any fields
  */
 export interface ClaudeSettings {
-  /** 环境变量 - 唯一需要特殊处理的字段 */
+  /** Environment Variables - only field needing special handling */
   env?: Record<string, string | undefined>;
-  /** 其他任意配置 - 动态从 settings.json 读取 */
+  /** Any other configuration - dynamically read from settings.json */
   [key: string]: any;
 }
 
 /**
- * Claude 配置文件服务接口
+ * Claude Configuration File Service Interface
  */
 export interface IClaudeSettingsService {
   readonly _serviceBrand: undefined;
 
   /**
-   * 获取 Claude 配置文件路径
+   * Get Claude configuration file path
    */
   getSettingsPath(): string;
 
   /**
-   * 读取 Claude 配置
+   * Read Claude configuration
    */
   readSettings(): Promise<ClaudeSettings>;
 
   /**
-   * 写入 Claude 配置
+   * Write Claude configuration
    */
   writeSettings(settings: ClaudeSettings): Promise<void>;
 
   /**
-   * 更新供应商配置
-   * @param env 环境变量配置对象
+   * Update provider configuration
+   * @param env Environment variable configuration object
    */
   updateProvider(env: Record<string, string | undefined>): Promise<void>;
 
   /**
-   * 获取当前供应商配置
+   * Get current provider configuration
    */
   getCurrentProvider(): Promise<{ apiKey: string; baseUrl: string }>;
 }
 
 /**
- * Claude 配置文件服务实现
+ * Claude Configuration File Service Implementation
  */
 export class ClaudeSettingsService implements IClaudeSettingsService {
   readonly _serviceBrand: undefined;
 
   constructor(
     @ILogService private readonly logService: ILogService
-  ) {}
+  ) { }
 
   /**
-   * 获取 Claude 配置文件路径
+   * Get Claude configuration file path
    */
   getSettingsPath(): string {
     const homeDir = os.homedir();
@@ -75,23 +75,23 @@ export class ClaudeSettingsService implements IClaudeSettingsService {
   }
 
   /**
-   * 读取 Claude 配置
+   * Read Claude configuration
    */
   async readSettings(): Promise<ClaudeSettings> {
     const settingsPath = this.getSettingsPath();
 
     try {
-      // 检查文件是否存在
+      // Check if file exists
       if (!fs.existsSync(settingsPath)) {
         this.logService.warn(`Claude settings file not found: ${settingsPath}`);
         return { env: {} };
       }
 
-      // 读取文件内容（保留所有字段）
+      // Read file content (preserving all fields)
       const content = await fs.promises.readFile(settingsPath, 'utf-8');
       const settings = JSON.parse(content) as ClaudeSettings;
 
-      // 确保 env 对象存在
+      // Ensure env object exists
       if (!settings.env) {
         settings.env = {};
       }
@@ -105,20 +105,20 @@ export class ClaudeSettingsService implements IClaudeSettingsService {
   }
 
   /**
-   * 写入 Claude 配置
+   * Write Claude configuration
    */
   async writeSettings(settings: ClaudeSettings): Promise<void> {
     const settingsPath = this.getSettingsPath();
 
     try {
-      // 确保目录存在
+      // Ensure directory exists
       const settingsDir = path.dirname(settingsPath);
       if (!fs.existsSync(settingsDir)) {
         await fs.promises.mkdir(settingsDir, { recursive: true });
         this.logService.info(`Created Claude settings directory: ${settingsDir}`);
       }
 
-      // 写入文件（格式化 JSON）
+      // Write file (formatted JSON)
       const content = JSON.stringify(settings, null, 2);
       await fs.promises.writeFile(settingsPath, content, 'utf-8');
 
@@ -130,27 +130,27 @@ export class ClaudeSettingsService implements IClaudeSettingsService {
   }
 
   /**
-   * 更新供应商配置
+   * Update provider configuration
    */
   async updateProvider(env: Record<string, string | undefined>): Promise<void> {
     try {
-      // 读取当前配置
+      // Read current configuration
       const settings = await this.readSettings();
 
-      // 更新环境变量 - 合并新的 env 到现有配置
+      // Update environment variables - merge new env into existing configuration
       settings.env = settings.env || {};
-      
-      // 遍历新的 env 对象，更新或删除值
+
+      // Iterate over new env object, update or delete values
       for (const [key, value] of Object.entries(env)) {
         if (value !== undefined && value !== '') {
           settings.env[key] = value;
         } else {
-          // 如果值为空或 undefined，删除该 key
+          // If value is empty or undefined, delete the key
           delete settings.env[key];
         }
       }
 
-      // 写回配置文件
+      // Save back to configuration file
       await this.writeSettings(settings);
 
       this.logService.info(`Successfully updated Claude provider settings`);
@@ -161,14 +161,14 @@ export class ClaudeSettingsService implements IClaudeSettingsService {
   }
 
   /**
-   * 获取当前供应商配置
+   * Get current provider configuration
    */
   async getCurrentProvider(): Promise<{ apiKey: string; baseUrl: string }> {
     try {
       const settings = await this.readSettings();
       return {
-        apiKey: settings.env.ANTHROPIC_AUTH_TOKEN || '',
-        baseUrl: settings.env.ANTHROPIC_BASE_URL || ''
+        apiKey: settings.env?.ANTHROPIC_AUTH_TOKEN || '',
+        baseUrl: settings.env?.ANTHROPIC_BASE_URL || ''
       };
     } catch (error) {
       this.logService.error(`Failed to get current provider: ${error}`);

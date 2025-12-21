@@ -1,7 +1,7 @@
 /**
- * Handler 类型定义
+ * Handler Type Definitions
  *
- * 所有 handler 应遵循统一签名，便于路由和复用
+ * All handlers should follow a unified signature for easy routing and reuse.
  */
 
 import { ILogService } from '../../logService';

@@ -1,11 +1,11 @@
 /**
- * MCP (Model Context Protocol) 服务
+ * MCP (Model Context Protocol) Service
  *
- * 管理 Claude 的 MCP 服务器配置
+ * Manages Claude's MCP server configuration
  *
- * 支持两种配置来源：
- * 1. cc-switch 格式: ~/.cc-switch/config.json (主要，优先读取)
- * 2. Claude 原生格式: ~/.claude.json (兼容，同步写入)
+ * Supports two configuration sources:
+ * 1. cc-switch format: ~/.cc-switch/config.json (Primary, prioritized)
+ * 2. Claude native format: ~/.claude.json (Compatible, synchronized writing)
  */
 
 import * as fs from 'fs';
@@ -25,69 +25,69 @@ import type {
 export const IMcpService = createDecorator<IMcpService>('mcpService');
 
 /**
- * MCP 服务接口
+ * MCP Service Interface
  */
 export interface IMcpService {
   readonly _serviceBrand: undefined;
 
   /**
-   * 获取 cc-switch 配置文件路径
+   * Get cc-switch config file path
    */
   getCCSwitchConfigPath(): string;
 
   /**
-   * 获取 Claude 配置文件路径
+   * Get Claude config file path
    */
   getClaudeConfigPath(): string;
 
   /**
-   * 获取所有 MCP 服务器
+   * Get all MCP servers
    */
   getAllServers(): Promise<McpServersMap>;
 
   /**
-   * 获取单个 MCP 服务器
+   * Get a single MCP server
    */
   getServer(id: string): Promise<McpServer | null>;
 
   /**
-   * 添加或更新 MCP 服务器
+   * Add or update an MCP server
    */
   upsertServer(server: McpServer): Promise<void>;
 
   /**
-   * 删除 MCP 服务器
+   * Delete an MCP server
    */
   deleteServer(id: string): Promise<boolean>;
 
   /**
-   * 切换服务器在指定应用的启用状态
+   * Toggle server enabled state for a specific app
    */
   toggleApp(serverId: string, app: keyof McpApps, enabled: boolean): Promise<void>;
 
   /**
-   * 验证 MCP 服务器配置
+   * Validate MCP server configuration
    */
   validateServer(server: McpServer): { valid: boolean; errors: string[] };
 
   /**
-   * 同步配置到 Claude 原生文件
+   * Synchronize config to Claude native file
    */
   syncToClaudeConfig(): Promise<void>;
 }
 
 /**
- * MCP 服务实现
+ * MCP Service Implementation
  */
 export class McpService implements IMcpService {
   readonly _serviceBrand: undefined;
 
   constructor(
     @ILogService private readonly logService: ILogService
-  ) {}
+  ) { }
 
   /**
-   * 获取 cc-switch 配置文件路径
+   * Get cc-switch config file path
    */
   getCCSwitchConfigPath(): string {
     const homeDir = os.homedir();
@@ -95,7 +95,7 @@ export class McpService implements IMcpService {
   }
 
   /**
-   * 获取 Claude 配置文件路径
+   * Get Claude config file path
    */
   getClaudeConfigPath(): string {
     const homeDir = os.homedir();
@@ -103,14 +103,14 @@ export class McpService implements IMcpService {
   }
 
   /**
-   * 读取 cc-switch 配置
+   * Read cc-switch configuration
    */
   private async readCCSwitchConfig(): Promise<CCSwitchConfig> {
     const configPath = this.getCCSwitchConfigPath();
 
     try {
       if (!fs.existsSync(configPath)) {
-        this.logService.info(`[MCP] cc-switch 配置文件不存在: ${configPath}`);
+        this.logService.info(`[MCP] cc-switch configuration file does not exist: ${configPath}`);
         return {};
       }
 
@@ -120,46 +120,46 @@ export class McpService implements IMcpService {
       }
 
       const config = JSON.parse(content) as CCSwitchConfig;
-      this.logService.info(`[MCP] 成功读取 cc-switch 配置: ${configPath}`);
+      this.logService.info(`[MCP] Successfully read cc-switch configuration: ${configPath}`);
       return config;
     } catch (error) {
-      this.logService.error(`[MCP] 读取 cc-switch 配置失败: ${error}`);
+      this.logService.error(`[MCP] Failed to read cc-switch configuration: ${error}`);
       return {};
     }
   }
 
   /**
-   * 写入 cc-switch 配置
+   * Write cc-switch configuration
    */
   private async writeCCSwitchConfig(config: CCSwitchConfig): Promise<void> {
     const configPath = this.getCCSwitchConfigPath();
 
     try {
-      // 确保目录存在
+      // Ensure directory exists
       const configDir = path.dirname(configPath);
       if (!fs.existsSync(configDir)) {
         await fs.promises.mkdir(configDir, { recursive: true });
-        this.logService.info(`[MCP] 创建 cc-switch 配置目录: ${configDir}`);
+        this.logService.info(`[MCP] Created cc-switch configuration directory: ${configDir}`);
       }
 
-      // 创建备份
+      // Create backup
       if (fs.existsSync(configPath)) {
         const backupPath = configPath + '.bak';
         await fs.promises.copyFile(configPath, backupPath);
       }
 
-      // 写入文件
+      // Write file
       const content = JSON.stringify(config, null, 2);
       await fs.promises.writeFile(configPath, content, 'utf-8');
-      this.logService.info(`[MCP] 成功写入 cc-switch 配置: ${configPath}`);
+      this.logService.info(`[MCP] Successfully wrote cc-switch configuration: ${configPath}`);
     } catch (error) {
-      this.logService.error(`[MCP] 写入 cc-switch 配置失败: ${error}`);
+      this.logService.error(`[MCP] Failed to write cc-switch configuration: ${error}`);
       throw error;
     }
   }
 
   /**
-   * 读取 Claude 原生配置
+   * Read native Claude configuration
    */
   private async readClaudeConfig(): Promise<ClaudeConfig> {
     const configPath = this.getClaudeConfigPath();
@@ -176,13 +176,13 @@ export class McpService implements IMcpService {
 
       return JSON.parse(content) as ClaudeConfig;
     } catch (error) {
-      this.logService.error(`[MCP] 读取 Claude 配置失败: ${error}`);
+      this.logService.error(`[MCP] Failed to read Claude configuration: ${error}`);
       return { mcpServers: {} };
     }
   }
 
   /**
-   * 写入 Claude 原生配置
+   * Write native Claude configuration
    */
   private async writeClaudeConfig(config: ClaudeConfig): Promise<void> {
     const configPath = this.getClaudeConfigPath();
@@ -190,24 +190,24 @@ export class McpService implements IMcpService {
     try {
       const content = JSON.stringify(config, null, 2);
       await fs.promises.writeFile(configPath, content, 'utf-8');
-      this.logService.info(`[MCP] 成功写入 Claude 配置: ${configPath}`);
+      this.logService.info(`[MCP] Successfully wrote Claude configuration: ${configPath}`);
     } catch (error) {
-      this.logService.error(`[MCP] 写入 Claude 配置失败: ${error}`);
+      this.logService.error(`[MCP] Failed to write Claude configuration: ${error}`);
       throw error;
     }
   }
 
   /**
-   * 获取所有 MCP 服务器
-   * 优先从 cc-switch 配置读取，如果不存在则从 Claude 配置读取
+   * Get all MCP servers
+   * Prioritize reading from cc-switch configuration, fall back to Claude configuration if it doesn't exist
    */
   async getAllServers(): Promise<McpServersMap> {
-    // 1. 尝试从 cc-switch 配置读取
+    // 1. Try reading from cc-switch configuration
     const ccSwitchConfig = await this.readCCSwitchConfig();
 
     if (ccSwitchConfig.mcp?.servers && Object.keys(ccSwitchConfig.mcp.servers).length > 0) {
       const servers = ccSwitchConfig.mcp.servers;
-      // 确保每个服务器都有 id 字段
+      // Ensure each server has an id field
       const serversMap: McpServersMap = {};
       for (const [id, server] of Object.entries(servers)) {
         serversMap[id] = {
@@ -215,11 +215,11 @@ export class McpService implements IMcpService {
           id,
         };
       }
-      this.logService.info(`[MCP] 从 cc-switch 配置获取到 ${Object.keys(serversMap).length} 个服务器`);
+      this.logService.info(`[MCP] Obtained ${Object.keys(serversMap).length} servers from cc-switch configuration`);
       return serversMap;
     }
 
-    // 2. 回退到 Claude 原生配置
+    // 2. Fall back to native Claude configuration
     const claudeConfig = await this.readClaudeConfig();
     const mcpServers = claudeConfig.mcpServers || {};
 
@@ -238,12 +238,12 @@ export class McpService implements IMcpService {
       };
     }
 
-    this.logService.info(`[MCP] 从 Claude 配置获取到 ${Object.keys(serversMap).length} 个服务器`);
+    this.logService.info(`[MCP] Obtained ${Object.keys(serversMap).length} servers from Claude configuration`);
     return serversMap;
   }
 
   /**
-   * 获取单个 MCP 服务器
+   * Get a single MCP server
    */
   async getServer(id: string): Promise<McpServer | null> {
     const servers = await this.getAllServers();
@@ -251,19 +251,19 @@ export class McpService implements IMcpService {
   }
 
   /**
-   * 添加或更新 MCP 服务器
+   * Add or update an MCP server
    */
   async upsertServer(server: McpServer): Promise<void> {
-    // 验证服务器配置
+    // Validate server configuration
     const validation = this.validateServer(server);
     if (!validation.valid) {
-      throw new Error(`服务器配置无效: ${validation.errors.join(', ')}`);
+      throw new Error(`Invalid server configuration: ${validation.errors.join(', ')}`);
     }
 
-    // 读取当前配置
+    // Read current configuration
     const config = await this.readCCSwitchConfig();
 
-    // 初始化 mcp.servers
+    // Initialize mcp.servers
     if (!config.mcp) {
       config.mcp = {};
     }
@@ -271,7 +271,7 @@ export class McpService implements IMcpService {
       config.mcp.servers = {};
     }
 
-    // 设置默认的 apps 状态
+    // Set default apps state
     if (!server.apps) {
       server.apps = {
         claude: true,
@@ -280,52 +280,52 @@ export class McpService implements IMcpService {
       };
     }
 
-    // 添加或更新服务器
+    // Add or update server
     config.mcp.servers[server.id] = server;
 
-    // 写入 cc-switch 配置
+    // Write cc-switch configuration
     await this.writeCCSwitchConfig(config);
 
-    // 同步到 Claude 原生配置
+    // Sync to native Claude configuration
     await this.syncToClaudeConfig();
 
-    this.logService.info(`[MCP] 成功保存服务器: ${server.id}`);
+    this.logService.info(`[MCP] Successfully saved server: ${server.id}`);
   }
 
   /**
-   * 删除 MCP 服务器
+   * Delete an MCP server
    */
   async deleteServer(id: string): Promise<boolean> {
     const config = await this.readCCSwitchConfig();
 
     if (!config.mcp?.servers || !config.mcp.servers[id]) {
-      this.logService.warn(`[MCP] 服务器不存在，无法删除: ${id}`);
+      this.logService.warn(`[MCP] Server does not exist, cannot delete: ${id}`);
       return false;
     }
 
     delete config.mcp.servers[id];
     await this.writeCCSwitchConfig(config);
 
-    // 同步到 Claude 原生配置
+    // Sync to native Claude configuration
     await this.syncToClaudeConfig();
 
-    this.logService.info(`[MCP] 成功删除服务器: ${id}`);
+    this.logService.info(`[MCP] Successfully deleted server: ${id}`);
     return true;
   }
 
   /**
-   * 切换服务器在指定应用的启用状态
+   * Toggle server enabled state for a specific app
    */
   async toggleApp(serverId: string, app: keyof McpApps, enabled: boolean): Promise<void> {
     const config = await this.readCCSwitchConfig();
 
     if (!config.mcp?.servers || !config.mcp.servers[serverId]) {
-      throw new Error(`服务器不存在: ${serverId}`);
+      throw new Error(`Server does not exist: ${serverId}`);
     }
 
     const server = config.mcp.servers[serverId];
 
-    // 初始化 apps
+    // Initialize apps
     if (!server.apps) {
       server.apps = {
         claude: false,
@@ -338,27 +338,27 @@ export class McpService implements IMcpService {
 
     await this.writeCCSwitchConfig(config);
 
-    // 同步到 Claude 原生配置
+    // Sync to native Claude configuration
     await this.syncToClaudeConfig();
 
-    this.logService.info(`[MCP] 服务器 ${serverId} 的 ${app} 状态已更新为 ${enabled}`);
+    this.logService.info(`[MCP] App ${app} status for server ${serverId} updated to ${enabled}`);
   }
 
   /**
-   * 同步配置到 Claude 原生文件
-   * 只同步启用了 claude 的服务器
+   * Synchronize config to native Claude file
+   * Only sync servers with 'claude' enabled
    */
   async syncToClaudeConfig(): Promise<void> {
     try {
       const ccSwitchConfig = await this.readCCSwitchConfig();
       const claudeConfig = await this.readClaudeConfig();
 
-      // 获取所有启用了 claude 的服务器
+      // Get all servers with 'claude' enabled
       const mcpServers: Record<string, McpServerSpec> = {};
 
       if (ccSwitchConfig.mcp?.servers) {
         for (const [id, server] of Object.entries(ccSwitchConfig.mcp.servers)) {
-          // 只同步启用了 claude 的服务器
+          // Only sync servers with 'claude' enabled
           if (server.apps?.claude !== false) {
             mcpServers[id] = server.server;
           }
@@ -368,47 +368,47 @@ export class McpService implements IMcpService {
       claudeConfig.mcpServers = mcpServers;
       await this.writeClaudeConfig(claudeConfig);
 
-      this.logService.info(`[MCP] 已同步 ${Object.keys(mcpServers).length} 个服务器到 Claude 配置`);
+      this.logService.info(`[MCP] Synchronized ${Object.keys(mcpServers).length} servers to Claude configuration`);
     } catch (error) {
-      this.logService.error(`[MCP] 同步到 Claude 配置失败: ${error}`);
+      this.logService.error(`[MCP] Failed to synchronize to Claude configuration: ${error}`);
     }
   }
 
   /**
-   * 验证 MCP 服务器配置
+   * Validate MCP server configuration
    */
   validateServer(server: McpServer): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    // 验证 ID
+    // Validate ID
     if (!server.id || !server.id.trim()) {
-      errors.push('服务器 ID 不能为空');
+      errors.push('Server ID cannot be empty');
     }
 
-    // 验证服务器规格
+    // Validate server spec
     if (!server.server) {
-      errors.push('服务器配置不能为空');
+      errors.push('Server configuration cannot be empty');
     } else {
       const spec = server.server;
       const type = spec.type || 'stdio';
 
       if (type === 'stdio') {
         if (!spec.command || !spec.command.trim()) {
-          errors.push('stdio 类型需要指定 command');
+          errors.push('command is required for stdio type');
         }
       } else if (type === 'http' || type === 'sse') {
         if (!spec.url || !spec.url.trim()) {
-          errors.push(`${type} 类型需要指定 url`);
+          errors.push(`url is required for ${type} type`);
         }
         if (spec.url) {
           try {
             new URL(spec.url);
           } catch {
-            errors.push('URL 格式无效');
+            errors.push('Invalid URL format');
           }
         }
       } else {
-        errors.push(`不支持的连接类型: ${type}`);
+        errors.push(`Unsupported connection type: ${type}`);
       }
     }
 

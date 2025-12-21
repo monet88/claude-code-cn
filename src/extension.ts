@@ -4,7 +4,7 @@
 
 import * as vscode from 'vscode';
 import { InstantiationServiceBuilder } from './di/instantiationServiceBuilder';
-import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService, ISkillService } from './services/serviceRegistry';
+import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService, ISkillService, IAgentConfigService, ICommandConfigService } from './services/serviceRegistry';
 import { VSCodeTransport } from './services/claude/transport/VSCodeTransport';
 import type { ClaudeProvider } from './services/ccSwitchSettingsService';
 import { getCurrentProjectStatistics, getAllProjectsAggregatedStatistics } from './services/usageStatisticsService';
@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const logService = accessor.get(ILogService);
 		logService.info('');
 		logService.info('╔════════════════════════════════════════╗');
-		logService.info('║         Claude Chat 扩展已激活           ║');
+		logService.info('║      Claude Chat Extension Activated     ║');
 		logService.info('╚════════════════════════════════════════╝');
 		logService.info('');
 	});
@@ -42,6 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const configurationService = accessor.get(IConfigurationService);
 		const mcpService = accessor.get(IMcpService);
 		const skillService = accessor.get(ISkillService);
+		const agentConfigService = accessor.get(IAgentConfigService);
+		const commandConfigService = accessor.get(ICommandConfigService);
 
 		// Initialize CC Switch settings (ensure default provider exists)
 		await ccSwitchSettingsService.initialize();
@@ -63,14 +65,14 @@ export function activate(context: vscode.ExtensionContext) {
 			if (message.type === 'getProviders') {
 				try {
 					const providers = await ccSwitchSettingsService.getClaudeProviders();
-					// 转换格式以兼容前端
+					// Convert format for frontend compatibility
 					const formattedProviders = providers.map(p => ({
 						id: p.id,
 						name: p.name,
 						apiKey: p.settingsConfig.env.ANTHROPIC_AUTH_TOKEN || '',
 						baseUrl: p.settingsConfig.env.ANTHROPIC_BASE_URL || '',
 						websiteUrl: p.websiteUrl,
-						isActive: false, // 将在下面设置
+						isActive: false, // Will be set below
 						createdAt: p.createdAt,
 						mainModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_MODEL || '',
 						haikuModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_HAIKU_MODEL || '',
@@ -78,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 						opusModel: p.settingsConfig.env.ANTHROPIC_DEFAULT_OPUS_MODEL || ''
 					}));
 
-					// 获取当前激活的供应商
+					// Get current active provider
 					const activeProvider = await ccSwitchSettingsService.getActiveClaudeProvider();
 					if (activeProvider) {
 						formattedProviders.forEach(p => {
@@ -98,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (message.type === 'addProvider') {
 				try {
-					// 构建 env 对象，只包含有值的字段
+					// Build env object, only include fields with values
 					const env: Record<string, string> = {
 						ANTHROPIC_AUTH_TOKEN: message.payload.apiKey,
 						ANTHROPIC_BASE_URL: message.payload.baseUrl
@@ -116,7 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
 						env.ANTHROPIC_DEFAULT_OPUS_MODEL = message.payload.opusModel;
 					}
 
-					// 转换前端格式到 CC Switch 格式
+					// Convert frontend format to CC Switch format
 					const provider: ClaudeProvider = {
 						id: `provider_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 						name: message.payload.name,
@@ -145,18 +147,18 @@ export function activate(context: vscode.ExtensionContext) {
 				try {
 					const { id, updates } = message.payload;
 
-					// 构建 env 对象，只包含有值的字段
+					// Build env object, only include fields with values
 					const env: Record<string, string | undefined> = {
 						ANTHROPIC_AUTH_TOKEN: updates.apiKey,
 						ANTHROPIC_BASE_URL: updates.baseUrl
 					};
-					// 对于 model 字段，空字符串表示删除，有值表示设置
+					// For model fields, empty string means delete, value means set
 					env.ANTHROPIC_DEFAULT_MODEL = updates.mainModel || undefined;
 					env.ANTHROPIC_DEFAULT_HAIKU_MODEL = updates.haikuModel || undefined;
 					env.ANTHROPIC_DEFAULT_SONNET_MODEL = updates.sonnetModel || undefined;
 					env.ANTHROPIC_DEFAULT_OPUS_MODEL = updates.opusModel || undefined;
 
-					// 转换更新数据到 CC Switch 格式
+					// Convert update data to CC Switch format
 					const providerUpdates: Partial<ClaudeProvider> = {
 						name: updates.name,
 						websiteUrl: updates.websiteUrl,
@@ -191,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
 						type: 'providerDeleted',
 						payload: { success: false, error: String(error) }
 					});
-					vscode.window.showErrorMessage(`删除供应商失败: ${error}`);
+					vscode.window.showErrorMessage(`Failed to delete provider: ${error}`);
 				}
 				return;
 			}
@@ -200,7 +202,7 @@ export function activate(context: vscode.ExtensionContext) {
 				try {
 					const activeProvider = await ccSwitchSettingsService.getActiveClaudeProvider();
 					if (activeProvider) {
-						// 转换格式
+						// Convert format
 						const formatted = {
 							id: activeProvider.id,
 							name: activeProvider.name,
@@ -232,12 +234,12 @@ export function activate(context: vscode.ExtensionContext) {
 			if (message.type === 'switchProvider') {
 				try {
 					const { id } = message.payload;
-					// 1. 切换到新的供应商（只更新 cc-switch config，不修改 ~/.claude/settings.json）
+					// 1. Switch to new provider (only update cc-switch config, not ~/.claude/settings.json)
 					await ccSwitchSettingsService.switchClaudeProvider(id);
 
-					// 2. 关闭所有现有会话，新会话将通过 env overlay 使用新的 provider 配置
+					// 2. Close all existing sessions, new sessions will use new provider config via env overlay
 					await claudeAgentService.closeAllChannelsWithCredentialChange();
-					logService.info('已关闭所有现有会话，供应商切换完成');
+					logService.info('Closed all existing sessions, provider switch complete');
 
 					webViewService.postMessage({
 						type: 'providerSwitched',
@@ -249,7 +251,7 @@ export function activate(context: vscode.ExtensionContext) {
 						type: 'providerSwitched',
 						payload: { success: false, error: String(error) }
 					});
-					vscode.window.showErrorMessage(`切换供应商失败: ${error}`);
+					vscode.window.showErrorMessage(`Failed to switch provider: ${error}`);
 				}
 				return;
 			}
@@ -350,23 +352,23 @@ export function activate(context: vscode.ExtensionContext) {
 					const { scope } = message.payload;
 					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
-					// 显示文件/文件夹选择对话框（支持多选）
+					// Show file/folder selection dialog (supports multi-select)
 					const uris = await vscode.window.showOpenDialog({
 						canSelectFiles: true,
 						canSelectFolders: true,
 						canSelectMany: true,
-						openLabel: `导入到${scope === 'global' ? '全局' : '本项目'} Skills`
+						openLabel: `Import to ${scope === 'global' ? 'Global' : 'Project'} Skills`
 					});
 
 					if (!uris || uris.length === 0) {
 						webViewService.postMessage({
 							type: 'skillImported',
-							payload: { success: false, error: '未选择文件或文件夹' }
+							payload: { success: false, error: 'No file or folder selected' }
 						});
 						return;
 					}
 
-					// 批量导入
+					// Batch import
 					const importedSkills = [];
 					const errors = [];
 
@@ -425,10 +427,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 					let targetPath = skillPath;
 
-					// 检查是否是文件夹
+					// Check if it's a folder
 					const stats = fs.statSync(skillPath);
 					if (stats.isDirectory()) {
-						// 优先查找 skill.md，然后是 skills.md
+						// Prefer skill.md, then skills.md
 						const skillMdPath = path.join(skillPath, 'skill.md');
 						const skillsMdPath = path.join(skillPath, 'skills.md');
 
@@ -437,10 +439,10 @@ export function activate(context: vscode.ExtensionContext) {
 						} else if (fs.existsSync(skillsMdPath)) {
 							targetPath = skillsMdPath;
 						}
-						// 如果都不存在，保持原路径（打开文件夹）
+						// If neither exists, keep original path (open folder)
 					}
 
-					// 在编辑器中打开文件/文件夹
+					// Open file/folder in editor
 					const uri = vscode.Uri.file(targetPath);
 					await vscode.commands.executeCommand('vscode.open', uri);
 					webViewService.postMessage({
@@ -457,6 +459,249 @@ export function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 
+			// Handle Agents management
+			if (message.type === 'getAllAgents') {
+				logService.info('[Extension] getAllAgents handler called');
+				try {
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					logService.info(`[Extension] workspaceRoot: ${workspaceRoot}`);
+					const agents = await agentConfigService.getAllAgents(workspaceRoot);
+					logService.info(`[Extension] Agents loaded: global=${Object.keys(agents.global).length}, local=${Object.keys(agents.local).length}`);
+					webViewService.postMessage({
+						type: 'allAgentsData',
+						payload: agents
+					});
+				} catch (error) {
+					logService.error(`Failed to get Agents: ${error}`);
+					webViewService.postMessage({
+						type: 'allAgentsData',
+						payload: { global: {}, local: {} }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'importAgent') {
+				try {
+					const { scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+					const uris = await vscode.window.showOpenDialog({
+						canSelectFiles: true,
+						canSelectFolders: true,
+						canSelectMany: true,
+						openLabel: `Import to ${scope === 'global' ? 'Global' : 'Project'} Agents`
+					});
+
+					if (!uris || uris.length === 0) {
+						webViewService.postMessage({
+							type: 'agentImported',
+							payload: { success: false, error: 'No file or folder selected' }
+						});
+						return;
+					}
+
+					const importedAgents = [];
+					const errors = [];
+					for (const uri of uris) {
+						try {
+							const agent = await agentConfigService.importAgent(uri.fsPath, scope, workspaceRoot);
+							importedAgents.push(agent);
+						} catch (error) {
+							errors.push({ path: uri.fsPath, error: String(error) });
+						}
+					}
+
+					webViewService.postMessage({
+						type: 'agentImported',
+						payload: {
+							success: importedAgents.length > 0,
+							count: importedAgents.length,
+							total: uris.length,
+							errors: errors.length > 0 ? errors : undefined
+						}
+					});
+				} catch (error) {
+					logService.error(`Failed to import Agent: ${error}`);
+					webViewService.postMessage({
+						type: 'agentImported',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'deleteAgent') {
+				try {
+					const { id, scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const success = await agentConfigService.deleteAgent(id, scope, workspaceRoot);
+					webViewService.postMessage({
+						type: 'agentDeleted',
+						payload: { success }
+					});
+				} catch (error) {
+					logService.error(`Failed to delete Agent: ${error}`);
+					webViewService.postMessage({
+						type: 'agentDeleted',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'openAgent') {
+				try {
+					const { agentPath } = message.payload;
+					const fs = await import('fs');
+					const path = await import('path');
+
+					let targetPath = agentPath;
+					const stats = fs.statSync(agentPath);
+					if (stats.isDirectory()) {
+						const agentMdPath = path.join(agentPath, 'agent.md');
+						if (fs.existsSync(agentMdPath)) {
+							targetPath = agentMdPath;
+						}
+					}
+
+					const uri = vscode.Uri.file(targetPath);
+					await vscode.commands.executeCommand('vscode.open', uri);
+					webViewService.postMessage({
+						type: 'agentOpened',
+						payload: { success: true }
+					});
+				} catch (error) {
+					logService.error(`Failed to open Agent: ${error}`);
+					webViewService.postMessage({
+						type: 'agentOpened',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			// Handle Commands management
+			if (message.type === 'getAllCommands') {
+				logService.info('[Extension] getAllCommands handler called');
+				try {
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const commands = await commandConfigService.getAllCommands(workspaceRoot);
+					logService.info(`[Extension] Commands loaded: global=${Object.keys(commands.global).length}, local=${Object.keys(commands.local).length}`);
+					webViewService.postMessage({
+						type: 'allCommandsData',
+						payload: commands
+					});
+				} catch (error) {
+					logService.error(`Failed to get Commands: ${error}`);
+					webViewService.postMessage({
+						type: 'allCommandsData',
+						payload: { global: {}, local: {} }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'importCommand') {
+				try {
+					const { scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+					const uris = await vscode.window.showOpenDialog({
+						canSelectFiles: true,
+						canSelectFolders: true,
+						canSelectMany: true,
+						openLabel: `Import to ${scope === 'global' ? 'Global' : 'Local'} Commands`
+					});
+
+					if (!uris || uris.length === 0) {
+						webViewService.postMessage({
+							type: 'commandImported',
+							payload: { success: false, error: 'No files or folders selected' }
+						});
+						return;
+					}
+
+					const importedCommands = [];
+					const errors = [];
+					for (const uri of uris) {
+						try {
+							const command = await commandConfigService.importCommand(uri.fsPath, scope, workspaceRoot);
+							importedCommands.push(command);
+						} catch (error) {
+							errors.push({ path: uri.fsPath, error: String(error) });
+						}
+					}
+
+					webViewService.postMessage({
+						type: 'commandImported',
+						payload: {
+							success: importedCommands.length > 0,
+							count: importedCommands.length,
+							total: uris.length,
+							errors: errors.length > 0 ? errors : undefined
+						}
+					});
+				} catch (error) {
+					logService.error(`Failed to import Command: ${error}`);
+					webViewService.postMessage({
+						type: 'commandImported',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'deleteCommand') {
+				try {
+					const { id, scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const success = await commandConfigService.deleteCommand(id, scope, workspaceRoot);
+					webViewService.postMessage({
+						type: 'commandDeleted',
+						payload: { success }
+					});
+				} catch (error) {
+					logService.error(`Failed to delete Command: ${error}`);
+					webViewService.postMessage({
+						type: 'commandDeleted',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'openCommand') {
+				try {
+					const { commandPath } = message.payload;
+					const fs = await import('fs');
+					const path = await import('path');
+
+					let targetPath = commandPath;
+					const stats = fs.statSync(commandPath);
+					if (stats.isDirectory()) {
+						const commandMdPath = path.join(commandPath, 'command.md');
+						if (fs.existsSync(commandMdPath)) {
+							targetPath = commandMdPath;
+						}
+					}
+
+					const uri = vscode.Uri.file(targetPath);
+					await vscode.commands.executeCommand('vscode.open', uri);
+					webViewService.postMessage({
+						type: 'commandOpened',
+						payload: { success: true }
+					});
+				} catch (error) {
+					logService.error(`Failed to open Command: ${error}`);
+					webViewService.postMessage({
+						type: 'commandOpened',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
 			// Handle usage statistics
 			if (message.type === 'getUsageStatistics') {
 				try {
@@ -464,10 +709,10 @@ export function activate(context: vscode.ExtensionContext) {
 					let statistics = null;
 
 					if (scope === 'all') {
-						// 获取所有项目的聚合统计
+						// Get aggregated statistics for all projects
 						statistics = await getAllProjectsAggregatedStatistics();
 					} else {
-						// 获取当前工作区路径
+						// Get current workspace path
 						const workspaceFolders = vscode.workspace.workspaceFolders;
 						if (!workspaceFolders || workspaceFolders.length === 0) {
 							webViewService.postMessage({
@@ -511,8 +756,8 @@ export function activate(context: vscode.ExtensionContext) {
 		// Register disposables
 		context.subscriptions.push(webviewProvider);
 
-		logService.info('✓ Claude Agent Service 已连接 Transport');
-		logService.info('✓ WebView Service 已注册为 View Provider');
+		logService.info('✓ Claude Agent Service connected to Transport');
+		logService.info('✓ WebView Service registered as View Provider');
 	});
 
 	// 6. Register commands
@@ -525,7 +770,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// 7. Log completion
 	instantiationService.invokeFunction(accessor => {
 		const logService = accessor.get(ILogService);
-		logService.info('✓ Claude Chat 视图已注册');
+		logService.info('✓ Claude Chat View registered');
 		logService.info('');
 	});
 

@@ -1,11 +1,11 @@
 /**
- * Skills 服务
+ * Skills Service
  *
- * 管理 Skills 的导入、删除、列表等功能
+ * Manages importing, deleting, and listing Skills
  *
- * Skills 存储位置:
- * - 全局: ~/.claude/skills
- * - 本地: {workspace}/.claude/skills
+ * Skill storage locations:
+ * - Global: ~/.claude/skills
+ * - Local: {workspace}/.claude/skills
  */
 
 import * as fs from 'fs';
@@ -18,70 +18,70 @@ import type { Skill, SkillsMap, SkillsConfig, SkillType, SkillScope } from '../s
 export const ISkillService = createDecorator<ISkillService>('skillService');
 
 /**
- * Skill 服务接口
+ * Skill Service Interface
  */
 export interface ISkillService {
   readonly _serviceBrand: undefined;
 
   /**
-   * 获取全局 Skills 目录
+   * Get global Skills directory
    */
   getGlobalSkillsDir(): string;
 
   /**
-   * 获取本地 Skills 目录
-   * @param workspaceRoot 工作区根目录
+   * Get local Skills directory
+   * @param workspaceRoot Workspace root directory
    */
   getLocalSkillsDir(workspaceRoot?: string): string | null;
 
   /**
-   * 获取所有 Skills (全局 + 本地)
-   * @param workspaceRoot 工作区根目录
+   * Get all Skills (Global + Local)
+   * @param workspaceRoot Workspace root directory
    */
   getAllSkills(workspaceRoot?: string): Promise<SkillsConfig>;
 
   /**
-   * 获取指定作用域的 Skills
-   * @param scope 作用域
-   * @param workspaceRoot 工作区根目录 (scope 为 local 时必需)
+   * Get Skills by scope
+   * @param scope Scope
+   * @param workspaceRoot Workspace root directory (required when scope is 'local')
    */
   getSkillsByScope(scope: SkillScope, workspaceRoot?: string): Promise<SkillsMap>;
 
   /**
-   * 导入 Skill (复制文件/文件夹到 Skills 目录)
-   * @param sourcePath 源文件/文件夹路径
-   * @param scope 作用域
-   * @param workspaceRoot 工作区根目录 (scope 为 local 时必需)
+   * Import Skill (copy file/folder to Skills directory)
+   * @param sourcePath Source file/folder path
+   * @param scope Scope
+   * @param workspaceRoot Workspace root directory (required when scope is 'local')
    */
   importSkill(sourcePath: string, scope: SkillScope, workspaceRoot?: string): Promise<Skill>;
 
   /**
-   * 删除 Skill
+   * Delete Skill
    * @param id Skill ID
-   * @param scope 作用域
-   * @param workspaceRoot 工作区根目录 (scope 为 local 时必需)
+   * @param scope Scope
+   * @param workspaceRoot Workspace root directory (required when scope is 'local')
    */
   deleteSkill(id: string, scope: SkillScope, workspaceRoot?: string): Promise<boolean>;
 
   /**
-   * 在编辑器中打开 Skill
-   * @param skillPath Skill 路径
+   * Open Skill in editor
+   * @param skillPath Skill path
    */
   openSkillInEditor(skillPath: string): Promise<void>;
 }
 
 /**
- * Skills 服务实现
+ * Skill Service Implementation
  */
 export class SkillService implements ISkillService {
   readonly _serviceBrand: undefined;
 
   constructor(
     @ILogService private readonly logService: ILogService
-  ) {}
+  ) { }
 
   /**
-   * 获取全局 Skills 目录
+   * Get global Skills directory
    */
   getGlobalSkillsDir(): string {
     const homeDir = os.homedir();
@@ -89,7 +89,7 @@ export class SkillService implements ISkillService {
   }
 
   /**
-   * 获取本地 Skills 目录
+   * Get local Skills directory
    */
   getLocalSkillsDir(workspaceRoot?: string): string | null {
     if (!workspaceRoot) {
@@ -99,11 +99,11 @@ export class SkillService implements ISkillService {
   }
 
   /**
-   * 从 skill.md 文件中提取 description
+   * Extract description from skill.md file
    */
   private async extractDescription(skillPath: string, isDirectory: boolean): Promise<string | undefined> {
     try {
-      // 如果是目录，查找 skill.md 文件
+      // If a directory, look for skill.md file
       const mdPath = isDirectory
         ? path.join(skillPath, 'skill.md')
         : skillPath.endsWith('.md') ? skillPath : null;
@@ -114,7 +114,7 @@ export class SkillService implements ISkillService {
 
       const content = await fs.promises.readFile(mdPath, 'utf-8');
 
-      // 提取 YAML frontmatter 中的 description
+      // Extract description from YAML frontmatter
       const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
       if (frontmatterMatch) {
         const frontmatter = frontmatterMatch[1];
@@ -126,21 +126,21 @@ export class SkillService implements ISkillService {
 
       return undefined;
     } catch (error) {
-      this.logService.warn(`[Skills] 提取 description 失败: ${error}`);
+      this.logService.warn(`[Skills] Failed to extract description: ${error}`);
       return undefined;
     }
   }
 
   /**
-   * 扫描目录获取 Skills
+   * Scan directory for Skills
    */
   private async scanSkillsDirectory(dir: string, scope: SkillScope): Promise<SkillsMap> {
     const skills: SkillsMap = {};
 
     try {
-      // 确保目录存在
+      // Ensure directory exists
       if (!fs.existsSync(dir)) {
-        this.logService.info(`[Skills] ${scope} Skills 目录不存在: ${dir}`);
+        this.logService.info(`[Skills] ${scope} Skills directory does not exist: ${dir}`);
         return skills;
       }
 
@@ -150,7 +150,7 @@ export class SkillService implements ISkillService {
         const fullPath = path.join(dir, entry.name);
         const stats = await fs.promises.stat(fullPath);
 
-        // 跳过隐藏文件/文件夹
+        // Skip hidden files/folders
         if (entry.name.startsWith('.')) {
           continue;
         }
@@ -158,7 +158,7 @@ export class SkillService implements ISkillService {
         const type: SkillType = entry.isDirectory() ? 'directory' : 'file';
         const id = `${scope}-${entry.name}`;
 
-        // 提取 description
+        // Extract description
         const description = await this.extractDescription(fullPath, entry.isDirectory());
 
         skills[id] = {
@@ -173,16 +173,16 @@ export class SkillService implements ISkillService {
         };
       }
 
-      this.logService.info(`[Skills] 从 ${scope} 目录获取到 ${Object.keys(skills).length} 个 Skills: ${dir}`);
+      this.logService.info(`[Skills] Obtained ${Object.keys(skills).length} Skills from ${scope} directory: ${dir}`);
     } catch (error) {
-      this.logService.error(`[Skills] 扫描 ${scope} Skills 目录失败: ${error}`);
+      this.logService.error(`[Skills] Failed to scan ${scope} Skills directory: ${error}`);
     }
 
     return skills;
   }
 
   /**
-   * 获取所有 Skills
+   * Get all Skills
    */
   async getAllSkills(workspaceRoot?: string): Promise<SkillsConfig> {
     const global = await this.getSkillsByScope('global');
@@ -192,7 +192,7 @@ export class SkillService implements ISkillService {
   }
 
   /**
-   * 获取指定作用域的 Skills
+   * Get Skills by scope
    */
   async getSkillsByScope(scope: SkillScope, workspaceRoot?: string): Promise<SkillsMap> {
     const dir = scope === 'global'
@@ -200,7 +200,7 @@ export class SkillService implements ISkillService {
       : this.getLocalSkillsDir(workspaceRoot);
 
     if (!dir) {
-      this.logService.warn(`[Skills] 无法获取 ${scope} Skills 目录`);
+      this.logService.warn(`[Skills] Unable to get ${scope} Skills directory`);
       return {};
     }
 
@@ -208,16 +208,16 @@ export class SkillService implements ISkillService {
   }
 
   /**
-   * 复制文件或目录
+   * Copy file or directory
    */
   private async copyRecursive(src: string, dest: string): Promise<void> {
     const stats = await fs.promises.stat(src);
 
     if (stats.isDirectory()) {
-      // 创建目标目录
+      // Create destination directory
       await fs.promises.mkdir(dest, { recursive: true });
 
-      // 复制目录内容
+      // Copy directory contents
       const entries = await fs.promises.readdir(src, { withFileTypes: true });
       for (const entry of entries) {
         const srcPath = path.join(src, entry.name);
@@ -225,13 +225,13 @@ export class SkillService implements ISkillService {
         await this.copyRecursive(srcPath, destPath);
       }
     } else {
-      // 复制文件
+      // Copy file
       await fs.promises.copyFile(src, dest);
     }
   }
 
   /**
-   * 删除文件或目录
+   * Delete file or directory
    */
   private async removeRecursive(targetPath: string): Promise<void> {
     const stats = await fs.promises.stat(targetPath);
@@ -248,53 +248,53 @@ export class SkillService implements ISkillService {
   }
 
   /**
-   * 导入 Skill
+   * Import Skill
    */
   async importSkill(sourcePath: string, scope: SkillScope, workspaceRoot?: string): Promise<Skill> {
-    // 验证源路径
+    // Validate source path
     if (!fs.existsSync(sourcePath)) {
-      throw new Error(`源路径不存在: ${sourcePath}`);
+      throw new Error(`Source path does not exist: ${sourcePath}`);
     }
 
-    // 获取目标目录
+    // Get target directory
     const targetDir = scope === 'global'
       ? this.getGlobalSkillsDir()
       : this.getLocalSkillsDir(workspaceRoot);
 
     if (!targetDir) {
-      throw new Error(`无法获取 ${scope} Skills 目录`);
+      throw new Error(`Unable to get ${scope} Skills directory`);
     }
 
-    // 确保目标目录存在
+    // Ensure target directory exists
     if (!fs.existsSync(targetDir)) {
       await fs.promises.mkdir(targetDir, { recursive: true });
-      this.logService.info(`[Skills] 创建 ${scope} Skills 目录: ${targetDir}`);
+      this.logService.info(`[Skills] Created ${scope} Skills directory: ${targetDir}`);
     }
 
-    // 获取文件/文件夹名称
+    // Get file/folder name
     const name = path.basename(sourcePath);
     const targetPath = path.join(targetDir, name);
 
-    // 检查是否已存在同名 Skill
+    // Check if Skill with same name already exists
     if (fs.existsSync(targetPath)) {
-      throw new Error(`已存在同名 Skill: ${name}`);
+      throw new Error(`Skill with the same name already exists: ${name}`);
     }
 
-    // 复制文件/文件夹
+    // Copy file/folder
     try {
       await this.copyRecursive(sourcePath, targetPath);
-      this.logService.info(`[Skills] 成功导入 ${scope} Skill: ${name}`);
+      this.logService.info(`[Skills] Successfully imported ${scope} Skill: ${name}`);
     } catch (error) {
-      this.logService.error(`[Skills] 导入 Skill 失败: ${error}`);
-      throw new Error(`导入失败: ${error}`);
+      this.logService.error(`[Skills] Failed to import Skill: ${error}`);
+      throw new Error(`Import failed: ${error}`);
     }
 
-    // 获取文件信息
+    // Get file info
     const stats = await fs.promises.stat(targetPath);
     const type: SkillType = stats.isDirectory() ? 'directory' : 'file';
     const id = `${scope}-${name}`;
 
-    // 提取 description
+    // Extract description
     const description = await this.extractDescription(targetPath, stats.isDirectory());
 
     return {
@@ -310,46 +310,46 @@ export class SkillService implements ISkillService {
   }
 
   /**
-   * 删除 Skill
+   * Delete Skill
    */
   async deleteSkill(id: string, scope: SkillScope, workspaceRoot?: string): Promise<boolean> {
-    // 获取目标目录
+    // Get target directory
     const dir = scope === 'global'
       ? this.getGlobalSkillsDir()
       : this.getLocalSkillsDir(workspaceRoot);
 
     if (!dir) {
-      this.logService.warn(`[Skills] 无法获取 ${scope} Skills 目录`);
+      this.logService.warn(`[Skills] Unable to get ${scope} Skills directory`);
       return false;
     }
 
-    // 从 ID 中提取名称 (格式: {scope}-{name})
+    // Extract name from ID (format: {scope}-{name})
     const name = id.replace(`${scope}-`, '');
     const targetPath = path.join(dir, name);
 
-    // 验证路径存在
+    // Validate path existence
     if (!fs.existsSync(targetPath)) {
-      this.logService.warn(`[Skills] Skill 不存在: ${targetPath}`);
+      this.logService.warn(`[Skills] Skill does not exist: ${targetPath}`);
       return false;
     }
 
-    // 删除文件/文件夹
+    // Delete file/folder
     try {
       await this.removeRecursive(targetPath);
-      this.logService.info(`[Skills] 成功删除 ${scope} Skill: ${name}`);
+      this.logService.info(`[Skills] Successfully deleted ${scope} Skill: ${name}`);
       return true;
     } catch (error) {
-      this.logService.error(`[Skills] 删除 Skill 失败: ${error}`);
-      throw new Error(`删除失败: ${error}`);
+      this.logService.error(`[Skills] Failed to delete Skill: ${error}`);
+      throw new Error(`Delete failed: ${error}`);
     }
   }
 
   /**
-   * 在编辑器中打开 Skill
+   * Open Skill in editor
    */
   async openSkillInEditor(skillPath: string): Promise<void> {
-    // 这个方法需要在调用时通过 VSCode API 打开文件
-    // 实际实现将在调用侧完成
-    this.logService.info(`[Skills] 请求在编辑器中打开: ${skillPath}`);
+    // This method needs to open the file via VSCode API at the call site
+    // Actual implementation will be completed at the call site
+    this.logService.info(`[Skills] Request to open in editor: ${skillPath}`);
   }
 }

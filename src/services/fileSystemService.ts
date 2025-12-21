@@ -1,6 +1,6 @@
 /**
- * 文件系统服务 / FileSystem Service
- * 文件操作封装 + 文件搜索功能
+ * FileSystem Service
+ * File operations wrapper + file search functionality
  */
 
 import * as vscode from 'vscode';
@@ -12,11 +12,11 @@ import { createDecorator } from '../di/instantiation';
 export const IFileSystemService = createDecorator<IFileSystemService>('fileSystemService');
 
 /**
- * 文件搜索结果项
+ * File search result item
  */
 export interface FileSearchResult {
-	path: string;      // 相对路径
-	name: string;      // 文件名
+	path: string;      // Relative path
+	name: string;      // File name
 	type: 'file' | 'directory';
 }
 
@@ -32,105 +32,105 @@ export interface IFileSystemService {
 	stat(uri: vscode.Uri): Thenable<vscode.FileStat>;
 
 	/**
-	 * 使用 Ripgrep 列出文件（不搜索,返回原始列表）
-	 * @param cwd 工作目录
-	 * @returns 文件路径数组（相对路径）
+	 * List files with Ripgrep (no search, returns raw list)
+	 * @param cwd Working directory
+	 * @returns Array of file paths (relative paths)
 	 */
 	listFilesWithRipgrep(cwd: string): Promise<string[]>;
 
 	/**
-	 * 搜索文件（完整流程：Ripgrep + 目录提取 + Fuse.js）
-	 * @param pattern 搜索模式
-	 * @param cwd 工作目录
-	 * @returns 文件搜索结果数组
+	 * Search files (Full process: Ripgrep + directory extraction + Fuse.js)
+	 * @param pattern Search pattern
+	 * @param cwd Working directory
+	 * @returns Array of file search results
 	 */
 	searchFiles(pattern: string, cwd: string): Promise<FileSearchResult[]>;
 
 	/**
-	 * 使用 VSCode API 搜索文件（Ripgrep 降级方案）
-	 * @param pattern 搜索模式
-	 * @param cwd 工作目录
-	 * @returns 文件搜索结果数组
+	 * Search files using VSCode API (Ripgrep fallback)
+	 * @param pattern Search pattern
+	 * @param cwd Working directory
+	 * @returns Array of file search results
 	 */
 	searchFilesWithWorkspace(pattern: string, cwd: string): Promise<FileSearchResult[]>;
 
 	/**
-	 * 从文件路径列表提取所有父目录（对齐官方实现）
-	 * @param filePaths 文件路径数组（相对路径）
-	 * @returns 去重的目录路径数组（相对路径,带 / 后缀）
+	 * Extract all parent directories from file path list (aligned with official implementation)
+	 * @param filePaths Array of file paths (relative paths)
+	 * @returns Array of unique directory paths (relative paths, with / suffix)
 	 */
 	extractParentDirectories(filePaths: string[]): string[];
 
 	/**
-	 * 获取工作区顶层目录（用于空查询）
-	 * @param cwd 工作目录
-	 * @returns 顶层目录数组
+	 * Get top-level directories of workspace (for empty queries)
+	 * @param cwd Working directory
+	 * @returns Array of top-level directories
 	 */
 	getTopLevelDirectories(cwd: string): Promise<FileSearchResult[]>;
 
 	/**
-	 * 规范化为绝对路径
-	 * @param filePath 文件路径（绝对或相对）
-	 * @param cwd 工作目录
-	 * @returns 规范化的绝对路径
+	 * Normalize to absolute path
+	 * @param filePath File path (absolute or relative)
+	 * @param cwd Working directory
+	 * @returns Normalized absolute path
 	 */
 	normalizeAbsolutePath(filePath: string, cwd: string): string;
 
 	/**
-	 * 转换为工作区相对路径
-	 * @param absolutePath 绝对路径
-	 * @param cwd 工作目录
-	 * @returns 相对路径
+	 * Convert to workspace relative path
+	 * @param absolutePath Absolute path
+	 * @param cwd Working directory
+	 * @returns Relative path
 	 */
 	toWorkspaceRelative(absolutePath: string, cwd: string): string;
 
 	/**
-	 * 解析文件路径（支持 ~ 展开和相对路径）
-	 * @param filePath 文件路径
-	 * @param cwd 工作目录
-	 * @returns 规范化的绝对路径
+	 * Resolve file path (supports ~ expansion and relative paths)
+	 * @param filePath File path
+	 * @param cwd Working directory
+	 * @returns Normalized absolute path
 	 */
 	resolveFilePath(filePath: string, cwd: string): string;
 
 	/**
-	 * 检查路径是否存在
-	 * @param target 目标路径
-	 * @returns 是否存在
+	 * Check if path exists
+	 * @param target Target path
+	 * @returns Whether it exists
 	 */
 	pathExists(target: string): Promise<boolean>;
 
 	/**
-	 * 清理文件名（移除非法字符）
-	 * @param fileName 原始文件名
-	 * @returns 清理后的文件名
+	 * Sanitize file name (remove illegal characters)
+	 * @param fileName Original file name
+	 * @returns Sanitized file name
 	 */
 	sanitizeFileName(fileName: string): string;
 
 	/**
-	 * 创建临时文件
-	 * @param fileName 文件名
-	 * @param content 文件内容
-	 * @returns 临时文件路径
+	 * Create temporary file
+	 * @param fileName File name
+	 * @param content File content
+	 * @returns Temporary file path
 	 */
 	createTempFile(fileName: string, content: string): Promise<string>;
 
 	/**
-	 * 解析并查找存在的路径（含模糊搜索）
-	 * @param filePath 文件路径
-	 * @param cwd 工作目录
-	 * @param searchResults 可选的搜索结果（如果提供,则使用模糊匹配）
-	 * @returns 存在的绝对路径
+	 * Resolve and find existing path (supports fuzzy search)
+	 * @param filePath File path
+	 * @param cwd Working directory
+	 * @param searchResults Optional search results (if provided, fuzzy matching is used)
+	 * @returns Existing absolute path
 	 */
 	resolveExistingPath(filePath: string, cwd: string, searchResults?: FileSearchResult[]): Promise<string>;
 
 	/**
-	 * 查找文件（完整业务逻辑）
-	 * - 空查询返回顶层内容（目录 + 顶层文件）
-	 * - 非空查询: Ripgrep + 目录提取 + Fuse.js
-	 * - 自动降级到 VSCode API
-	 * @param pattern 搜索模式（可选,空查询返回顶层内容）
-	 * @param cwd 工作目录
-	 * @returns 文件搜索结果数组
+	 * Find files (Full business logic)
+	 * - Empty query returns top-level contents (directories + top-level files)
+	 * - Non-empty query: Ripgrep + directory extraction + Fuse.js
+	 * - Auto falls back to VSCode API
+	 * @param pattern Search pattern (optional, empty query returns top-level contents)
+	 * @param cwd Working directory
+	 * @returns Array of file search results
 	 */
 	findFiles(pattern: string | undefined, cwd: string): Promise<FileSearchResult[]>;
 }
@@ -138,10 +138,10 @@ export interface IFileSystemService {
 export class FileSystemService implements IFileSystemService {
 	readonly _serviceBrand: undefined;
 
-	// Ripgrep 命令缓存
+	// Ripgrep command cache
 	private ripgrepCommandCache: { command: string; args: string[] } | null = null;
 
-	// ===== 基础文件操作 =====
+	// ===== Basic File Operations =====
 
 	readFile(uri: vscode.Uri): Thenable<Uint8Array> {
 		return vscode.workspace.fs.readFile(uri);
@@ -171,10 +171,10 @@ export class FileSystemService implements IFileSystemService {
 		return vscode.workspace.fs.stat(uri);
 	}
 
-	// ===== 文件搜索功能（完全对齐官方实现）=====
+	// ===== File Search Functions (Aligned with official implementation) =====
 
 	/**
-	 * 使用 Ripgrep 列出所有文件（不搜索,返回原始列表）
+	 * List all files with Ripgrep (no search, returns raw list)
 	 */
 	async listFilesWithRipgrep(cwd: string): Promise<string[]> {
 		const args = ['--files', '--follow', '--hidden'];
@@ -192,7 +192,7 @@ export class FileSystemService implements IFileSystemService {
 	}
 
 	/**
-	 * 搜索文件（完整流程：对齐官方实现）
+	 * Search files (Full process: Aligned with official implementation)
 	 */
 	async searchFiles(pattern: string, cwd: string): Promise<FileSearchResult[]> {
 		const files = await this.listFilesWithRipgrep(cwd);
@@ -202,7 +202,7 @@ export class FileSystemService implements IFileSystemService {
 	}
 
 	/**
-	 * 使用 VSCode API 搜索文件（降级方案）
+	 * Use VSCode API search files (Fallback)
 	 */
 	async searchFilesWithWorkspace(pattern: string, cwd: string): Promise<FileSearchResult[]> {
 		const include = pattern.includes('*') || pattern.includes('?')
@@ -226,7 +226,7 @@ export class FileSystemService implements IFileSystemService {
 	}
 
 	/**
-	 * 从文件路径列表提取所有父目录（完全对齐官方实现）
+	 * Extract all parent directories from file paths list (aligned with official implementation)
 	 */
 	extractParentDirectories(filePaths: string[]): string[] {
 		const dirSet = new Set<string>();
@@ -244,7 +244,7 @@ export class FileSystemService implements IFileSystemService {
 	}
 
 	/**
-	 * 获取工作区顶层目录（用于空查询）
+	 * Get top-level directories of workspace (for empty queries)
 	 */
 	async getTopLevelDirectories(cwd: string): Promise<FileSearchResult[]> {
 		const workspaceUri = vscode.Uri.file(cwd);
@@ -270,7 +270,7 @@ export class FileSystemService implements IFileSystemService {
 	}
 
 	/**
-	 * 获取工作区顶层内容（目录 + 顶层文件,用于空查询）
+	 * Get workspace top-level contents (directories + top-level files, for empty queries)
 	 */
 	async getTopLevelContents(cwd: string): Promise<FileSearchResult[]> {
 		try {
@@ -330,7 +330,7 @@ export class FileSystemService implements IFileSystemService {
 		});
 	}
 
-	// ===== 私有辅助方法 =====
+	// ===== Private Helper Methods =====
 
 	private execRipgrep(args: string[], cwd: string): Promise<string[]> {
 		const { command, args: defaultArgs } = this.getRipgrepCommand();
