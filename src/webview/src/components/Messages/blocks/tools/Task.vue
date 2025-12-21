@@ -54,18 +54,9 @@ const prompt = computed(() => {
   return props.toolUse?.input?.prompt || props.toolUseResult?.prompt;
 });
 
-// Determine if it is a permission request stage
-const isPermissionRequest = computed(() => {
-  const hasToolUseResult = !!props.toolUseResult;
-  const hasToolResult = !!props.toolResult && !props.toolResult.is_error;
-  return !hasToolUseResult && !hasToolResult;
-});
-
-// Only expand by default in the permission request stage, do not expand after execution
+// Only expand by default when there's an error
+// Task prompts are usually long, so collapse by default
 const shouldExpand = computed(() => {
-  // Permission request stage expand
-  if (isPermissionRequest.value) return true;
-
   // Expand when there is an error
   if (props.toolResult?.is_error) return true;
 

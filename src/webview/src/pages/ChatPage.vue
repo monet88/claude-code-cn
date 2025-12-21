@@ -87,6 +87,12 @@
         </div>
 
         <div class="inputContainer">
+          <!-- Sticky Task List -->
+          <TodoList
+            :todos="todos"
+            :visible="todos.length > 0"
+            :initial-expanded="true"
+          />
           <PermissionRequestModal
             v-if="pendingPermission && toolContext"
             :request="pendingPermission"
@@ -131,6 +137,7 @@
   import ClaudeWordmark from '../components/ClaudeWordmark.vue';
   import RandomTip from '../components/RandomTip.vue';
   import MessageRenderer from '../components/Messages/MessageRenderer.vue';
+  import TodoList from '../components/TodoList.vue';
   import { useKeybinding } from '../utils/useKeybinding';
   import { useSignal } from '@gn8/alien-signals-vue';
   import type { PermissionMode } from '@anthropic-ai/claude-agent-sdk';
@@ -177,6 +184,9 @@
   const permissionRequestsLen = computed(() => permissionRequests.value.length);
   const pendingPermission = computed(() => permissionRequests.value[0] as any);
   const platform = computed(() => runtime.appContext.platform);
+
+  // Todos from session for sticky task list
+  const todos = computed(() => session.value?.todos.value ?? []);
 
   // Register command: permissionMode.toggle (register after defining the function below)
 
