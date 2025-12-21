@@ -180,17 +180,18 @@
 
   // Register command: permissionMode.toggle (register after defining the function below)
 
-  // Estimate Token usage percentage (based on usageData)
+  // Estimate Token usage percentage (based on usageData.inputTokens for accurate context window usage)
   const progressPercentage = computed(() => {
     const s = session.value;
     if (!s) return 0;
 
     const usage = s.usageData.value;
-    const total = usage.totalTokens;
+    // Use inputTokens for context window calculation (matches CLI behavior)
+    const current = usage.inputTokens;
     const windowSize = usage.contextWindow || 200000;
 
-    if (typeof total === 'number' && total > 0) {
-      return Math.max(0, Math.min(100, (total / windowSize) * 100));
+    if (typeof current === 'number' && current > 0) {
+      return Math.max(0, Math.min(100, (current / windowSize) * 100));
     }
 
     return 0;

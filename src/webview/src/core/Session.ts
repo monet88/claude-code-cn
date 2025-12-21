@@ -19,6 +19,7 @@ export interface SelectionRange {
 
 export interface UsageData {
   totalTokens: number;
+  inputTokens: number;  // For context window progress calculation
   totalCost: number;
   contextWindow: number;
 }
@@ -86,6 +87,7 @@ export class Session {
   readonly selection = signal<SelectionRange | undefined>(undefined);
   readonly usageData = signal<UsageData>({
     totalTokens: 0,
+    inputTokens: 0,
     totalCost: 0,
     contextWindow: 200000
   });
@@ -418,6 +420,15 @@ export class Session {
       }
     } else if (event?.type === 'result') {
       this.busy(false);
+      // Capture context_window from result event (SDK provides dynamic context window info)
+      if (event.context_window) {
+        const current = this.usageData();
+        this.usageData({
+          ...current,
+          contextWindow: event.context_window.context_window_size ?? current.contextWindow,
+          inputTokens: event.context_window.current_usage?.input_tokens ?? current.inputTokens
+        });
+      }
     }
   }
 
@@ -454,15 +465,17 @@ export class Session {
    * Update token usage statistics
    */
   private updateUsage(usage: any): void {
-    const totalTokens =
-      usage.input_tokens +
+    const inputTokens =
+      (usage.input_tokens ?? 0) +
       (usage.cache_creation_input_tokens ?? 0) +
-      (usage.cache_read_input_tokens ?? 0) +
-      usage.output_tokens;
+      (usage.cache_read_input_tokens ?? 0);
+
+    const totalTokens = inputTokens + (usage.output_tokens ?? 0);
 
     const current = this.usageData();
     this.usageData({
       totalTokens,
+      inputTokens,
       totalCost: current.totalCost,
       contextWindow: current.contextWindow
     });

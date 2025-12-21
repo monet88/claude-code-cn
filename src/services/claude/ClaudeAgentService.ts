@@ -400,7 +400,12 @@ export class ClaudeAgentService implements IClaudeAgentService {
                     // Agent mode (acceptEdits): Auto-allow all tools, similar to --dangerously-skip-permissions
                     if (currentMode === 'acceptEdits') {
                         this.logService.info(`🔧 [Agent Mode] Auto-allowed tool: ${toolName}`);
-                        return { behavior: 'allow' as const };
+                        // SDK Zod validation requires updatedInput for 'allow' behavior
+                        return {
+                            behavior: 'allow' as const,
+                            updatedInput: input ?? {},
+                            updatedPermissions: options.suggestions ?? []
+                        };
                     }
 
                     // Other modes: Request WebView confirmation via RPC
