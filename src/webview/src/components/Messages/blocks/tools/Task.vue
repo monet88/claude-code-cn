@@ -54,12 +54,8 @@ const prompt = computed(() => {
   return props.toolUse?.input?.prompt || props.toolUseResult?.prompt;
 });
 
-// Only expand by default when there's an error
-// Task prompts are usually long, so collapse by default
+// Always collapse by default - user can click to expand if needed
 const shouldExpand = computed(() => {
-  // Expand when there is an error
-  if (props.toolResult?.is_error) return true;
-
   return false;
 });
 </script>

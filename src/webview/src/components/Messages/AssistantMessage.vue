@@ -5,7 +5,7 @@
     </template>
     <template v-else>
       <ContentBlock
-        v-for="(wrapper, index) in message.message.content"
+        v-for="(wrapper, index) in filteredContent"
         :key="index"
         :block="wrapper.content"
         :wrapper="wrapper"
@@ -27,6 +27,34 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Filter duplicate text blocks that match Task tool prompts
+const filteredContent = computed(() => {
+  const content = props.message.message.content;
+  if (!Array.isArray(content)) return [];
+
+  // Collect all Task tool prompts for deduplication
+  const taskPrompts = new Set<string>();
+  for (const wrapper of content) {
+    if (wrapper.content.type === 'tool_use' && wrapper.content.name === 'Task') {
+      const prompt = wrapper.content.input?.prompt;
+      if (prompt && typeof prompt === 'string') {
+        taskPrompts.add(prompt.trim());
+      }
+    }
+  }
+
+  // Filter out text blocks that duplicate Task prompts
+  if (taskPrompts.size === 0) return content;
+
+  return content.filter(wrapper => {
+    if (wrapper.content.type !== 'text') return true;
+    const text = wrapper.content.text?.trim();
+    if (!text) return true;
+    // Check if this text matches any Task prompt
+    return !taskPrompts.has(text);
+  });
+});
 
 // Calculate dynamic class
 const messageClasses = computed(() => {
