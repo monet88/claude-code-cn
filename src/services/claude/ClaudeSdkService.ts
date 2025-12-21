@@ -27,7 +27,6 @@ import type {
     CanUseTool,
     PermissionMode,
     SDKUserMessage,
-    HookCallbackMatcher,
 } from '@anthropic-ai/claude-agent-sdk';
 
 export const IClaudeSdkService = createDecorator<IClaudeSdkService>('claudeSdkService');
@@ -184,29 +183,9 @@ export class ClaudeSdkService implements IClaudeSdkService {
                 append: VS_CODE_APPEND_PROMPT
             },
 
-            // Hooks
-            hooks: {
-                // PreToolUse: Before tool execution
-                PreToolUse: [{
-                    matcher: "Edit|Write|MultiEdit",
-                    hooks: [async (input, toolUseID, options) => {
-                        if ('tool_name' in input) {
-                            this.logService.info(`[Hook] PreToolUse: ${input.tool_name}`);
-                        }
-                        return { continue: true };
-                    }]
-                }] as HookCallbackMatcher[],
-                // PostToolUse: After tool execution
-                PostToolUse: [{
-                    matcher: "Edit|Write|MultiEdit",
-                    hooks: [async (input, toolUseID, options) => {
-                        if ('tool_name' in input) {
-                            this.logService.info(`[Hook] PostToolUse: ${input.tool_name}`);
-                        }
-                        return { continue: true };
-                    }]
-                }] as HookCallbackMatcher[]
-            },
+            // Hooks - Let SDK load from settingSources (user/project/local settings.json)
+            // Don't override with hardcoded hooks here
+            // hooks: { ... },
 
             // CLI executable path
             pathToClaudeCodeExecutable: this.getClaudeExecutablePath(),
