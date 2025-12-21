@@ -4,7 +4,7 @@
 
 import * as vscode from 'vscode';
 import { InstantiationServiceBuilder } from './di/instantiationServiceBuilder';
-import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService, ISkillService, IAgentConfigService, ICommandConfigService } from './services/serviceRegistry';
+import { registerServices, ILogService, IClaudeAgentService, IWebViewService, IClaudeSettingsService, ICCSwitchSettingsService, IConfigurationService, IMcpService, ISkillService, IAgentConfigService, ICommandConfigService, IOutputStyleConfigService } from './services/serviceRegistry';
 import { VSCodeTransport } from './services/claude/transport/VSCodeTransport';
 import type { ClaudeProvider } from './services/ccSwitchSettingsService';
 import { getCurrentProjectStatistics, getAllProjectsAggregatedStatistics } from './services/usageStatisticsService';
@@ -44,6 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const skillService = accessor.get(ISkillService);
 		const agentConfigService = accessor.get(IAgentConfigService);
 		const commandConfigService = accessor.get(ICommandConfigService);
+		const outputStyleConfigService = accessor.get(IOutputStyleConfigService);
 
 		// Initialize CC Switch settings (ensure default provider exists)
 		await ccSwitchSettingsService.initialize();
@@ -696,6 +697,127 @@ export function activate(context: vscode.ExtensionContext) {
 					logService.error(`Failed to open Command: ${error}`);
 					webViewService.postMessage({
 						type: 'commandOpened',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			// Handle Output Styles management
+			if (message.type === 'getAllOutputStyles') {
+				logService.info('[Extension] getAllOutputStyles handler called');
+				try {
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const styles = await outputStyleConfigService.getAllOutputStyles(workspaceRoot);
+					logService.info(`[Extension] Output Styles loaded: global=${Object.keys(styles.global).length}, local=${Object.keys(styles.local).length}`);
+					webViewService.postMessage({
+						type: 'allOutputStylesData',
+						payload: styles
+					});
+				} catch (error) {
+					logService.error(`Failed to get Output Styles: ${error}`);
+					webViewService.postMessage({
+						type: 'allOutputStylesData',
+						payload: { global: {}, local: {} }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'importOutputStyle') {
+				try {
+					const { scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+					const uris = await vscode.window.showOpenDialog({
+						canSelectFiles: true,
+						canSelectFolders: true,
+						canSelectMany: true,
+						openLabel: `Import to ${scope === 'global' ? 'Global' : 'Local'} Output Styles`
+					});
+
+					if (!uris || uris.length === 0) {
+						webViewService.postMessage({
+							type: 'outputStyleImported',
+							payload: { success: false, error: 'No files or folders selected' }
+						});
+						return;
+					}
+
+					const importedStyles = [];
+					const errors = [];
+					for (const uri of uris) {
+						try {
+							const style = await outputStyleConfigService.importOutputStyle(uri.fsPath, scope, workspaceRoot);
+							importedStyles.push(style);
+						} catch (error) {
+							errors.push({ path: uri.fsPath, error: String(error) });
+						}
+					}
+
+					webViewService.postMessage({
+						type: 'outputStyleImported',
+						payload: {
+							success: importedStyles.length > 0,
+							count: importedStyles.length,
+							total: uris.length,
+							errors: errors.length > 0 ? errors : undefined
+						}
+					});
+				} catch (error) {
+					logService.error(`Failed to import Output Style: ${error}`);
+					webViewService.postMessage({
+						type: 'outputStyleImported',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'deleteOutputStyle') {
+				try {
+					const { id, scope } = message.payload;
+					const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+					const success = await outputStyleConfigService.deleteOutputStyle(id, scope, workspaceRoot);
+					webViewService.postMessage({
+						type: 'outputStyleDeleted',
+						payload: { success }
+					});
+				} catch (error) {
+					logService.error(`Failed to delete Output Style: ${error}`);
+					webViewService.postMessage({
+						type: 'outputStyleDeleted',
+						payload: { success: false, error: String(error) }
+					});
+				}
+				return;
+			}
+
+			if (message.type === 'openOutputStyle') {
+				try {
+					const { outputStylePath } = message.payload;
+					const fs = await import('fs');
+					const path = await import('path');
+
+					let targetPath = outputStylePath;
+					const stats = fs.statSync(outputStylePath);
+					if (stats.isDirectory()) {
+						const styleMdPath = path.join(outputStylePath, 'style.md');
+						if (fs.existsSync(styleMdPath)) {
+							targetPath = styleMdPath;
+						}
+					}
+
+					const uri = vscode.Uri.file(targetPath);
+					await vscode.commands.executeCommand('vscode.open', uri);
+					webViewService.postMessage({
+						type: 'outputStyleOpened',
+						payload: { success: true }
+					});
+				} catch (error) {
+					logService.error(`Failed to open Output Style: ${error}`);
+					webViewService.postMessage({
+						type: 'outputStyleOpened',
 						payload: { success: false, error: String(error) }
 					});
 				}

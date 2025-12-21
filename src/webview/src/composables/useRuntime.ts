@@ -22,11 +22,11 @@ export function useRuntime(): RuntimeInstance {
   const connectionManager = new ConnectionManager(() => new VSCodeTransport(atMentionEvents, selectionEvents));
   const appContext = new AppContext(connectionManager);
 
-  // 创建 alien-signal 用于 SessionContext
-  // AppContext.currentSelection 是 Vue Ref，但 SessionContext 需要 alien-signal
+  // Tạo alien-signal cho SessionContext
+  // AppContext.currentSelection là Vue Ref, nhưng SessionContext cần alien-signal
   const currentSelectionSignal = signal<SelectionRange | undefined>(undefined);
 
-  // 双向同步 Vue Ref ↔ Alien Signal
+  // Đồng bộ hai chiều Vue Ref ↔ Alien Signal
   // Vue Ref → Alien Signal
   watch(
     () => appContext.currentSelection(),
@@ -50,20 +50,20 @@ export function useRuntime(): RuntimeInstance {
     appContext.currentSelection(selection);
   });
 
-  // SessionStore 内部的 effect 会自动监听 connection 建立并拉取会话列表
+  // Effect bên trong SessionStore sẽ tự động theo dõi việc thiết lập connection và kéo danh sách session
 
-  // 监听 claudeConfig 变化并注册 Slash Commands
+  // Theo dõi thay đổi claudeConfig và đăng ký Slash Commands
   let slashCommandDisposers: Array<() => void> = [];
 
   const cleanupSlashCommands = effect(() => {
     const connection = connectionManager.connection();
     const claudeConfig = connection?.claudeConfig();
 
-    // 清理旧的 Slash Commands
+    // Dọn dẹp Slash Commands cũ
     slashCommandDisposers.forEach(dispose => dispose());
     slashCommandDisposers = [];
 
-    // 注册新的 Slash Commands
+    // Đăng ký Slash Commands mới
     if (claudeConfig?.slashCommands && Array.isArray(claudeConfig.slashCommands)) {
       slashCommandDisposers = claudeConfig.slashCommands
         .filter((cmd: any) => typeof cmd?.name === 'string' && cmd.name)
@@ -119,7 +119,7 @@ export function useRuntime(): RuntimeInstance {
     onUnmounted(() => {
       disposed = true;
 
-      // 清理命令注册
+      // Dọn dẹp đăng ký lệnh
       slashCommandDisposers.forEach(dispose => dispose());
       cleanupSlashCommands();
 

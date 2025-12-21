@@ -1,17 +1,17 @@
 /**
- * useSessionStore - Vue Composable for SessionStore
+ * useSessionStore - Vue Composable cho SessionStore
  *
- * 核心功能：
- * 1. 将 SessionStore 类的 alien-signals 转换为 Vue refs
- * 2. 将 alien computed 转换为 Vue computed
- * 3. 提供 Vue-friendly 的 API
+ * Tính năng chính:
+ * 1. Chuyển đổi alien-signals của lớp SessionStore thành Vue refs
+ * 2. Chuyển đổi alien computed thành Vue computed
+ * 3. Cung cấp API thân thiện với Vue
  *
- * 使用方法：
+ * Cách sử dụng:
  * ```typescript
  * const store = new SessionStore(...);
  * const storeAPI = useSessionStore(store);
- * // storeAPI.sessions 是 Vue Ref<Session[]>
- * // storeAPI.activeSession 是 Vue Ref<Session | undefined>
+ * // storeAPI.sessions là Vue Ref<Session[]>
+ * // storeAPI.activeSession là Vue Ref<Session | undefined>
  * ```
  */
 
@@ -22,18 +22,18 @@ import type { Session, SessionOptions } from '../core/Session';
 import type { BaseTransport } from '../transport/BaseTransport';
 
 /**
- * useSessionStore 返回类型
+ * useSessionStore kiểu trả về
  */
 export interface UseSessionStoreReturn {
-  // 状态
+  // Trạng thái
   sessions: Ref<Session[]>;
   activeSession: Ref<Session | undefined>;
 
-  // 计算属性
+  // Thuộc tính tính toán
   sessionsByLastModified: ComputedRef<Session[]>;
   connectionState: ComputedRef<string>;
 
-  // 方法
+  // Phương thức
   onPermissionRequested: (callback: (event: PermissionEvent) => void) => () => void;
   getConnection: () => Promise<BaseTransport>;
   createSession: (options?: SessionOptions) => Promise<Session>;
@@ -41,26 +41,26 @@ export interface UseSessionStoreReturn {
   setActiveSession: (session: Session | undefined) => void;
   dispose: () => void;
 
-  // 原始实例（用于高级场景）
+  // Thể hiện gốc (dùng cho các trường hợp nâng cao)
   __store: SessionStore;
 }
 
 /**
- * useSessionStore - 将 SessionStore 实例包装为 Vue Composable API
+ * useSessionStore - Bọc thể hiện SessionStore thành API Vue Composable
  *
- * @param store SessionStore 实例
- * @returns Vue-friendly API
+ * @param store Thể hiện SessionStore
+ * @returns API thân thiện với Vue
  */
 export function useSessionStore(store: SessionStore): UseSessionStoreReturn {
-  // 🔥 使用官方 useSignal 桥接
+  // 🔥 Sử dụng useSignal chính thức để cầu nối
   const sessions = useSignal(store.sessions);
   const activeSession = useSignal(store.activeSession);
 
-  // 🔥 使用 useSignal 包装 alien computed
+  // 🔥 Sử dụng useSignal để bọc alien computed
   const sessionsByLastModified = useSignal(store.sessionsByLastModified) as unknown as ComputedRef<Session[]>;
   const connectionState = useSignal(store.connectionState) as unknown as ComputedRef<string>;
 
-  // 🔥 绑定所有方法（确保 this 指向正确）
+  // 🔥 Liên kết tất cả phương thức (đảm bảo this trỏ đúng)
   const onPermissionRequested = store.onPermissionRequested.bind(store);
   const getConnection = store.getConnection.bind(store);
   const createSession = store.createSession.bind(store);
@@ -69,15 +69,15 @@ export function useSessionStore(store: SessionStore): UseSessionStoreReturn {
   const dispose = store.dispose.bind(store);
 
   return {
-    // 状态
+    // Trạng thái
     sessions,
     activeSession,
 
-    // 计算属性
+    // Thuộc tính tính toán
     sessionsByLastModified,
     connectionState,
 
-    // 方法
+    // Phương thức
     onPermissionRequested,
     getConnection,
     createSession,
@@ -85,7 +85,7 @@ export function useSessionStore(store: SessionStore): UseSessionStoreReturn {
     setActiveSession,
     dispose,
 
-    // 原始实例
+    // Thể hiện gốc
     __store: store,
   };
 }

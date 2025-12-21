@@ -29,6 +29,7 @@ import { IMcpService, McpService } from './mcpService';
 import { ISkillService, SkillService } from './skillService';
 import { IAgentConfigService, AgentConfigService } from './agentConfigService';
 import { ICommandConfigService, CommandConfigService } from './commandConfigService';
+import { IOutputStyleConfigService, OutputStyleConfigService } from './outputStyleConfigService';
 
 /**
  * Register all services to the builder
@@ -82,6 +83,9 @@ export function registerServices(
 
 	// Command config service
 	builder.define(ICommandConfigService, new SyncDescriptor(CommandConfigService));
+
+	// Output style config service
+	builder.define(IOutputStyleConfigService, new SyncDescriptor(OutputStyleConfigService));
 }
 
 // Export all service interfaces for convenience
@@ -104,5 +108,6 @@ export {
 	IMcpService,
 	ISkillService,
 	IAgentConfigService,
-	ICommandConfigService
+	ICommandConfigService,
+	IOutputStyleConfigService
 };

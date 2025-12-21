@@ -1,12 +1,12 @@
 import type { KeyboardNavigationOptions } from '../types/completion'
 
 /**
- * 键盘导航 Composable
+ * Composable điều hướng bàn phím
  *
- * 封装上下键、Enter、Tab、Escape、PageUp、PageDown 等键盘导航逻辑
+ * Đóng gói logic điều hướng bàn phím như phím lên/xuống, Enter, Tab, Escape, PageUp, PageDown
  *
- * @param options 导航选项
- * @returns 键盘导航相关函数
+ * @param options Tùy chọn điều hướng
+ * @returns Các hàm liên quan đến điều hướng bàn phím
  *
  * @example
  * const { handleKeydown, moveNext, movePrev } = useKeyboardNavigation({
@@ -32,46 +32,46 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
   } = options
 
   /**
-   * 移动到下一项
+   * Chuyển đến mục tiếp theo
    */
   function moveNext() {
     if (items.value.length === 0) return
     activeIndex.value = (activeIndex.value + 1) % items.value.length
-    onNavigate?.() // 触发导航回调
+    onNavigate?.() // Kích hoạt callback điều hướng
   }
 
   /**
-   * 移动到上一项
+   * Chuyển đến mục trước đó
    */
   function movePrev() {
     if (items.value.length === 0) return
     activeIndex.value =
       (activeIndex.value - 1 + items.value.length) % items.value.length
-    onNavigate?.() // 触发导航回调
+    onNavigate?.() // Kích hoạt callback điều hướng
   }
 
   /**
-   * 向下翻页
+   * Lật trang tiếp theo
    */
   function moveNextPage() {
     if (items.value.length === 0) return
     const newIndex = Math.min(activeIndex.value + pageSize, items.value.length - 1)
     activeIndex.value = newIndex
-    onNavigate?.() // 触发导航回调
+    onNavigate?.() // Kích hoạt callback điều hướng
   }
 
   /**
-   * 向上翻页
+   * Lật trang trước đó
    */
   function movePrevPage() {
     if (items.value.length === 0) return
     const newIndex = Math.max(activeIndex.value - pageSize, 0)
     activeIndex.value = newIndex
-    onNavigate?.() // 触发导航回调
+    onNavigate?.() // Kích hoạt callback điều hướng
   }
 
   /**
-   * 选择当前激活的项
+   * Chọn mục đang được kích hoạt
    */
   function selectActive() {
     if (items.value.length === 0) return
@@ -79,20 +79,20 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
   }
 
   /**
-   * 重置索引到第一项
+   * Đặt lại chỉ số về mục đầu tiên
    */
   function reset() {
     activeIndex.value = 0
   }
 
   /**
-   * 处理键盘事件
+   * Xử lý sự kiện bàn phím
    *
-   * @param event 键盘事件
-   * @returns 是否处理了该事件
+   * @param event Sự kiện bàn phím
+   * @returns Có xử lý sự kiện này không
    */
   function handleKeydown(event: KeyboardEvent): boolean {
-    // 只在打开且有项时处理
+    // Chỉ xử lý khi đang mở và có mục
     if (!isOpen.value || items.value.length === 0) {
       return false
     }

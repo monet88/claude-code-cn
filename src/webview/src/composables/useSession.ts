@@ -1,17 +1,17 @@
 /**
- * useSession - Vue Composable for Session
+ * useSession - Vue Composable cho Session
  *
- * 核心功能：
- * 1. 将 Session 类的 alien-signals 转换为 Vue refs
- * 2. 将 alien computed 转换为 Vue computed
- * 3. 提供 Vue-friendly 的 API
+ * Tính năng chính:
+ * 1. Chuyển đổi alien-signals của lớp Session thành Vue refs
+ * 2. Chuyển đổi alien computed thành Vue computed
+ * 3. Cung cấp API thân thiện với Vue
  *
- * 使用方法：
+ * Cách sử dụng:
  * ```typescript
  * const session = new Session(...);
  * const sessionAPI = useSession(session);
- * // sessionAPI.messages 是 Vue Ref<any[]>
- * // sessionAPI.busy 是 Vue Ref<boolean>
+ * // sessionAPI.messages là Vue Ref<any[]>
+ * // sessionAPI.busy là Vue Ref<boolean>
  * ```
  */
 
@@ -25,10 +25,10 @@ import type { BaseTransport } from '../transport/BaseTransport';
 import type { ModelOption } from '../../../shared/messages';
 
 /**
- * useSession 返回类型
+ * useSession kiểu trả về
  */
 export interface UseSessionReturn {
-  // 基础状态
+  // Trạng thái cơ bản
   connection: Ref<BaseTransport | undefined>;
   busy: Ref<boolean>;
   isLoading: Ref<boolean>;
@@ -37,7 +37,7 @@ export interface UseSessionReturn {
   isExplicit: Ref<boolean>;
   lastModifiedTime: Ref<number>;
 
-  // 核心数据
+  // Dữ liệu cốt lõi
   messages: Ref<any[]>;
   messageCount: Ref<number>;
   cwd: Ref<string | undefined>;
@@ -49,22 +49,22 @@ export interface UseSessionReturn {
   worktree: Ref<{ name: string; path: string } | undefined>;
   selection: Ref<SelectionRange | undefined>;
 
-  // 使用统计
+  // Thống kê sử dụng
   usageData: Ref<{
     totalTokens: number;
     totalCost: number;
     contextWindow: number;
   }>;
 
-  // 计算属性
+  // Thuộc tính tính toán
   claudeConfig: ComputedRef<any>;
   config: ComputedRef<any>;
   permissionRequests: ComputedRef<PermissionRequest[]>;
 
-  // 派生状态
+  // Trạng thái dẫn xuất
   isOffline: ComputedRef<boolean>;
 
-  // 方法
+  // Phương thức
   getConnection: () => Promise<BaseTransport>;
   preloadConnection: () => Promise<void>;
   loadFromServer: () => Promise<void>;
@@ -85,18 +85,18 @@ export interface UseSessionReturn {
   onPermissionRequested: (callback: (request: PermissionRequest) => void) => () => void;
   dispose: () => void;
 
-  // 原始实例（用于高级场景）
+  // Thể hiện gốc (dùng cho các trường hợp nâng cao)
   __session: Session;
 }
 
 /**
- * useSession - 将 Session 实例包装为 Vue Composable API
+ * useSession - Bọc thể hiện Session thành API Vue Composable
  *
- * @param session Session 实例
- * @returns Vue-friendly API
+ * @param session Thể hiện Session
+ * @returns API thân thiện với Vue
  */
 export function useSession(session: Session): UseSessionReturn {
-  //  使用官方 useSignal 桥接 signals/computed
+  //  Sử dụng useSignal chính thức để cầu nối signals/computed
   const connection = useSignal(session.connection);
   const busy = useSignal(session.busy);
   const isLoading = useSignal(session.isLoading);
@@ -116,15 +116,15 @@ export function useSession(session: Session): UseSessionReturn {
   const selection = useSignal(session.selection);
   const usageData = useSignal(session.usageData);
 
-  //  使用 useSignal 包装 alien computed（读-only 使用，不调用 setter）
+  //  Sử dụng useSignal để bọc alien computed (chỉ đọc, không gọi setter)
   const claudeConfig = useSignal(session.claudeConfig as any);
   const config = useSignal(session.config as any);
   const permissionRequests = useSignal(session.permissionRequests) as unknown as ComputedRef<PermissionRequest[]>;
 
-  //  派生状态（临时保留 Vue computed）
+  //  Trạng thái dẫn xuất (tạm thời giữ Vue computed)
   const isOffline = computed(() => session.isOffline());
 
-  //  绑定所有方法（确保 this 指向正确）
+  //  Liên kết tất cả phương thức (đảm bảo this trỏ đúng)
   const getConnection = session.getConnection.bind(session);
   const preloadConnection = session.preloadConnection.bind(session);
   const loadFromServer = session.loadFromServer.bind(session);
@@ -142,7 +142,7 @@ export function useSession(session: Session): UseSessionReturn {
   const dispose = session.dispose.bind(session);
 
   return {
-    // 状态
+    // Trạng thái
     connection,
     busy,
     isLoading,
@@ -162,13 +162,13 @@ export function useSession(session: Session): UseSessionReturn {
     selection,
     usageData,
 
-    // 计算属性
+    // Thuộc tính tính toán
     claudeConfig,
     config,
     permissionRequests,
     isOffline,
 
-    // 方法
+    // Phương thức
     getConnection,
     preloadConnection,
     loadFromServer,
@@ -185,7 +185,7 @@ export function useSession(session: Session): UseSessionReturn {
     onPermissionRequested,
     dispose,
 
-    // 原始实例
+    // Thể hiện gốc
     __session: session,
   };
 }

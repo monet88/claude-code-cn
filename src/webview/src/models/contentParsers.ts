@@ -16,8 +16,8 @@ import type {
 } from './ContentBlock';
 
 const INTERRUPT_MESSAGES: Record<string, string> = {
-  '[Request interrupted by user]': '中断',
-  '[Request interrupted by user for tool use]': '工具中断',
+  '[Request interrupted by user]': 'Interrupted',
+  '[Request interrupted by user for tool use]': 'Tool Interrupted',
 };
 
 const TOOL_REJECTION_MARKER =
@@ -48,8 +48,8 @@ function parseBlock(raw: any): ContentBlockType[] {
     case 'thinking':
       return [createThinkingBlock(String(raw.thinking ?? ''))];
     case 'redacted_thinking':
-      // 官方方案：当思考开启时，历史 assistant 可能包含 redacted_thinking 以满足校验要求；
-      // 前端不展示该块，直接忽略
+      // Official approach: when thinking is enabled, history assistant may contain redacted_thinking to satisfy validation
+      // Frontend does not display this block, simply ignore
       return [];
     case 'image':
       return [createImageBlock(raw)];

@@ -1,6 +1,6 @@
 <template>
   <div class="chat-page">
-    <!-- 全局拖拽上传遮罩 -->
+    <!-- Global drag-and-drop upload overlay -->
     <Transition name="drag-fade">
       <div 
         v-if="isDragOver" 
@@ -19,7 +19,7 @@
             <span class="drag-subtitle">Claude will analyze them for you</span>
           </div>
         </div>
-        <!-- 兜底 file input：当 dataTransfer.files 为空时触发 -->
+        <!-- Fallback file input: triggered when dataTransfer.files is empty -->
         <input
           ref="fallbackInputRef"
           type="file"
@@ -30,7 +30,7 @@
       </div>
     </Transition>
 
-    <!-- 顶部标题栏 -->
+    <!-- Top header bar -->
     <div class="chat-header">
       <div class="header-left">
         <button class="menu-btn" @click="$emit('switchToSessions')">
@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <!-- 主体：消息容器 -->
+    <!-- Main content: message container -->
     <div class="main">
       <!-- <div class="chatContainer"> -->
         <div
@@ -59,13 +59,13 @@
             <div v-if="isBusy" class="emptyState">
               <div class="emptyWordmark">
                 <ClaudeWordmark class="emptyWordmarkSvg" />
-                <span class="version-text">Preview</span>
+                <span class="version-text">Beta</span>
               </div>
             </div>
             <div v-else class="emptyState">
               <div class="emptyWordmark">
                 <ClaudeWordmark class="emptyWordmarkSvg" />
-                <span class="version-text">Preview</span>
+                <span class="version-text">Beta</span>
               </div>
               <RandomTip :platform="platform" />
             </div>
@@ -153,18 +153,18 @@
     },
   }));
 
-  // 订阅 activeSession（alien-signal → Vue ref）
+  // Subscribe to activeSession (alien-signal → Vue ref)
   const activeSessionRaw = useSignal<Session | undefined>(
     runtime.sessionStore.activeSession
   );
 
-  // 使用 useSession 将 alien-signals 转换为 Vue Refs
+  // Use useSession to convert alien-signals to Vue Refs
   const session = computed(() => {
     const raw = activeSessionRaw.value;
     return raw ? useSession(raw) : null;
   });
 
-  // 现在所有访问都使用 Vue Ref（.value）
+  // All access now uses Vue Ref (.value)
   const title = computed(() => session.value?.summary.value || 'New Chat');
   const messages = computed<any[]>(() => session.value?.messages.value ?? []);
   const isBusy = computed(() => session.value?.busy.value ?? false);
@@ -178,9 +178,9 @@
   const pendingPermission = computed(() => permissionRequests.value[0] as any);
   const platform = computed(() => runtime.appContext.platform);
 
-  // 注册命令：permissionMode.toggle（在下方定义函数后再注册）
+  // Register command: permissionMode.toggle (register after defining the function below)
 
-  // 估算 Token 使用占比（基于 usageData）
+  // Estimate Token usage percentage (based on usageData)
   const progressPercentage = computed(() => {
     const s = session.value;
     if (!s) return 0;
@@ -201,16 +201,16 @@
   const endEl = ref<HTMLDivElement | null>(null);
   const fallbackInputRef = ref<HTMLInputElement | null>(null);
 
-  // 附件状态管理
+  // Attachment state management
   const attachments = ref<AttachmentItem[]>([]);
   const isDragOver = ref(false);
 
   function hasFiles(event: DragEvent): boolean {
     const dt = event.dataTransfer;
     if (!dt) return false;
-    // 检查 types 是否包含 Files
+    // Check if types contains Files
     if (dt.types && Array.from(dt.types).includes('Files')) return true;
-    // 检查 items (某些浏览器/环境)
+    // Check items (some browsers/environments)
     if (dt.items && dt.items.length > 0) {
       const hasFileItem = Array.from(dt.items).some(it => it.kind === 'file');
       if (hasFileItem) return true;
@@ -218,45 +218,45 @@
     return false;
   }
 
-  // 全局入口：检测拖拽进入窗口
+  // Global entry: detect drag entering the window
   function handleGlobalDragEnter(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
     isDragOver.value = true;
   }
 
-  // 全局 Over：确保激活遮罩 + 防止默认行为 (Failsafe)
+  // Global Over: ensure overlay is activated + prevent default behavior (Failsafe)
   function handleGlobalDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    // 如果 dragenter 没触发（例如直接在元素上开始），这里补救
+    // If dragenter didn't trigger (e.g., started directly on an element), fallback here
     if (!isDragOver.value && hasFiles(event)) {
       isDragOver.value = true;
     }
   }
 
-  // 全局 Leave：离开窗口时关闭遮罩
+  // Global Leave: close overlay when leaving the window
   function handleGlobalDragLeave(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
     const related = event.relatedTarget as HTMLElement | null;
-    // 当 relatedTarget 为空，表示拖拽离开窗口
+    // When relatedTarget is empty, it means drag left the window
     if (!related) {
       isDragOver.value = false;
     }
   }
 
-  // 兜底文件选择：当 drop 未携带 files 时触发
+  // Fallback file selection: triggered when drop has no files
   function handleFallbackFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       void handleAddAttachment(input.files);
     }
-    // 清空以允许重复选择同一文件
+    // Clear to allow re-selecting the same file
     input.value = '';
   }
 
-  // 遮罩层 Over：保持显示，设置 copy 效果
+  // Overlay Over: keep visible, set copy effect
   function handleOverlayDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -271,7 +271,7 @@
     isDragOver.value = true;
   }
 
-  // 遮罩层 Leave：检测是否真的离开了遮罩层（还是只是进入了子元素）
+  // Overlay Leave: check if really leaving the overlay (or just entering a child element)
   function handleOverlayDragLeave(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -279,14 +279,14 @@
     const currentTarget = event.currentTarget as HTMLElement;
     const relatedTarget = event.relatedTarget as HTMLElement;
 
-    // 如果 relatedTarget 为空（离开窗口）或 relatedTarget 不在 currentTarget 内部
-    // 则认为离开了遮罩层
+    // If relatedTarget is empty (leaving window) or relatedTarget is not inside currentTarget
+    // then consider it as leaving the overlay
     if (!relatedTarget || !currentTarget.contains(relatedTarget)) {
       isDragOver.value = false;
     }
   }
 
-  // 遮罩层 Drop：处理文件
+  // Overlay Drop: handle files
   function handleOverlayDrop(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -298,11 +298,11 @@
       return;
     }
 
-    // 某些环境下 drop 无 files，兜底触发文件选择
+    // In some environments drop has no files, fallback to trigger file selection
     fallbackInputRef.value?.click();
   }
 
-  // 全局 Drop：防止未被遮罩层捕获的文件打开行为，并尝试处理
+  // Global Drop: prevent file opening behavior not captured by overlay, and try to handle
   function handleGlobalDrop(event: DragEvent) {
     if (hasFiles(event)) {
       event.preventDefault();
@@ -317,7 +317,7 @@
   }
 
 
-  // 记录上次消息数量，用于判断是否需要滚动
+  // Record last message count to determine if scrolling is needed
   let prevCount = 0;
 
   function stringify(m: any): string {
@@ -339,7 +339,7 @@
   }
 
   watch(session, async () => {
-    // 切换会话：复位并滚动底部
+    // Session switch: reset and scroll to bottom
     prevCount = 0;
     await nextTick();
     scrollToBottom();
@@ -360,7 +360,7 @@
   );
 
   watch(permissionRequestsLen, async () => {
-    // 有权限请求出现时也确保滚动到底部
+    // Also ensure scroll to bottom when permission request appears
     await nextTick();
     scrollToBottom();
   });
@@ -370,13 +370,13 @@
     await nextTick();
     scrollToBottom();
 
-    // 绑定全局 dragenter 用于触发遮罩层
+    // Bind global dragenter to trigger overlay
     window.addEventListener('dragenter', handleGlobalDragEnter, true);
-    // 绑定全局 dragover 防止默认预览行为并作为 dragenter 的备份
+    // Bind global dragover to prevent default preview behavior and as backup for dragenter
     window.addEventListener('dragover', handleGlobalDragOver, true);
-    // 离开窗口时关闭遮罩
+    // Close overlay when leaving window
     window.addEventListener('dragleave', handleGlobalDragLeave, true);
-    // 绑定全局 drop 以防遮罩层未及时捕获
+    // Bind global drop in case overlay didn't capture in time
     window.addEventListener('drop', handleGlobalDrop, true);
   });
 
@@ -391,35 +391,35 @@
   async function createNew(): Promise<void> {
     if (!runtime) return;
 
-    // 1. 先尝试通过 appContext.startNewConversationTab 创建新标签（多标签模式）
+    // 1. First try to create new tab via appContext.startNewConversationTab (multi-tab mode)
     if (runtime.appContext.startNewConversationTab()) {
       return;
     }
 
-    // 2. 如果不是多标签模式，检查当前会话是否为空
+    // 2. If not in multi-tab mode, check if current session is empty
     const currentMessages = messages.value;
     if (currentMessages.length === 0) {
-      // 当前已经是空会话，无需创建新会话
+      // Current is already an empty session, no need to create new
       return;
     }
 
-    // 3. 当前会话有内容，创建新会话
+    // 3. Current session has content, create new session
     await runtime.sessionStore.createSession({ isExplicit: true });
   }
 
-  // ChatInput 事件处理
+  // ChatInput event handlers
   async function handleSubmit(content: string) {
     const s = session.value;
     const raw = content ?? '';
     const trimmed = raw.trim();
-    // 只用 trimmed 判断“是否为空”，但保留用户真实输入（包括前导空格）
+    // Only use trimmed to check "is empty", but preserve user's actual input (including leading spaces)
     if (!s || (!trimmed && attachments.value.length === 0) || isBusy.value) return;
 
     try {
-      // 传递附件给 send 方法，使用原始内容
+      // Pass attachments to send method, use original content
       await s.send(raw, attachments.value);
 
-      // 发送成功后清空附件
+      // Clear attachments after successful send
       attachments.value = [];
     } catch (e) {
       console.error('[ChatPage] send failed', e);
@@ -443,7 +443,7 @@
     await s.setPermissionMode(mode);
   }
 
-  // permissionMode.toggle：按固定顺序轮转
+  // permissionMode.toggle: rotate in fixed order
   const togglePermissionMode = () => {
     const s = session.value;
     if (!s) return;
@@ -454,7 +454,7 @@
     void s.setPermissionMode(next);
   };
 
-  // 现在注册命令（toggle 已定义）
+  // Now register command (toggle is defined)
   const unregisterToggle = runtime.appContext.commandRegistry.registerAction(
     {
       id: 'permissionMode.toggle',
@@ -467,7 +467,7 @@
     }
   );
 
-  // 注册快捷键：shift+tab → permissionMode.toggle（允许在输入区生效）
+  // Register keyboard shortcut: shift+tab → permissionMode.toggle (allowed in input area)
   useKeybinding({
     keys: 'shift+tab',
     handler: togglePermissionMode,
@@ -485,7 +485,7 @@
   function handleStop() {
     const s = session.value;
     if (s) {
-      // 方法已经在 useSession 中绑定，可以直接调用
+      // Method is already bound in useSession, can be called directly
       void s.interrupt();
     }
   }
@@ -494,12 +494,12 @@
     if (!files || files.length === 0) return;
 
     try {
-      // 将所有文件转换为 AttachmentItem
+      // Convert all files to AttachmentItem
       const conversions = await Promise.all(
         Array.from(files).map(convertFileToAttachment)
       );
 
-      // 添加到附件列表
+      // Add to attachment list
       attachments.value = [...attachments.value, ...conversions];
 
       console.log('[ChatPage] Added attachments:', conversions.map(a => a.fileName));
@@ -534,7 +534,7 @@
     min-width: 360px;
   }
 
-  /* 拖拽遮罩 - 玻璃拟态与微交互 */
+  /* Drag overlay - glass morphism and micro-interactions */
   .drag-fade-enter-active,
   .drag-fade-leave-active {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -553,12 +553,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 移除 pointer-events: none 以便捕获事件 */
+    /* Remove pointer-events: none to capture events */
     pointer-events: auto;
-    /* 增强的玻璃拟态背景 - 降低不透明度以突显模糊 */
+    /* Enhanced glass morphism background - reduce opacity to emphasize blur */
     background: color-mix(in srgb, var(--vscode-editor-background) 40%, transparent);
     backdrop-filter: blur(12px) saturate(150%);
-    /* 径向渐变增加质感 */
+    /* Radial gradient for texture */
     background-image: radial-gradient(
       circle at center, 
       color-mix(in srgb, var(--vscode-textLink-activeForeground) 5%, transparent) 0%,
@@ -574,14 +574,14 @@
     gap: 16px;
     padding: 32px 48px;
     border-radius: 24px;
-    /* 边框与背景 */
+    /* Border and background */
     border: 1px solid color-mix(in srgb, var(--vscode-focusBorder) 30%, transparent);
     background: color-mix(in srgb, var(--vscode-editor-background) 90%, var(--vscode-focusBorder) 5%);
     box-shadow: 
       0 16px 48px -8px rgba(0, 0, 0, 0.25),
       0 0 0 1px color-mix(in srgb, var(--vscode-focusBorder) 10%, transparent);
     color: var(--vscode-foreground);
-    /* 初始缩放状态 */
+    /* Initial scale state */
     transform: scale(1);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -682,7 +682,7 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--vscode-titleBar-activeForeground);
-    /* 自适应剩余空间，避免溢出 */
+    /* Adapt to remaining space, avoid overflow */
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -752,7 +752,7 @@
     overflow: hidden;
   }
 
-  /* Chat 容器与消息滚动容器（对齐 React） */
+  /* Chat container and message scroll container (aligned with React) */
   .chatContainer {
     position: relative;
     height: 100%;
@@ -806,14 +806,14 @@
     color: var(--vscode-editor-foreground);
   }
 
-  /* 其他样式复用 */
+  /* Other styles reuse */
 
-  /* 输入区域容器 */
+  /* Input area container */
   .inputContainer {
     padding: 8px 12px 12px;
   }
 
-  /* 底部对话框区域钉在底部 */
+  /* Bottom dialog area pinned at bottom */
   .main > :last-child {
     flex-shrink: 0;
     background-color: var(--vscode-sideBar-background);
@@ -823,7 +823,7 @@
     align-self: center;
   }
 
-  /* 空状态样式 */
+  /* Empty state styles */
   .emptyState {
     display: flex;
     flex-direction: column;
@@ -860,5 +860,4 @@
     letter-spacing: 0.3px;
   }
 </style>
-
 

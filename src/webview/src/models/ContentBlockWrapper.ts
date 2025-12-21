@@ -1,17 +1,17 @@
 /**
- * ContentBlockWrapper - Content Block 包装器
+ * ContentBlockWrapper - Content Block Wrapper
  *
- * 使用 alien-signals 管理 tool_result 的响应式关联
+ * Uses alien-signals to manage reactive association of tool_result
  *
- * 核心功能：
- * 1. 包装每个 content block
- * 2. 使用 Signal 管理 toolResult（响应式）
- * 3. 提供 setToolResult 方法用于异步关联
+ * Core Features:
+ * 1. Wraps each content block
+ * 2. Uses Signal to manage toolResult (reactive)
+ * 3. Provides setToolResult method for async association
  *
- * 为什么需要这个包装器？
- * - tool_use 和 tool_result 不在同一条消息中
- * - 需要异步关联（收到 tool_result 时，反向查找 tool_use）
- * - 使用 signal 可以响应式更新 UI
+ * Why is this wrapper needed?
+ * - tool_use and tool_result are not in the same message
+ * - Async association is required (when tool_result is received, lookup tool_use in reverse)
+ * - Using signal enables reactive UI updates
  */
 
 import { signal } from 'alien-signals';
@@ -19,19 +19,19 @@ import type { ContentBlockType, ToolResultBlock } from './ContentBlock';
 
 export class ContentBlockWrapper {
   /**
-   * 原始 content block
+   * Original content block
    */
   public readonly content: ContentBlockType;
 
   /**
-   * Tool Result 的 Signal（响应式）
-   * 用于实时对话中的 tool_result
+   * Tool Result Signal (reactive)
+   * Used for tool_result in real-time conversations
    */
   private readonly toolResultSignal = signal<ToolResultBlock | undefined>(undefined);
 
   /**
-   * Tool Use Result（普通属性）
-   * 用于会话加载时的 toolUseResult（不需要响应式）
+   * Tool Use Result (plain property)
+   * Used for toolUseResult when loading session (no reactivity needed)
    */
   public toolUseResult?: any;
 
@@ -40,34 +40,34 @@ export class ContentBlockWrapper {
   }
 
   /**
-   * 获取 toolResult signal
+   * Get toolResult signal
    *
-   * @returns Alien signal 函数
+   * @returns Alien signal function
    */
   get toolResult() {
     return this.toolResultSignal;
   }
 
   /**
-   * 设置 tool result
+   * Set tool result
    *
-   * 🔥 使用 alien-signals 函数调用 API
+   * Uses alien-signals function call API
    *
-   * @param result Tool 执行结果
+   * @param result Tool execution result
    */
   setToolResult(result: ToolResultBlock): void {
     this.toolResultSignal(result);
   }
 
   /**
-   * 检查是否有 tool_result
+   * Check if tool_result exists
    */
   hasToolResult(): boolean {
     return this.toolResultSignal() !== undefined;
   }
 
   /**
-   * 获取 tool_result 的值（非响应式）
+   * Get tool_result value (non-reactive)
    */
   getToolResultValue(): ToolResultBlock | undefined {
     return this.toolResultSignal();

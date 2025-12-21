@@ -1,8 +1,7 @@
 /**
- * ContentBlock 类型定义
- *
- * 定义了消息中所有可能的内容块类型
- */
+ContentBlock type definition
+Defines all possible content block types in a message
+*/
 
 export interface TextBlock {
   type: 'text';

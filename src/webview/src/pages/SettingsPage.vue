@@ -1,6 +1,6 @@
 <template>
   <div class="settings-page">
-    <!-- 顶部标题栏 -->
+    <!-- Top header bar -->
     <div class="settings-header">
       <div class="header-left">
         <button class="back-btn" @click="$emit('back')">
@@ -9,19 +9,19 @@
         <h2 class="settings-title">Settings</h2>
       </div>
       <div class="header-right">
-        <!-- 已隐藏保存更改按钮 -->
+        <!-- Save changes button hidden -->
       </div>
     </div>
 
-    <!-- 主体内容 -->
+    <!-- Main content -->
     <div class="settings-main">
-      <!-- 侧边栏 -->
+      <!-- Sidebar -->
       <div :class="['settings-sidebar', { collapsed: isCollapsed }]" ref="sidebarRef">
         <div class="sidebar-items">
           <div
             :class="['sidebar-item', { active: currentTab === 'basic' }]"
             @click="currentTab = 'basic'"
-            :title="isCollapsed ? '基础配置' : ''"
+            :title="isCollapsed ? 'Basic settings' : ''"
           >
             <span class="codicon codicon-settings-gear"></span>
             <span class="sidebar-item-text">Basic settings</span>
@@ -29,7 +29,7 @@
           <div
             :class="['sidebar-item', { active: currentTab === 'usage' }]"
             @click="currentTab = 'usage'"
-            :title="isCollapsed ? '使用统计' : ''"
+            :title="isCollapsed ? 'Usage & limits' : ''"
           >
             <span class="codicon codicon-graph"></span>
             <span class="sidebar-item-text">Usage & limits</span>
@@ -37,7 +37,7 @@
           <div
             :class="['sidebar-item', { active: currentTab === 'mcp' }]"
             @click="currentTab = 'mcp'"
-            :title="isCollapsed ? 'MCP服务器' : ''"
+            :title="isCollapsed ? 'MCP servers' : ''"
           >
             <span class="codicon codicon-server"></span>
             <span class="sidebar-item-text">MCP servers</span>
@@ -67,29 +67,29 @@
             <span class="sidebar-item-text">Agents</span>
           </div>
           <div
-            :class="['sidebar-item', { active: currentTab === 'community' }]"
-            @click="currentTab = 'community'"
-            :title="isCollapsed ? '官方交流群' : ''"
+            :class="['sidebar-item', { active: currentTab === 'output-styles' }]"
+            @click="currentTab = 'output-styles'"
+            :title="isCollapsed ? 'Output Styles' : ''"
           >
-            <span class="codicon codicon-comment-discussion"></span>
-            <span class="sidebar-item-text">Community</span>
+            <span class="codicon codicon-output"></span>
+            <span class="sidebar-item-text">Output Styles</span>
           </div>
         </div>
 
-        <!-- 折叠按钮移到底部 -->
-        <div class="sidebar-toggle" @click="toggleManualCollapse" :title="isCollapsed ? '展开侧边栏' : '折叠侧边栏'">
+        <!-- Collapse button moved to bottom -->
+        <div class="sidebar-toggle" @click="toggleManualCollapse" :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
           <span :class="['codicon', isCollapsed ? 'codicon-chevron-right' : 'codicon-chevron-left']"></span>
         </div>
       </div>
 
-      <!-- 内容区域 -->
+      <!-- Content area -->
       <div class="settings-content">
-        <!-- 基础配置 -->
+        <!-- Basic settings -->
         <div v-if="currentTab === 'basic'" class="config-section">
           <h3 class="section-title">Basic settings</h3>
           <p class="section-desc">Configure basic settings and environment for Claude Code.</p>
 
-          <!-- 界面主题 -->
+          <!-- Interface Theme -->
           <div class="theme-section">
             <div class="section-header">
               <h4>
@@ -144,7 +144,7 @@
             </div>
           </div>
 
-          <!-- 供应商列表 -->
+          <!-- Provider list -->
           <div class="provider-section">
             <div class="section-header">
               <h4>Providers Management</h4>
@@ -214,7 +214,7 @@
           </div>
         </div>
 
-        <!-- 使用统计 -->
+        <!-- Usage statistics -->
         <div v-else-if="currentTab === 'usage'" class="config-section usage-section">
           <h3 class="section-title">Usage & limits</h3>
           <p class="section-desc">View token usage and context window information.</p>
@@ -222,21 +222,12 @@
           <UsageStatisticsSection />
         </div>
 
-        <!-- 官方交流群 -->
-        <div v-else-if="currentTab === 'community'" class="config-section community-section">
-          <h3 class="section-title">Community</h3>
-          <p class="section-desc">Join the community to get help, share feedback, and follow updates.</p>
+        <!-- Output Styles -->
+        <div v-else-if="currentTab === 'output-styles'" class="config-section output-styles-section">
+          <h3 class="section-title">Output Styles</h3>
+          <p class="section-desc">Manage output styles that customize Claude's response format and tone.</p>
 
-          <div class="qrcode-container">
-            <div class="qrcode-wrapper">
-              <img
-                src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/wxq.png"
-                alt="Scan to join the Claude Code community"
-                class="qrcode-image"
-              />
-              <p class="qrcode-tip">Scan the QR code to join the community.</p>
-            </div>
-          </div>
+          <OutputStylePanel />
         </div>
 
         <!-- MCP Server -->
@@ -279,7 +270,7 @@
       </div>
     </div>
 
-    <!-- 编辑供应商对话框 -->
+    <!-- Edit provider dialog -->
     <ProviderEditDialog
       v-if="showEditDialog && editingProvider"
       :provider="editingProvider"
@@ -290,14 +281,14 @@
       @test="handleTestConnection"
     />
 
-    <!-- 添加供应商对话框 -->
+    <!-- Add provider dialog -->
     <AddProviderDialog
       v-if="showAddDialog"
       @close="showAddDialog = false"
       @add="handleAddProvider"
     />
 
-    <!-- 消息对话框 -->
+    <!-- Message dialog -->
     <MessageDialog
       v-model:visible="messageDialog.visible"
       :type="messageDialog.type"
@@ -324,6 +315,7 @@ import McpServerPanel from '../components/McpServerPanel.vue';
 import SkillPanel from '../components/SkillPanel.vue';
 import AgentPanel from '../components/AgentPanel.vue';
 import CommandPanel from '../components/CommandPanel.vue';
+import OutputStylePanel from '../components/OutputStylePanel.vue';
 import { RuntimeKey } from '../composables/runtimeContext';
 
 defineEmits<{
@@ -338,27 +330,27 @@ const showEditDialog = ref(false);
 const showAddDialog = ref(false);
 const editingProvider = ref<ProviderConfig | null>(null);
 
-// 侧边栏相关状态
+// Sidebar related state
 const sidebarRef = ref<HTMLElement | null>(null);
 const windowWidth = ref(window.innerWidth);
-const manualCollapsed = ref<boolean | null>(null); // null表示跟随自动，true/false表示手动设置
+const manualCollapsed = ref<boolean | null>(null); // null means follow auto, true/false means manual setting
 
-// 自动折叠阈值（窗口宽度）
+// Auto collapse threshold (window width)
 const AUTO_COLLAPSE_THRESHOLD = 900;
 
-// 计算是否应该折叠
+// Compute whether should collapse
 const isCollapsed = computed(() => {
-  // 如果手动设置过，优先使用手动设置
+  // If manually set, prioritize manual setting
   if (manualCollapsed.value !== null) {
     return manualCollapsed.value;
   }
-  // 否则根据窗口宽度自动判断
+  // Otherwise judge automatically based on window width
   return windowWidth.value < AUTO_COLLAPSE_THRESHOLD;
 });
 
 const providers = ref<ProviderConfig[]>([]);
 
-// 消息对话框状态
+// Message dialog state
 const messageDialog = reactive({
   visible: false,
   type: 'confirm' as 'confirm' | 'alert',
@@ -370,7 +362,7 @@ const messageDialog = reactive({
   onCancel: () => {}
 });
 
-// 显示确认对话框
+// Show confirm dialog
 function showConfirm(title: string, message: string): Promise<boolean> {
   return new Promise((resolve) => {
     messageDialog.type = 'confirm';
@@ -390,7 +382,7 @@ function showConfirm(title: string, message: string): Promise<boolean> {
   });
 }
 
-// 显示提示对话框
+// Show alert dialog
 function showAlert(title: string, message: string): Promise<void> {
   return new Promise((resolve) => {
     messageDialog.type = 'alert';
@@ -405,28 +397,28 @@ function showAlert(title: string, message: string): Promise<void> {
   });
 }
 
-// 窗口大小变化监听
+// Window resize listener
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
 
-  // 如果窗口大小变化导致应该自动切换状态，重置手动设置
-  // 这样可以让侧边栏在窗口变化时重新适应
+  // If window size change should trigger auto state switch, reset manual setting
+  // This allows sidebar to re-adapt when window changes
   const shouldAutoCollapse = windowWidth.value < AUTO_COLLAPSE_THRESHOLD;
   if (manualCollapsed.value !== null) {
-    // 如果当前手动状态和自动状态一致，则清除手动设置，回归自动模式
+    // If current manual state matches auto state, clear manual setting, return to auto mode
     if (manualCollapsed.value === shouldAutoCollapse) {
       manualCollapsed.value = null;
     }
   }
 };
 
-// 手动切换折叠状态
+// Manually toggle collapse state
 const toggleManualCollapse = () => {
   if (manualCollapsed.value === null) {
-    // 如果当前是自动模式，切换到手动模式
+    // If currently in auto mode, switch to manual mode
     manualCollapsed.value = !isCollapsed.value;
   } else {
-    // 如果已经是手动模式，切换状态
+    // If already in manual mode, toggle state
     manualCollapsed.value = !manualCollapsed.value;
   }
 };
@@ -435,17 +427,17 @@ onMounted(async () => {
   await providerStore.initialize();
   providers.value = providerStore.providers;
 
-  // 添加窗口大小变化监听
+  // Add window resize listener
   window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
-  // 移除监听器
+  // Remove listener
   window.removeEventListener('resize', handleResize);
 });
 
 function handleSave() {
-  // 保存所有配置
+  // Save all configurations
   console.log('Saving settings...');
 }
 
@@ -469,19 +461,19 @@ async function handleAddProvider(provider: ProviderConfig) {
 }
 
 async function handleDeleteProvider(provider: ProviderConfig) {
-  // 如果只有一个供应商，禁止删除
+  // If only one provider, disallow deletion
   if (providers.value.length === 1) {
     await showAlert('Unable to delete', 'At least one provider configuration needs to be retained.');
     return;
   }
 
-  // 如果是当前使用的供应商，禁止删除，提示先切换
+  // If it's the currently used provider, disallow deletion, prompt to switch first
   if (provider.isActive) {
     await showAlert('Unable to delete', 'You cannot delete the currently used provider. Please switch to another provider before deleting.');
     return;
   }
 
-  // 二次确认对话框
+  // Secondary confirmation dialog
   const confirmMessage = `Confirm to remove provider "${provider.name}"? \n\nThis operation cannot be undone.`;
 
   const confirmed = await showConfirm('Remove provider', confirmMessage);
@@ -503,14 +495,14 @@ async function handleSwitchProvider(id: string) {
     await providerStore.switchProvider(id);
     providers.value = providerStore.providers;
 
-    // 自动重启当前会话，以使用新的供应商配置
+    // Automatically restart current session to use new provider configuration
     const activeSession = runtime?.sessionStore.activeSession();
     if (activeSession) {
       try {
         await activeSession.restartClaude();
-        console.log('[SettingsPage] 会话已自动重启，使用新的供应商配置');
+        console.log('[SettingsPage] Session automatically restarted with new provider configuration');
       } catch (restartError) {
-        console.warn('[SettingsPage] 重启会话失败:', restartError);
+        console.warn('[SettingsPage] Failed to restart session:', restartError);
       }
     }
 
@@ -521,18 +513,18 @@ async function handleSwitchProvider(id: string) {
   }
 }
 
-// 处理从编辑对话框删除供应商
+// Handle delete provider from edit dialog
 async function handleDeleteFromEdit(id: string) {
   const provider = providers.value.find(p => p.id === id);
   if (!provider) return;
 
-  // 如果只有一个供应商，禁止删除
+  // If only one provider, disallow deletion
   if (providers.value.length === 1) {
     await showAlert('Cannot be deleted', 'At least one provider configuration must be retained');
     return;
   }
 
-  // 如果是当前使用的供应商，禁止删除，提示先切换
+  // If it's the currently used provider, disallow deletion, prompt to switch first
   if (provider.isActive) {
     await showAlert('Unable to delete', 'Unable to delete the currently used provider. Please switch to another provider before deleting.');
     return;
@@ -553,7 +545,7 @@ async function handleDeleteFromEdit(id: string) {
   }
 }
 
-// 处理测试连接
+// Handle test connection
 async function handleTestConnection() {
   await showAlert('Alert', 'Connection testing feature coming soon!');
 }
