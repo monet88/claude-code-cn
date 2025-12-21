@@ -36,7 +36,7 @@ marked.setOptions({
 // 渲染 Markdown
 const renderedMarkdown = computed(() => {
   const rawHtml = marked.parse(props.block.text) as string;
-  // TODO: 使用 DOMPurify.sanitize(rawHtml) 进行安全清理
+  // TODO: Use DOMPurify.sanitize(rawHtml) for safe cleaning
   return rawHtml;
 });
 </script>
@@ -60,7 +60,7 @@ const renderedMarkdown = computed(() => {
   font-weight: 600;
 }
 
-/* Markdown 基础样式 - Claudex 风格 */
+/* Markdown base styles - Claudix style */
 .markdown-content :deep(p) {
   margin: 8px 0;
   line-height: 1.6;

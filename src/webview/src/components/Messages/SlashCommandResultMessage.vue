@@ -50,7 +50,7 @@ const iconClass = computed(() => {
 });
 
 const headerLabel = computed(() => {
-  return isError.value ? '命令错误' : '命令输出';
+  return isError.value ? 'Command error' : 'Command output';
 });
 </script>
 

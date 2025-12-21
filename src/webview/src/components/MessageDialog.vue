@@ -33,9 +33,9 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'confirm',
-  title: '提示',
-  confirmText: '确定',
-  cancelText: '取消'
+  title: 'Message',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel'
 });
 
 const emit = defineEmits<{

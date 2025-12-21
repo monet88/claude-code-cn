@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible && queuedMessages.length > 0" class="message-queue-section">
-    <!-- Message Queue 头部 -->
+    <!-- Message Queue header -->
     <div
       style="display: flex; justify-content: space-between; align-items: center; height: 24px; cursor: pointer;"
       @click="toggleExpanded"
@@ -12,12 +12,12 @@
           style="color: var(--vscode-foreground); opacity: 0.6; font-size: 12px;"
         />
         <div style="font-size: 12px; color: var(--vscode-input-placeholderForeground); opacity: 0.8;">
-          <span>{{ queuedMessages.length }} 条待发送</span>
+          <span>{{ queuedMessages.length }} messages queued</span>
         </div>
       </div>
     </div>
 
-    <!-- Queue列表 (当展开时) -->
+    <!-- Queue list (expanded) -->
     <div
       v-if="expanded"
       class="queue-item-list"
@@ -28,13 +28,13 @@
         :key="message.id"
         class="queue-item"
       >
-        <!-- 队列指示器 -->
+        <!-- Queue indicator -->
         <div
           class="queue-item-indicator"
           style="opacity: 0.4; border: 1px solid var(--vscode-foreground);"
         ></div>
 
-        <!-- 消息内容 -->
+        <!-- Message content -->
         <div style="display: flex; flex-direction: column;">
           <div style="max-height: 56px; mask-image: none;">
             <div
@@ -47,21 +47,21 @@
           </div>
         </div>
 
-        <!-- 操作按钮 -->
+        <!-- Action buttons -->
         <div class="queue-item-actions">
-          <!-- 删除按钮 -->
+          <!-- Remove button -->
           <div
             class="anysphere-icon-button"
             @click="$emit('remove', message.id)"
-            title="从队列中移除"
+            title="Remove from queue"
           >
             <span class="codicon codicon-trashcan text-[12px]!"></span>
           </div>
-          <!-- 立即发送按钮 -->
+          <!-- Send now button -->
           <div
             class="anysphere-icon-button"
             @click="$emit('sendNow', message.id)"
-            title="立即发送（中断当前对话）"
+            title="Send immediately (interrupt current conversation)"
           >
             <span class="codicon codicon-arrow-up-two text-[12px]!"></span>
           </div>

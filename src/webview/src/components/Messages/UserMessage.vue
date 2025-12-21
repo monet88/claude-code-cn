@@ -6,7 +6,7 @@
         class="message-content"
         :class="{ editing: isEditing }"
       >
-        <!-- 普通显示模式 -->
+        <!-- Normal display mode -->
         <div
           v-if="!isEditing"
           class="message-view"
@@ -16,12 +16,12 @@
           @keydown.enter.prevent="startEditing"
           @keydown.space.prevent="startEditing"
         >
-          <!-- 附件预览区域 (横向滚动) -->
+          <!-- Attachment preview area (horizontal scrolling) -->
           <div
             v-if="imageAttachmentsDisplay.length || fileAttachmentsDisplay.length"
             class="attachments-scroll-view custom-scrollbar"
           >
-            <!-- 图片附件 -->
+            <!-- Image attachments -->
             <div
               v-for="(att, index) in imageAttachmentsDisplay"
               :key="att.id"
@@ -31,7 +31,7 @@
               <img :src="`data:${att.mediaType};base64,${att.data}`" :alt="att.fileName" class="attachment-thumb" />
             </div>
 
-            <!-- 文件附件 -->
+            <!-- File attachments -->
             <div
               v-for="att in fileAttachmentsDisplay"
               :key="att.id"
@@ -56,7 +56,7 @@
           </div>
         </div>
 
-        <!-- 编辑模式 -->
+        <!-- Edit mode -->
         <div v-else class="edit-mode">
           <ChatInputBox
             :show-progress="false"
@@ -98,33 +98,33 @@ const displayAttachments = computed<AttachmentItem[]>(() => extractAttachments()
 const imageAttachmentsDisplay = computed(() => displayAttachments.value.filter(a => isImage(a)));
 const fileAttachmentsDisplay = computed(() => displayAttachments.value.filter(a => !isImage(a)));
 
-// 显示内容（纯文本）
+// Display content (plain text)
 const displayContent = computed(() => {
   if (typeof props.message.message.content === 'string') {
-    // 保留用户原始输入，包括前导空格
+    // Preserve the user's original input, including leading spaces.
     return props.message.message.content;
   }
-  // 如果是 content blocks，提取文本
+  // If it's content blocks, extract text
   if (Array.isArray(props.message.message.content)) {
     return props.message.message.content
       .map(wrapper => {
         const block = wrapper.content;
-        // 只保留文本 block，自身的前导空格原样保留
+        // Only keep text blocks, preserving leading spaces
         if (block.type === 'text') {
           return block.text;
         }
-        // 对 image / document 等非文本 block，在展示纯文本时不占位，避免产生多余空格
+        // For non-text blocks (image / document), do not reserve space when showing plain text, to avoid extra spaces
         return '';
       })
-      // 丢弃完全为空的片段，避免因为 join(' ') 在前面拼出额外空格
+      // Discard completely empty segments to avoid extra spaces when joining
       .filter(part => part.length > 0)
-      // 文本块之间直接拼接，不额外插入空格，交给原始文本自己决定是否有空白
+      // Text blocks are directly joined, no extra spaces are inserted, let the original text decide if there are spaces
       .join('');
   }
   return '';
 });
 
-// 从消息内容中提取附件（image 和 document blocks）
+// Extract attachments (image and document blocks) from message content
 function extractAttachments(): AttachmentItem[] {
   if (typeof props.message.message.content === 'string') {
     return [];
@@ -171,10 +171,10 @@ function isImage(att: AttachmentItem): boolean {
 async function startEditing() {
   isEditing.value = true;
 
-  // 提取附件
+  // Extract attachments
   attachments.value = extractAttachments();
 
-  // 等待 DOM 更新后设置输入框内容和焦点
+  // Wait for DOM update to set input box content and focus
   await nextTick();
   if (chatInputRef.value) {
     chatInputRef.value.setContent?.(displayContent.value || '');
@@ -188,14 +188,14 @@ function handleRemoveAttachment(id: string) {
 
 function cancelEdit() {
   isEditing.value = false;
-  attachments.value = []; // 清空附件列表
+  attachments.value = []; // Clear attachment list
 }
 
 function handleSaveEdit(content?: string) {
   const finalContent = content || displayContent.value;
 
   if (finalContent.trim() && finalContent !== displayContent.value) {
-    // TODO: 调用 session.send() 发送编辑后的消息
+    // TODO: Call session.send() to send the edited message.
     console.log('[UserMessage] Save edit:', finalContent.trim());
   }
 
@@ -203,11 +203,11 @@ function handleSaveEdit(content?: string) {
 }
 
 function handleRestore() {
-  // TODO: 实现 restore checkpoint 逻辑
+  // TODO: Implement restore checkpoint logic
   console.log('[UserMessage] Restore checkpoint clicked');
 }
 
-// 监听键盘事件
+// Listen to keyboard events
 function handleKeydown(event: KeyboardEvent) {
   if (isEditing.value && event.key === 'Escape') {
     event.preventDefault();
@@ -215,20 +215,20 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
-// 监听点击外部取消编辑
+// Listen to clicks outside to cancel editing
 function handleClickOutside(event: MouseEvent) {
   if (!isEditing.value) return;
 
   const target = event.target as HTMLElement;
 
-  // 检查是否点击了组件内部
+  // Check if clicked inside the component
   if (containerRef.value?.contains(target)) return;
 
-  // 点击外部，取消编辑
+  // Clicked outside, cancel editing
   cancelEdit();
 }
 
-// 生命周期管理
+// Lifecycle management
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown);
   document.addEventListener('click', handleClickOutside);
@@ -253,12 +253,12 @@ onUnmounted(() => {
   background-color: transparent;
 }
 
-/* 消息内容容器 - 统一边框和背景 */
+/* Message content container -统一 border and background */
 .message-content {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background-color: var(--vscode-input-background); /* 统一使用输入框背景 */
+  background-color: var(--vscode-input-background); /*统一 use input background */
   outline: none;
   border: 1px solid var(--vscode-input-border);
   border-radius: 6px;
@@ -277,7 +277,7 @@ onUnmounted(() => {
   background-color: var(--vscode-input-background);
 }
 
-/* 普通显示模式 */
+/* Normal display mode */
 .message-view {
   display: flex;
   flex-direction: column;
@@ -436,7 +436,7 @@ onUnmounted(() => {
   background: transparent;
 }
 
-/* 编辑模式 */
+/* Edit mode */
 .edit-mode {
   display: flex;
   flex-direction: column;
@@ -447,9 +447,9 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-/* 编辑模式下的特定样式覆盖 */
+/* Edit mode specific style overrides */
 .edit-mode :deep(.full-input-box) {
-  /* 在消息内编辑时，由外层 .message-content 提供卡片视觉，内部 full-input-box 仅作为布局容器 */
+  /* When editing inside the message, the outer .message-content provides the card visual, and the internal full-input-box is only used as a layout container */
   background: transparent;
   border: none;
   box-shadow: none;
@@ -457,7 +457,7 @@ onUnmounted(() => {
 }
 
 .edit-mode :deep(.full-input-box:focus-within) {
-  /* 编辑时不需要额外阴影，input box 自带 focus 样式 */
+  /* When editing inside the message, the outer .message-content provides the card visual, and the internal full-input-box is only used as a layout container */
   box-shadow: none;
 }
 </style>

@@ -5,18 +5,18 @@
   >
     <template #custom>
       <div class="plan-card">
-        <!-- Plan 标题栏 -->
+        <!-- Plan title bar -->
         <div class="plan-header">
           <span class="codicon codicon-tasklist"></span>
-          <span class="plan-title">计划</span>
+          <span class="plan-title">Plan</span>
         </div>
 
-        <!-- Plan 内容 -->
+        <!-- Plan content -->
         <div v-if="plan" class="plan-body" :class="{ 'is-expanded': isExpanded }">
           <div class="plan-content" v-html="renderedPlan"></div>
         </div>
 
-        <!-- 展开按钮 -->
+        <!-- Expand button -->
         <div v-if="plan && !toolResult?.is_error" class="plan-footer">
           <button @click="toggleExpand" class="expand-button">
             <span class="codicon" :class="isExpanded ? 'codicon-chevron-up' : 'codicon-chevron-down'"></span>
@@ -24,7 +24,7 @@
           </button>
         </div>
 
-        <!-- 错误内容 -->
+        <!-- Error content -->
         <ToolError v-if="toolResult?.is_error" :tool-result="toolResult" />
       </div>
     </template>
@@ -45,21 +45,21 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// 展开状态
+// Expand state
 const isExpanded = ref(false);
 
-// Plan内容
+// Plan content
 const plan = computed(() => {
   return props.toolUse?.input?.plan || props.toolUseResult?.plan;
 });
 
-// 使用marked渲染Markdown
+// Use marked to render Markdown
 const renderedPlan = computed(() => {
   if (!plan.value) return '';
   return marked(plan.value);
 });
 
-// 切换展开/收起
+// Toggle expand/collapse
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
 };

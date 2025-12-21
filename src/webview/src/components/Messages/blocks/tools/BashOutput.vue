@@ -6,34 +6,34 @@
     :default-expanded="shouldExpand"
   >
     <template #main>
-      <span class="tool-label">Bash输出</span>
+      <span class="tool-label">Bash Output</span>
       <span v-if="bashId" class="bash-id">Shell {{ bashId }}</span>
       <span v-if="status === 'running'" class="status-badge running">
         <span class="codicon codicon-loading codicon-modifier-spin"></span>
-        运行中
+        Running
       </span>
       <span v-else-if="exitCode !== null && exitCode !== undefined" class="status-badge" :class="exitCode === 0 ? 'success' : 'error'">
-        退出码 {{ exitCode }}
+        Exit code {{ exitCode }}
       </span>
       <span v-if="hasFilter" class="filter-badge">
         <span class="codicon codicon-filter"></span>
-        已过滤
+        Filtered
       </span>
     </template>
 
     <template #expandable>
-      <!-- 输出内容 -->
+      <!-- Output content -->
       <div v-if="hasOutput" class="bash-output">
         <pre class="output-content">{{ outputContent }}</pre>
       </div>
 
-      <!-- 无输出提示 -->
+      <!-- No output -->
       <div v-else-if="!toolResult?.is_error" class="no-output">
         <span class="codicon codicon-info"></span>
         No new output
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>

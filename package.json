@@ -1,9 +1,9 @@
 {
-  "name": "claude-code-cn",
-  "displayName": "Claude Code 中文版",
-  "description": "最强大、最优雅的 Claude Code（带交互界面）",
-  "version": "1.0.5",
-  "publisher": "zhukunpeng",
+  "name": "claude-code",
+  "displayName": "CCVN",
+  "description": "VS Code extension for using Claude Code",
+  "version": "1.0.0",
+  "publisher": "farion1231",
   "engines": {
     "vscode": "^1.98.0",
     "node": ">=18.0.0"
@@ -19,7 +19,7 @@
   "main": "./dist/extension.cjs",
   "contributes": {
     "configuration": {
-      "title": "Claude Code 中文版",
+      "title": "CCVN",
       "properties": {
         "claudecodecn.selectedModel": {
           "type": "string",
@@ -106,7 +106,7 @@
       "activitybar": [
         {
           "id": "claudecodecn-chat-sidebar",
-          "title": "Claude Code 中文版",
+          "title": "Claude Code",
           "icon": "resources/claude-logo.svg"
         }
       ]
@@ -117,14 +117,14 @@
           "icon": "resources/claude-logo.svg",
           "type": "webview",
           "id": "claudecodecn.chatView",
-          "name": "Claude Code 中文版"
+          "name": "CCVN"
         }
       ]
     },
     "commands": [
       {
         "command": "claudecodecn.showChat",
-        "title": "Show Claude Code 中文版"
+        "title": "Show CCVN"
       }
     ]
   },
@@ -190,9 +190,9 @@
   "keywords": [
     "claude code",
     "claudecode",
-    "claude code cn",
-    "claudecode中文版",
-    "claude code中文版",
+    "Claude Code",
+    "claudecode-cn",
+    "claude-code-cn",
     "codex",
     "vscode",
     "extension",
@@ -207,3 +207,4 @@
   },
   "license": "AGPL-3.0"
 }
+

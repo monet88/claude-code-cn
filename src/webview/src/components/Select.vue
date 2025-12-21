@@ -51,7 +51,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请选择'
+  placeholder: 'Select an option'
 });
 
 const emit = defineEmits<Emits>();
@@ -78,7 +78,7 @@ const selectOption = (option: SelectOption) => {
   isOpen.value = false;
 };
 
-// 点击外部关闭下拉菜单
+// Close the dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
   if (selectRef.value && !selectRef.value.contains(event.target as Node)) {
     closeDropdown();

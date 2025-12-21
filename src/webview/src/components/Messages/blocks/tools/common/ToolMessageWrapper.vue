@@ -54,10 +54,10 @@
     <!-- 权限审批按钮 -->
     <div v-if="permissionState === 'pending'" class="permission-actions">
       <button @click.stop="$emit('deny')" class="btn-reject">
-        <span>拒绝</span>
+        <span>Deny</span>
       </button>
       <button @click.stop="$emit('allow')" class="btn-accept">
-        <span>接受</span>
+        <span>Allow</span>
       </button>
     </div>
   </div>

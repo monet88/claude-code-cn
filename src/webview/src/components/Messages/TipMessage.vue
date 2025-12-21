@@ -1,7 +1,6 @@
 <template>
   <div class="tip-message">
-    <!-- 根据 block 类型展开渲染 -->
-    <!-- Tip 消息都是纯文本内容，不需要 wrapper 和 context -->
+    <!-- Tip messages are always plain text content, do not need wrapper and context -->
     <template v-if="Array.isArray(message.message.content)">
       <ContentBlock
         v-for="(wrapper, index) in message.message.content"
@@ -19,7 +18,7 @@ import ContentBlock from './ContentBlock.vue';
 
 interface Props {
   message: Message;
-  context?: ToolContext; // MessageRenderer 会传递，需声明以避免渲染到 DOM
+  context?: ToolContext; // MessageRenderer will pass, need to declare to avoid rendering to DOM
 }
 
 defineProps<Props>();

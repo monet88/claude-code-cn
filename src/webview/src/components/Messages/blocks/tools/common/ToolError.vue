@@ -44,8 +44,8 @@ const errorContent = computed(() => {
     return JSON.stringify(content, null, 2);
   }
 
-  // 4. 未知类型：返回默认错误消息
-  return '未知错误';
+  // 4. Unknown type: return default error message
+  return 'Unknown error';
 });
 </script>
 

@@ -7,10 +7,10 @@
   >
     <div class="permission-request-content">
       <div class="permission-request-header">
-        是否允许执行 <strong>{{ getToolNameInChinese(request.toolName) }}</strong>?
+        Allow execution of <strong>{{ getToolNameInChinese(request.toolName) }}</strong>?
       </div>
 
-      <!-- 工具特定的权限 UI（预留扩展点） -->
+      <!-- Tool-specific permission UI (reserved for extensions) -->
       <!-- <ToolPermissionView
         v-if="toolPermissionComponent"
         :toolName="request.toolName"
@@ -19,11 +19,11 @@
         @modify="handleModifyInputs"
       /> -->
 
-      <!-- 通用 Details 作为兜底 -->
+      <!-- Fallback Details section -->
       <div v-if="hasInputs" class="permission-request-description">
         <details>
           <summary>
-            <span>详情</span>
+            <span>Details</span>
             <svg
               class="chevron"
               width="12"
@@ -48,18 +48,18 @@
 
     <div class="button-container">
       <button class="button primary" @click="handleApprove">
-        <span class="shortcut-num">1</span> 是
+        <span class="shortcut-num">1</span> Yes
       </button>
       <button v-if="showSecondButton" class="button" @click="handleApproveAndDontAsk">
-        <span class="shortcut-num">2</span> 是，且不再询问
+        <span class="shortcut-num">2</span> Yes, don't ask again
       </button>
       <button class="button" @click="handleReject">
-        <span class="shortcut-num">{{ showSecondButton ? '3' : '2' }}</span> 否
+        <span class="shortcut-num">{{ showSecondButton ? '3' : '2' }}</span> No
       </button>
       <input
         ref="inputRef"
         class="reject-message-input"
-        placeholder="告诉 Claude 应该做什么"
+        placeholder="Tell Claude what to do"
         v-model="rejectMessage"
         @keydown="handleKeyDown"
       />
@@ -84,26 +84,26 @@ const inputRef = ref<HTMLInputElement | null>(null);
 const rejectMessage = ref('');
 const modifiedInputs = ref<any | undefined>(undefined);
 
-// 工具名称中英文映射
+// Tool name mapping
 const toolNameMap: Record<string, string> = {
-  'Bash': '执行命令',
-  'BashOutput': '获取命令输出',
-  'Edit': '编辑文件',
-  'ExitPlanMode': '退出规划模式',
-  'Glob': '文件匹配',
-  'Grep': '搜索内容',
-  'KillShell': '终止进程',
-  'McpTool': 'MCP工具',
-  'MultiEdit': '批量编辑',
-  'NotebookEdit': '编辑笔记本',
-  'Read': '读取文件',
-  'Task': '执行任务',
-  'Write': '写入文件',
-  'WebFetch': '获取网页',
-  'WebSearch': '网页搜索',
-  'Skill': '执行技能',
-  'SlashCommand': '斜杠命令',
-  'TodoWrite': '编写待办',
+  'Bash': 'Execute command',
+  'BashOutput': 'Get command output',
+  'Edit': 'Edit file',
+  'ExitPlanMode': 'Exit plan mode',
+  'Glob': 'File globbing',
+  'Grep': 'Search content',
+  'KillShell': 'Terminate process',
+  'McpTool': 'MCP tool',
+  'MultiEdit': 'Batch edit',
+  'NotebookEdit': 'Edit notebook',
+  'Read': 'Read file',
+  'Task': 'Execute task',
+  'Write': 'Write file',
+  'WebFetch': 'Fetch webpage',
+  'WebSearch': 'Web search',
+  'Skill': 'Run skill',
+  'SlashCommand': 'Slash command',
+  'TodoWrite': 'Write todo',
 };
 
 const getToolNameInChinese = (toolName: string): string => {
@@ -128,7 +128,7 @@ const handleModifyInputs = (newInputs: any) => {
 
 const handleApprove = () => {
   if (modifiedInputs.value) {
-    // 覆盖 inputs 为修改后的值
+    // Override inputs with the modified values
     (props.request as any).inputs = modifiedInputs.value;
   }
   props.onResolve(props.request, true);
@@ -141,8 +141,8 @@ const handleApproveAndDontAsk = () => {
 const handleReject = () => {
   const trimmedMessage = rejectMessage.value.trim();
   const rejectionMessage = trimmedMessage
-    ? `用户拒绝执行此工具。工具使用已被拒绝（例如，如果是文件编辑，new_string 未写入文件）。用户提供的拒绝原因：${trimmedMessage}`
-    : '用户拒绝执行此工具。工具使用已被拒绝（例如，如果是文件编辑，new_string 未写入文件）。停止当前操作并等待用户指示如何继续。';
+    ? `The user denied executing this tool. Tool usage was refused (e.g., if a file edit was requested, new_string was not written). User-provided refusal reason: ${trimmedMessage}`
+    : 'The user denied executing this tool. Tool usage was refused (e.g., if a file edit was requested, new_string was not written). Stop the current operation and wait for the user to instruct how to proceed.';
 
   props.request.reject(rejectionMessage, !trimmedMessage);
 };

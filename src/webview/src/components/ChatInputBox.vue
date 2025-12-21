@@ -252,7 +252,7 @@ const props = withDefaults(defineProps<Props>(), {
   conversationWorking: false,
   attachments: () => [],
   thinkingLevel: 'default_on',
-  permissionMode: 'default',
+  permissionMode: 'acceptEdits',
   enableAttachmentMotion: true
 })
 

@@ -15,8 +15,8 @@
             <span class="codicon codicon-cloud-upload text-[32px]!" />
           </div>
           <div class="drag-content">
-            <span class="drag-title">释放以添加文件</span>
-            <span class="drag-subtitle">支持图片与文本文件</span>
+            <span class="drag-title">Drop files here</span>
+            <span class="drag-subtitle">Claude will analyze them for you</span>
           </div>
         </div>
         <!-- 兜底 file input：当 dataTransfer.files 为空时触发 -->
@@ -39,10 +39,10 @@
         <h2 class="chat-title">{{ title }}</h2>
       </div>
       <div class="header-right">
-        <button class="settings-btn" title="设置" @click="$emit('switchToSettings')">
+        <button class="settings-btn" title="Settings" @click="$emit('switchToSettings')">
           <span class="codicon codicon-settings-gear"></span>
         </button>
-        <button class="new-chat-btn" title="新开对话" @click="createNew">
+        <button class="new-chat-btn" title="New Chat" @click="createNew">
           <span class="codicon codicon-plus"></span>
         </button>
       </div>
@@ -59,13 +59,13 @@
             <div v-if="isBusy" class="emptyState">
               <div class="emptyWordmark">
                 <ClaudeWordmark class="emptyWordmarkSvg" />
-                <span class="version-text">中文版</span>
+                <span class="version-text">Preview</span>
               </div>
             </div>
             <div v-else class="emptyState">
               <div class="emptyWordmark">
                 <ClaudeWordmark class="emptyWordmarkSvg" />
-                <span class="version-text">中文版</span>
+                <span class="version-text">Preview</span>
               </div>
               <RandomTip :platform="platform" />
             </div>
@@ -165,11 +165,11 @@
   });
 
   // 现在所有访问都使用 Vue Ref（.value）
-  const title = computed(() => session.value?.summary.value || '新对话');
+  const title = computed(() => session.value?.summary.value || 'New Chat');
   const messages = computed<any[]>(() => session.value?.messages.value ?? []);
   const isBusy = computed(() => session.value?.busy.value ?? false);
   const permissionMode = computed(
-    () => session.value?.permissionMode.value ?? 'default'
+    () => session.value?.permissionMode.value ?? 'acceptEdits'
   );
   const permissionRequests = computed(
     () => session.value?.permissionRequests.value ?? []
@@ -447,8 +447,8 @@
   const togglePermissionMode = () => {
     const s = session.value;
     if (!s) return;
-    const order: PermissionMode[] = ['default', 'acceptEdits', 'plan'];
-    const cur = (s.permissionMode.value as PermissionMode) ?? 'default';
+    const order: PermissionMode[] = ['acceptEdits', 'default', 'plan'];
+    const cur = (s.permissionMode.value as PermissionMode) ?? 'acceptEdits';
     const idx = Math.max(0, order.indexOf(cur));
     const next = order[(idx + 1) % order.length];
     void s.setPermissionMode(next);
@@ -860,3 +860,5 @@
     letter-spacing: 0.3px;
   }
 </style>
+
+

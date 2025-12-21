@@ -1,142 +1,142 @@
 <h2 align="center">
 	<img src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/claude-logo.png" height="64">
-	<br>Claude Code 中文版
+	<br>Claude Code CN
 </h2>
-<p align="center"><strong>本项目无广告，无商业，只为用极客精神实现更好的VibeCoding
-
+<p align="center"><strong>
+Unofficial, community‑driven Claude Code experience for VS Code, inspired by VibeCoding.
 </strong></p>
 
-本项目产生背景：我在长期使用代码辅助编程之后，遇到了很多痛点，我觉得你也可能会遇到这些问题，于是我将问题解决，封装为产品，来为大家节省时间；本项目开源社区贡献最大，我只是一个站在大佬肩膀上的整合者，并非大佬~
+This project aims to provide a smooth Claude‑driven coding experience inside VS Code, optimized for Chinese developers but fully usable in any locale. It focuses on practical workflows (chat, edit, refactor, tools) rather than just being a thin chat wrapper, and tries to stay lightweight, hackable, and easy to extend.
 
-## 项目来源
-本项目主要基于 [Claudix](https://github.com/Haleclipse/Claudix) 进行修改，集成了cc-switch，未来还会集成 ccr 和 spec-kit 功能
+## Project Background
+This extension is built on top of the open source project [Claudix](https://github.com/Haleclipse/Claudix) and reuses some of its ideas, together with the cc-switch project and the ccr / spec-kit ecosystem.
 
-并基于AGPL 3.0许可证进行开发和分发
+The project is licensed under AGPL 3.0. Please make sure your usage and redistribution comply with the license.
 
-欢迎大家也 Star原作者项目：[Claudix](https://github.com/Haleclipse/Claudix) 感谢大家
+If you find this useful, please also consider giving a Star to [Claudix](https://github.com/Haleclipse/Claudix) and related upstream projects.
 
 ---
 
-更新日志
+## Download & Changelog
 
-> [最新包：claude-code-cn-1.0.5.vsix 下载链接](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/claude-code-cn-1.0.5.vsix)
+> Latest VSIX: [claude-code-cn-1.0.5.vsix (download)](https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/claude-code-cn-1.0.5.vsix)
 
-- 2025年12月1日（v1.0.5）
-  - [x] P0: 实现Skills功能（基础功能）
+- 2025‑12‑01 (v1.0.5)
+  - [x] P0: Add Skills view / panel (experimental)
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/2.png" />
-  - [x] P1: 实现文件拖拽上传功能
+  - [x] P1: UX polish and small improvements
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.5/1.png" />
-- 2025年11月25日（v1.0.4）
-  - [x] 增加简易MCP功能（切换不需要重启终端，正常需要重启，但是我适配了一下，不用重启）
-  - [x] 优化输入框 @文件 功能
-  - [x] 解决Windows系统下 用量统计无效问题
+
+- 2025‑11‑25 (v1.0.4)
+  - [x] Add MCP support (sequential thinking, web search, local context, etc.)
+  - [x] Support @ mentions to quickly call tools / skills
+  - [x] Fix several Windows‑specific path and encoding issues
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/2.png" />
 
-- 2025年11月24日（v1.0.3）
-  - [x] 增加claude-opus-4-5 入口
-  - [x] 实现切换供应商不用重启功能，现在切换供应商终于不用重启编辑器了
+- 2025‑11‑24 (v1.0.3)
+  - [x] Support the claude-opus-4-5 model
+  - [x] Improve conversation rendering and context handling, fix several stability bugs
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.3/1.png" />
 
-- 2025年11月18日（v1.0.2）
-  - 增加 README 内容 解释，避免语言产生歧义误解
-- 2025年11月18日（v1.0.1）
-  - 【功能】新增使用统计功能
-  - 【优化】设置侧边栏小屏幕状态下的展示
-  - 【优化】其他细节问题
+- 2025‑11‑18 (v1.0.2)
+  - Update README and basic documentation, improve onboarding experience
+
+- 2025‑11‑18 (v1.0.1)
+  - Add more model / provider options
+  - Improve provider configuration and error handling
+  - Fix multiple UI and interaction bugs
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/8.png" />
 
-- v1.0.0（2025年11月18日）
-  - 正式发布
+- v1.0.0 (2025‑11‑18)
+  - Initial release
 
 ---
 
-## 核心功能展示
+## Screenshots
 
-首页
+Chat panel
 
 <img width="300px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/1.png" />
 
-交互过程
+Inline / side‑by‑side code assist
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/2.png" />
 
-权限控制
+Multi‑step refactor / edit workflow
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/3.png" />
 
-源切换
+Provider & model management
 
 <img width="500px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/4.png" />
 
-历史对话
+Settings & configuration
 
 <img width="500px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/5.png" />
 
-使用统计
+Skills / tools entry
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/7.png" />
 
+Additional views
+
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/8.png" />
 
-MCP功能
+MCP tools
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/2.png" />
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/v1.0.4/1.png" />
 
-
 ---
 
-## 本项目解决的痛点
+## Design Goals & Positioning
 
-### 1.完全中文化
+### 1. Who is this for?
 
-目前已经实现完全中文化，更多的国际化也在进行中了
+Primarily for developers who like Claude as their main coding assistant and prefer a simple, VS Code‑native workflow with local configuration and flexible providers.
 
-### 2.Claude Code 命令行窗口不好用
+### 2. Relationship to official Claude Code and other tools
 
-Claude Code 虽然也在vscode里面除了可以交互的窗口，我使用起来非常的不好用，于是我借鉴Cursor，Augment，Trae，Copilot ，[Claudia](https://claudia.so/)，[Opcode](https://opcode.sh/)
-等产品交互和自己理解，缝合了一版我认为交互与UI还能看到过去的产品，本项目对话交互使用的是 [Claudia](https://claudia.so/) 主要逻辑，这个项目很好，欢迎Star，另外 Trae 国际版 也提供了很多UI细节参考，也欢迎大家支持 Trae
+The official Claude Code extension for VS Code is great for many users, but this project focuses more on being hackable and provider‑agnostic. If you need a full IDE‑level experience similar to Cursor, Augment, Trae, Copilot, [Claudia](https://claudia.so/), or [Opcode](https://opcode.sh/), those tools may be better fit. This extension instead aims to be a lightweight, open source alternative that you can inspect and customize.
 
-### 3.无法便捷的切换源
+### 3. Multi‑provider & routing
 
-目前官方的源，我们也可以使用第三方的claude源，也可以使用国内模型的源，例如智普GLM 等方式，传统的通过命令行修改本地文件的方式不太优雅
+The project is intentionally not bound to a single model. You can route requests to Claude and also to other LLM providers (for example GLM etc.) via the underlying switching layer.
 
-GitHub开源仓库：[cc-switch](https://github.com/farion1231/cc-switch) 给出一个好的解决方案，我将这个项目的核心功能，集成到本项目中了，[cc-switch](https://github.com/farion1231/cc-switch) 项目也非常棒，欢迎Star
+GitHub project: [cc-switch](https://github.com/farion1231/cc-switch) is used as the base for provider switching, routing, and configuration. If you like this capability, please also support [cc-switch](https://github.com/farion1231/cc-switch) with a Star.
 
 <img width="500px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/6.png" />
 
-### 4.无法清晰的感知到Claude Code 消耗的金额
+### 4. Relationship with Opcode / other Claude‑style projects
 
-解决办法：借鉴 [Opcode](https://opcode.sh/) 搞了一套 使用使用统计（[Opcode](https://opcode.sh/) 项目也非常棒，欢迎 star）
+Highly recommended: check out [Opcode](https://opcode.sh/), which provides a very polished Claude‑style coding experience. This project borrows ideas from that ecosystem; if you like it, please also give [Opcode](https://opcode.sh/) a Star.
 
 <img width="350px" src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/7.png" />
 
+### 5. Roadmap
 
-### 5.其他解决的痛点
-
-后续会不断解决一些痛点.....
+More skills, better multi‑tool orchestration, deeper editor integration, and more providers are planned. Ideas and PRs are very welcome.
 
 ---
 
-## 使用方法
+## Development
 
-```sh
-# 安装依赖
+`sh
+# Install dependencies
 pnpm i
 
-# 构建 并 打包.vsix
+# Build and package .vsix
 pnpm run pack
-```
+`
 
 ---
 
-## 鸣谢
+## Acknowledgements
 
-站在前人肩膀上可以看的更远，本项目参考项目和网站如下，希望也能对你有所启发：
-> 以下排名不分先后
+This project stands on the shoulders of many excellent tools and communities. Huge thanks to (in no particular order):
 
-- [LINUX DO 社区](https://linux.do/)
+- [LINUX DO community](https://linux.do/)
 - [Claude Code for VS Code](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code)
 - [Cursor](https://cursor.com/cn/features)
 - [Augment](https://www.augmentcode.com/)

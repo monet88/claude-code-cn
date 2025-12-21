@@ -3,7 +3,7 @@
     <Transition name="fade">
       <div v-if="isVisible" class="image-preview-overlay" @click="handleOverlayClick">
         <div class="image-preview-container" @click.stop>
-          <button class="close-button" @click="handleClose" title="关闭">
+          <button class="close-button" @click="handleClose" title="Close">
             <span class="codicon codicon-close"></span>
           </button>
           <div class="image-wrapper">
@@ -133,7 +133,7 @@ function handleOverlayClick() {
   white-space: nowrap;
 }
 
-/* 淡入淡出过渡效果 */
+/* Fade in/out transition effects */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;

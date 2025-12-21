@@ -2,20 +2,20 @@
   <div class="dialog-overlay" @click.self="$emit('close')">
     <div class="dialog-container">
       <div class="dialog-header">
-        <h3>测速</h3>
+        <h3>Speed Test</h3>
         <button class="close-btn" @click="$emit('close')">
           <span class="codicon codicon-close"></span>
         </button>
       </div>
 
       <div class="dialog-body">
-        <p class="dialog-subtitle">管理端点并选择服务</p>
+        <p class="dialog-subtitle">Manage endpoints and select a service</p>
         <div class="warning-banner">
           <span class="codicon codicon-info"></span>
-          <p>注意：由于安全限制，延迟测试为估算值，仅供参考</p>
+          <p>Note: latency tests are estimates due to security restrictions and are for reference only.</p>
         </div>
 
-        <!-- 添加自定义端点 -->
+        <!-- Add custom endpoint -->
         <div class="add-endpoint-section">
           <div class="input-with-button">
             <input
@@ -31,7 +31,7 @@
               :disabled="!newEndpoint.trim()"
             >
               <span class="codicon codicon-add"></span>
-              添加
+              Add
             </button>
           </div>
           <p v-if="addError" class="error-message">
@@ -40,23 +40,23 @@
           </p>
         </div>
 
-        <!-- 端点列表 -->
+        <!-- Endpoint list -->
         <div class="endpoints-section">
           <div class="endpoints-header">
-            <h4>端点列表</h4>
+            <h4>Endpoint list</h4>
             <button
               class="test-all-btn"
               @click="handleTestAll"
               :disabled="isTesting || endpoints.length === 0"
             >
               <span :class="['codicon', isTesting ? 'codicon-loading codicon-modifier-spin' : 'codicon-zap']"></span>
-              {{ isTesting ? '测速...' : '测速' }}
+              {{ isTesting ? 'Testing...' : 'Test speed' }}
             </button>
           </div>
 
           <div v-if="endpoints.length === 0" class="empty-state">
             <span class="codicon codicon-info"></span>
-            <p>暂无端点，请添加自定义端点</p>
+            <p>No endpoints yet. Please add a custom endpoint.</p>
           </div>
 
           <div v-else class="endpoints-list">
@@ -69,12 +69,12 @@
               <div class="endpoint-info">
                 <div class="endpoint-url">
                   {{ endpoint.url }}
-                  <span v-if="endpoint.isCustom" class="custom-badge">自定义</span>
+                  <span v-if="endpoint.isCustom" class="custom-badge">Custom</span>
                 </div>
                 <div class="endpoint-status">
                   <span v-if="endpoint.testing" class="status-testing">
                     <span class="codicon codicon-loading codicon-modifier-spin"></span>
-                    估算中...
+                    Estimating...
                   </span>
                   <span v-else-if="endpoint.latency !== null" :class="['status-success', getLatencyClass(endpoint.latency)]">
                     <span class="codicon codicon-check"></span>
@@ -86,7 +86,7 @@
                   </span>
                   <span v-else class="status-pending">
                     <span class="codicon codicon-circle-outline"></span>
-                    未估算
+                    Not estimated
                   </span>
                 </div>
               </div>
@@ -94,7 +94,7 @@
                 v-if="endpoint.isCustom"
                 class="delete-btn"
                 @click.stop="handleDeleteEndpoint(endpoint.id)"
-                title="删除端点"
+                title="Remove endpoint"
               >
                 <span class="codicon codicon-trash"></span>
               </button>
@@ -102,20 +102,20 @@
           </div>
         </div>
 
-        <!-- 提示信息 -->
+        <!-- Tips -->
         <div class="hint-section">
           <span class="codicon codicon-lightbulb"></span>
-          <p>点击端点选择，或点击"测速"获取参考值并自动选择</p>
+          <p>Click an endpoint to select it, or click "Test speed" for reference values and automatic selection.</p>
         </div>
       </div>
 
       <div class="dialog-footer">
         <button class="cancel-btn" @click="$emit('close')">
-          取消
+          Cancel
         </button>
         <button class="save-btn" @click="handleSave">
           <span class="codicon codicon-check"></span>
-          确定
+          Confirm
         </button>
       </div>
     </div>
@@ -149,7 +149,7 @@ const addError = ref('');
 const isTesting = ref(false);
 const selectedUrl = ref(props.initialUrl);
 
-// 初始化端点列表
+// Initialize endpoint list
 const endpoints = ref<Endpoint[]>([
   ...(props.initialEndpoints || []).map((url, index) => ({
     id: `preset-${index}`,
@@ -159,7 +159,7 @@ const endpoints = ref<Endpoint[]>([
     error: null,
     testing: false
   })),
-  // 如果初始URL不在列表中，添加为自定义端点
+  // Add initial URL to list as custom if missing
   ...(props.initialUrl && !props.initialEndpoints?.includes(props.initialUrl)
     ? [{
         id: 'custom-0',
@@ -172,18 +172,18 @@ const endpoints = ref<Endpoint[]>([
     : [])
 ]);
 
-// 排序端点：已测试的按延迟排序，未测试的在后面
+// Sort endpoints: tested ones are ordered by latency, untested ones go at the end
 const sortedEndpoints = computed(() => {
   return [...endpoints.value].sort((a, b) => {
-    // 选中的排在最前
+    // Keep the selected endpoint at the top
     if (a.url === selectedUrl.value) return -1;
     if (b.url === selectedUrl.value) return 1;
 
-    // 有延迟数据的排在前面
+    // Endpoints with latency data come before those without
     if (a.latency !== null && b.latency === null) return -1;
     if (a.latency === null && b.latency !== null) return 1;
 
-    // 都有延迟数据，按延迟排序
+    // When both have data, sort by latency
     if (a.latency !== null && b.latency !== null) {
       return a.latency - b.latency;
     }
@@ -192,7 +192,7 @@ const sortedEndpoints = computed(() => {
   });
 });
 
-// 验证URL
+// Validate URL
 function isValidUrl(url: string): boolean {
   try {
     const parsedUrl = new URL(url);
@@ -202,24 +202,24 @@ function isValidUrl(url: string): boolean {
   }
 }
 
-// 添加端点
+// Add endpoint
 function handleAddEndpoint() {
   addError.value = '';
   const url = newEndpoint.value.trim();
 
   if (!url) {
-    addError.value = '请输入端点地址';
+    addError.value = 'Please enter an endpoint URL.';
     return;
   }
 
   if (!isValidUrl(url)) {
-    addError.value = '请输入有效的 HTTP/HTTPS 地址';
+    addError.value = 'Please enter a valid HTTP/HTTPS address.';
     return;
   }
 
-  // 检查是否已存在
+  // Check for duplicates
   if (endpoints.value.some(e => e.url === url)) {
-    addError.value = '该端点已存在';
+    addError.value = 'This endpoint already exists.';
     return;
   }
 
@@ -235,65 +235,65 @@ function handleAddEndpoint() {
   newEndpoint.value = '';
 }
 
-// 删除端点
+// Remove endpoint
 function handleDeleteEndpoint(id: string) {
   endpoints.value = endpoints.value.filter(e => e.id !== id);
 }
 
-// 选择端点
+// Select endpoint
 function handleSelectEndpoint(url: string) {
   selectedUrl.value = url;
 }
 
-// 测试单个端点
+// Test a single endpoint
 async function testEndpoint(endpoint: Endpoint): Promise<void> {
   endpoint.testing = true;
   endpoint.latency = null;
   endpoint.error = null;
 
   try {
-    // 由于 VSCode webview 的 CSP 限制，不能直接使用 fetch
-    // 这里使用一个简化的方案：通过 URL 特征估算延迟
+    // VSCode webview CSP prevents using fetch directly
+    // This uses a simplified approach: estimate latency via URL characteristics
 
-    // 模拟延迟，给用户一个测试的感觉
+    // Simulate latency so users feel like a real test is running
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
     const url = new URL(endpoint.url);
     let estimatedLatency = 0;
 
-    // 根据域名特征估算延迟
+    // Estimate latency by domain characteristics
     if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.includes('192.168')) {
-      // 本地网络：10-50ms
+      // Local network: 10-50ms
       estimatedLatency = 10 + Math.random() * 40;
     } else if (url.hostname.includes('.cn') || url.hostname.includes('china')) {
-      // 国内域名：30-150ms
+      // Domestic domains: 30-150ms
       estimatedLatency = 30 + Math.random() * 120;
     } else if (url.protocol === 'https:') {
-      // HTTPS 国外：100-300ms
+      // HTTPS overseas: 100-300ms
       estimatedLatency = 100 + Math.random() * 200;
     } else {
-      // HTTP 国外：80-250ms
+      // HTTP overseas: 80-250ms
       estimatedLatency = 80 + Math.random() * 170;
     }
 
     endpoint.latency = Math.round(estimatedLatency);
   } catch (error) {
-    endpoint.error = error instanceof Error ? error.message : '测试失败';
+    endpoint.error = error instanceof Error ? error.message : 'Test failed.';
   } finally {
     endpoint.testing = false;
   }
 }
 
-// 测试所有端点
+// Test all endpoints
 async function handleTestAll() {
   isTesting.value = true;
 
-  // 并发测试所有端点
+  // Test all endpoints concurrently
   await Promise.all(
     endpoints.value.map(endpoint => testEndpoint(endpoint))
   );
 
-  // 自动选择最快的端点
+  // Automatically select the fastest endpoint
   const fastest = endpoints.value
     .filter(e => e.latency !== null)
     .sort((a, b) => a.latency! - b.latency!)[0];
@@ -305,7 +305,7 @@ async function handleTestAll() {
   isTesting.value = false;
 }
 
-// 获取延迟等级样式
+// Get latency tier style
 function getLatencyClass(latency: number): string {
   if (latency < 100) return 'latency-excellent';
   if (latency < 300) return 'latency-good';
@@ -313,7 +313,7 @@ function getLatencyClass(latency: number): string {
   return 'latency-poor';
 }
 
-// 保存
+// Save
 function handleSave() {
   emit('save', selectedUrl.value);
   emit('close');
@@ -425,7 +425,7 @@ function handleSave() {
   line-height: 1.4;
 }
 
-/* 添加端点部分 */
+/* Add endpoint section */
 .add-endpoint-section {
   margin-bottom: 20px;
 }
@@ -486,7 +486,7 @@ function handleSave() {
   color: var(--vscode-errorForeground);
 }
 
-/* 端点列表部分 */
+/* Endpoint list section */
 .endpoints-section {
   margin-bottom: 16px;
 }
@@ -664,7 +664,7 @@ function handleSave() {
   background: var(--vscode-toolbar-hoverBackground);
 }
 
-/* 提示部分 */
+/* Tips section */
 .hint-section {
   display: flex;
   align-items: center;
@@ -685,7 +685,7 @@ function handleSave() {
   margin: 0;
 }
 
-/* 对话框底部 */
+/* Dialog footer */
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

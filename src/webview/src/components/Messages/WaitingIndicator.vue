@@ -24,16 +24,16 @@
   const SPINNER_ICONS = ['·', '✢', '*', '✶', '✻', '✽'];
   const ANIMATION_ICONS = [...SPINNER_ICONS, ...[...SPINNER_ICONS].reverse()];
   const VERBS = [
-    '分析中', '构思中', '构建中', '计算中', '检查中', '协作中',
-    '编译中', '运算中', '配置中', '构造中', '思考中', '制作中',
-    '调试中', '设计中', '开发中', '探索中', '工程化', '评估中',
-    '检验中', '探究中', '制定中', '生成中', '实现中', '改进中',
-    '初始化', '创新中', '集成中', '调查中', '学习中', '加载中',
-    '优化中', '组织中', '规划中', '斟酌中', '准备中', '处理中',
-    '编程中', '原型化', '推理中', '重构中', '改良中', '渲染中',
-    '研究中', '解决中', '审查中', '搜索中', '求解中', '构建中',
-    '综合中', '测试中', '思考中', '排错中', '理解中', '升级中',
-    '验证中', '运行中', '执行中', '分解中', '组装中', '诊断中'
+    'Analyzing', 'Planning', 'Building', 'Computing', 'Checking', 'Collaborating',
+    'Compiling', 'Processing', 'Configuring', 'Constructing', 'Thinking', 'Creating',
+    'Debugging', 'Designing', 'Developing', 'Exploring', 'Engineering', 'Evaluating',
+    'Verifying', 'Investigating', 'Drafting', 'Generating', 'Implementing', 'Improving',
+    'Initializing', 'Innovating', 'Integrating', 'Inspecting', 'Learning', 'Loading',
+    'Optimizing', 'Organizing', 'Planning work', 'Refining', 'Preparing', 'Handling',
+    'Coding', 'Prototyping', 'Reasoning', 'Refactoring', 'Enhancing', 'Rendering',
+    'Researching', 'Resolving', 'Reviewing', 'Searching', 'Solving', 'Rebuilding',
+    'Synthesizing', 'Testing', 'Thinking', 'Debugging', 'Understanding', 'Upgrading',
+    'Validating', 'Running', 'Executing', 'Decomposing', 'Assembling', 'Diagnosing'
   ];
   const MAX_VERB_LENGTH = Math.max(...VERBS.map(v => v.length));
 

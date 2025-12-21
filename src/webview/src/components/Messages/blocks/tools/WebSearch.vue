@@ -5,17 +5,17 @@
     :default-expanded="shouldExpand"
   >
     <template #main>
-      <span class="tool-label">搜索</span>
+      <span class="tool-label">Search</span>
       <span v-if="query" class="query-text">{{ query }}</span>
     </template>
 
-    <!-- 展开内容：显示域名过滤选项 -->
+    <!-- Expandable content: display domain filtering options -->
     <template v-if="hasExpandableContent" #expandable>
-      <!-- 允许的域名 -->
+      <!-- Allowed domains -->
       <div v-if="allowedDomains && allowedDomains.length" class="detail-item">
         <div class="detail-label">
           <span class="codicon codicon-verified"></span>
-          <span>允许域名:</span>
+          <span>Allowed domains:</span>
         </div>
         <div class="domain-list">
           <span v-for="domain in allowedDomains" :key="domain" class="domain-tag allowed">
@@ -24,11 +24,11 @@
         </div>
       </div>
 
-      <!-- 屏蔽的域名 -->
+      <!-- Blocked domains -->
       <div v-if="blockedDomains && blockedDomains.length" class="detail-item">
         <div class="detail-label">
           <span class="codicon codicon-error"></span>
-          <span>屏蔽域名:</span>
+          <span>Blocked domains:</span>
         </div>
         <div class="domain-list">
           <span v-for="domain in blockedDomains" :key="domain" class="domain-tag blocked">
@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>

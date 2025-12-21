@@ -1,36 +1,36 @@
 <template>
   <div class="usage-statistics">
-    <!-- 加载状态 -->
+    <!-- Loading state -->
     <div v-if="loading" class="loading-state">
       <span class="codicon codicon-loading codicon-modifier-spin"></span>
-      <p>加载统计数据中...</p>
+      <p>Loading statistics...</p>
     </div>
 
-    <!-- 主要内容 -->
+    <!-- Main content -->
     <div v-else class="statistics-content">
-      <!-- 顶部控制栏 -->
+      <!-- Top control bar -->
       <div class="control-bar">
-        <!-- 项目范围切换器 -->
+        <!-- Project scope switcher -->
         <div class="scope-switcher">
           <button
             :class="['scope-btn', { active: projectScope === 'current' }]"
             @click="handleProjectScopeChange('current')"
-            title="查看当前项目统计"
+            title="View statistics for current project"
           >
             <span class="codicon codicon-file-directory"></span>
-            当前项目
+            Current project
           </button>
           <button
             :class="['scope-btn', { active: projectScope === 'all' }]"
             @click="handleProjectScopeChange('all')"
-            title="查看所有项目统计"
+            title="View statistics for all projects"
           >
             <span class="codicon codicon-globe"></span>
-            所有项目
+            All projects
           </button>
         </div>
 
-        <!-- 日期范围筛选器 -->
+        <!-- Date range filter -->
         <div class="date-filter">
           <button
             v-for="range in dateRanges"
@@ -42,15 +42,15 @@
           </button>
         </div>
 
-        <!-- 操作按钮组 -->
+        <!-- Action button group -->
         <div class="action-group">
-          <button class="action-btn" @click="handleRefresh" title="刷新数据">
+          <button class="action-btn" @click="handleRefresh" title="Refresh data">
             <span class="codicon codicon-refresh"></span>
           </button>
         </div>
       </div>
 
-      <!-- 标签页导航 -->
+      <!-- Tab navigation -->
       <div class="tabs">
         <button
           v-for="tab in tabs"
@@ -63,12 +63,12 @@
         </button>
       </div>
 
-      <!-- 标签页内容 -->
+      <!-- Tab content -->
       <div class="tab-content">
         <template v-if="statistics">
-          <!-- Overview 标签页 -->
+          <!-- Overview tab -->
           <div v-if="activeTab === 'overview'" class="tab-panel">
-          <!-- 项目信息（仅显示项目名称） -->
+          <!-- Project info (name only) -->
           <div v-if="statistics" class="project-info-header">
             <h3 class="project-title">
               <span :class="`codicon ${projectScope === 'current' ? 'codicon-file-directory' : 'codicon-globe'}`"></span>
@@ -76,19 +76,19 @@
             </h3>
           </div>
 
-          <!-- 总览卡片 -->
+          <!-- Overview cards -->
           <div class="overview-cards">
             <div class="stat-card">
               <div class="card-header">
                 <span class="card-icon cost-icon">
                   <span class="codicon codicon-credit-card"></span>
                 </span>
-                <span class="card-title">总消费</span>
+                 <span class="card-title">Total Spend</span>
               </div>
               <div class="card-value">${{ statistics.estimatedCost.toFixed(4) }}</div>
               <div v-if="statistics.weeklyComparison" class="card-trend" :class="getTrendClass(statistics.weeklyComparison.trends.cost)">
                 <span class="codicon" :class="getTrendIcon(statistics.weeklyComparison.trends.cost)"></span>
-                <span>较上周 {{ formatTrend(statistics.weeklyComparison.trends.cost) }}</span>
+                 <span>Compared to last week {{ formatTrend(statistics.weeklyComparison.trends.cost) }}</span>
               </div>
             </div>
 
@@ -97,12 +97,12 @@
                 <span class="card-icon sessions-icon">
                   <span class="codicon codicon-comment-discussion"></span>
                 </span>
-                <span class="card-title">总会话</span>
+                 <span class="card-title">Total Sessions</span>
               </div>
               <div class="card-value">{{ statistics.totalSessions }}</div>
               <div v-if="statistics.weeklyComparison" class="card-trend" :class="getTrendClass(statistics.weeklyComparison.trends.sessions)">
                 <span class="codicon" :class="getTrendIcon(statistics.weeklyComparison.trends.sessions)"></span>
-                <span>较上周 {{ formatTrend(statistics.weeklyComparison.trends.sessions) }}</span>
+                 <span>Compared to last week {{ formatTrend(statistics.weeklyComparison.trends.sessions) }}</span>
               </div>
             </div>
 
@@ -111,12 +111,12 @@
                 <span class="card-icon tokens-icon">
                   <span class="codicon codicon-symbol-namespace"></span>
                 </span>
-                <span class="card-title">总 Token</span>
+                 <span class="card-title">Total Tokens</span>
               </div>
               <div class="card-value">{{ formattedTotalTokens }}</div>
               <div v-if="statistics.weeklyComparison" class="card-trend" :class="getTrendClass(statistics.weeklyComparison.trends.tokens)">
                 <span class="codicon" :class="getTrendIcon(statistics.weeklyComparison.trends.tokens)"></span>
-                <span>较上周 {{ formatTrend(statistics.weeklyComparison.trends.tokens) }}</span>
+                 <span>Compared to last week {{ formatTrend(statistics.weeklyComparison.trends.tokens) }}</span>
               </div>
             </div>
 
@@ -125,22 +125,22 @@
                 <span class="card-icon average-icon">
                   <span class="codicon codicon-graph-line"></span>
                 </span>
-                <span class="card-title">平均/会话</span>
+                <span class="card-title">Avg per session</span>
               </div>
               <div class="card-value">${{ avgCostPerSession.toFixed(4) }}</div>
             </div>
           </div>
 
-          <!-- Token 分解 -->
+          <!-- Token breakdown -->
           <div class="section">
-            <h4 class="section-title">Token 使用分解</h4>
+            <h4 class="section-title">Token breakdown</h4>
             <div class="token-breakdown">
               <div class="breakdown-item">
                 <div class="breakdown-header">
-                  <span class="breakdown-label">
-                    <span class="breakdown-dot input-dot"></span>
-                    输入 Token
-                  </span>
+                    <span class="breakdown-label">
+                      <span class="breakdown-dot input-dot"></span>
+                      Input Tokens
+                    </span>
                   <span class="breakdown-value">{{ formatNumber(statistics.totalUsage.inputTokens) }}</span>
                 </div>
                 <div class="breakdown-bar">
@@ -152,7 +152,7 @@
                 <div class="breakdown-header">
                   <span class="breakdown-label">
                     <span class="breakdown-dot output-dot"></span>
-                    输出 Token
+                    Output Tokens
                   </span>
                   <span class="breakdown-value">{{ formatNumber(statistics.totalUsage.outputTokens) }}</span>
                 </div>
@@ -165,7 +165,7 @@
                 <div class="breakdown-header">
                   <span class="breakdown-label">
                     <span class="breakdown-dot cache-write-dot"></span>
-                    缓存写入
+                    Cache writes
                   </span>
                   <span class="breakdown-value">{{ formatNumber(statistics.totalUsage.cacheWriteTokens) }}</span>
                 </div>
@@ -178,7 +178,7 @@
                 <div class="breakdown-header">
                   <span class="breakdown-label">
                     <span class="breakdown-dot cache-read-dot"></span>
-                    缓存读取
+                    Cache reads
                   </span>
                   <span class="breakdown-value">{{ formatNumber(statistics.totalUsage.cacheReadTokens) }}</span>
                 </div>
@@ -189,16 +189,16 @@
             </div>
           </div>
 
-          <!-- 最常用模型 Top 3 -->
+          <!-- Top 3 models -->
           <div v-if="statistics.byModel && statistics.byModel.length > 0" class="section">
-            <h4 class="section-title">最常用模型</h4>
+            <h4 class="section-title">Most used models</h4>
             <div class="model-summary">
               <div v-for="(model, index) in statistics.byModel.slice(0, 3)" :key="model.model" class="model-card">
                 <div class="model-rank">#{{ index + 1 }}</div>
                 <div class="model-info">
                   <div class="model-name">{{ model.model }}</div>
                   <div class="model-stats">
-                    <span>{{ model.sessionCount }} 会话</span>
+                    <span>{{ model.sessionCount }} sessions</span>
                     <span class="separator">•</span>
                     <span>${{ model.totalCost.toFixed(4) }}</span>
                   </div>
@@ -208,7 +208,7 @@
           </div>
         </div>
 
-        <!-- Models 标签页 -->
+        <!-- Models tab -->
         <div v-if="activeTab === 'models'" class="tab-panel">
           <div v-if="statistics.byModel && statistics.byModel.length > 0" class="models-list">
             <div v-for="model in statistics.byModel" :key="model.model" class="model-item">
@@ -221,27 +221,27 @@
               </div>
               <div class="model-details">
                 <div class="detail-item">
-                  <span class="detail-label">会话数</span>
+                  <span class="detail-label">Sessions</span>
                   <span class="detail-value">{{ model.sessionCount }}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="detail-label">总 Token</span>
+                  <span class="detail-label">Total Tokens</span>
                   <span class="detail-value">{{ formatNumber(model.totalTokens) }}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="detail-label">输入 Token</span>
+                  <span class="detail-label">Input Tokens</span>
                   <span class="detail-value">{{ formatNumber(model.inputTokens) }}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="detail-label">输出 Token</span>
+                  <span class="detail-label">Output Tokens</span>
                   <span class="detail-value">{{ formatNumber(model.outputTokens) }}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="detail-label">缓存写入</span>
+                  <span class="detail-label">Cache write</span>
                   <span class="detail-value">{{ formatNumber(model.cacheCreationTokens) }}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="detail-label">缓存读取</span>
+                  <span class="detail-label">Cache read</span>
                   <span class="detail-value">{{ formatNumber(model.cacheReadTokens) }}</span>
                 </div>
               </div>
@@ -249,31 +249,31 @@
           </div>
           <div v-else class="empty-state">
             <span class="codicon codicon-info"></span>
-            <p>暂无模型统计数据</p>
+            <p>No model statistics available</p>
           </div>
         </div>
 
-        <!-- Sessions 标签页 -->
+        <!-- Sessions tab -->
         <div v-if="activeTab === 'sessions'" class="tab-panel">
           <div class="section">
             <div class="section-header">
-              <h4 class="section-title">最近会话</h4>
+              <h4 class="section-title">Recent sessions</h4>
               <div class="sort-buttons">
                 <button
                   :class="['sort-btn', { active: sortBy === 'cost' }]"
                   @click="handleSortChange('cost')"
-                  title="按消费排序"
+                   title="Sort by cost"
                 >
                   <span class="codicon codicon-credit-card"></span>
-                  按金额
+                   By cost
                 </button>
                 <button
                   :class="['sort-btn', { active: sortBy === 'time' }]"
                   @click="handleSortChange('time')"
-                  title="按时间排序"
+                   title="Sort by time"
                 >
                   <span class="codicon codicon-clock"></span>
-                  按时间
+                   By time
                 </button>
               </div>
             </div>
@@ -290,7 +290,7 @@
                 </div>
                 <div class="session-stats">
                   <span class="session-cost">${{ session.cost.toFixed(4) }}</span>
-                  <span class="session-tokens" :title="`输入: ${session.usage.inputTokens} | 输出: ${session.usage.outputTokens}`">
+                  <span class="session-tokens" :title="`Input: ${session.usage.inputTokens} | Output: ${session.usage.outputTokens}`">
                     <span class="codicon codicon-symbol-namespace"></span>
                     {{ formatNumber(session.usage.totalTokens) }}
                   </span>
@@ -299,11 +299,11 @@
 
               <div v-if="sortedSessions.length === 0" class="empty-sessions">
                 <span class="codicon codicon-info"></span>
-                <p>{{ projectScope === 'current' ? '当前项目暂无会话记录' : '暂无会话记录' }}</p>
+                <p>{{ projectScope === 'current' ? 'No session records for the current project' : 'No sessions available' }}</p>
               </div>
             </div>
 
-            <!-- 分页控制 -->
+            <!-- Pagination controls -->
             <div v-if="totalPages > 1" class="pagination">
               <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
                 <span class="codicon codicon-chevron-left"></span>
@@ -316,32 +316,32 @@
           </div>
         </div>
 
-        <!-- Timeline 标签页 -->
+        <!-- Timeline tab -->
         <div v-if="activeTab === 'timeline'" class="tab-panel">
           <div v-if="statistics.dailyUsage && statistics.dailyUsage.length > 0" class="section">
-            <h4 class="section-title">每日使用趋势</h4>
+            <h4 class="section-title">Daily usage trends</h4>
             <div class="daily-chart-minimal">
               <div class="chart-header">
-                <div class="chart-title">使用</div>
+                <div class="chart-title">Usage</div>
               </div>
               <div class="chart-container-minimal">
-                <!-- Y轴标签 -->
+                <!-- Y-axis labels -->
                 <div class="y-axis">
                   <div class="y-label">${{ getMaxCost().toFixed(2) }}</div>
                   <div class="y-label">${{ (getMaxCost() / 2).toFixed(2) }}</div>
                   <div class="y-label">$0.00</div>
                 </div>
 
-                <!-- 图表区域 -->
+                <!-- Chart area -->
                 <div class="chart-content">
-                  <!-- 网格线 -->
+                  <!-- Grid lines -->
                   <div class="grid-lines">
                     <div class="grid-line"></div>
                     <div class="grid-line"></div>
                     <div class="grid-line"></div>
                   </div>
 
-                  <!-- 柱状图 -->
+                  <!-- Bars -->
                   <div class="chart-bars-minimal">
                     <div
                       v-for="day in statistics.dailyUsage.slice(-7)"
@@ -358,18 +358,18 @@
               </div>
 
               <div class="chart-footer">
-                <div class="chart-subtitle">使用时间线</div>
+                <div class="chart-subtitle">Usage timeline</div>
               </div>
 
               <!-- Tooltip -->
               <div v-if="tooltip.visible" class="chart-tooltip-minimal" :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }">
                 <div class="tooltip-date">{{ tooltip.data?.date }}</div>
                 <div class="tooltip-row">
-                  <span>消费:</span>
+                  <span>Cost:</span>
                   <span>${{ tooltip.data?.cost.toFixed(4) }}</span>
                 </div>
                 <div class="tooltip-row">
-                  <span>会话:</span>
+                  <span>Sessions:</span>
                   <span>{{ tooltip.data?.sessions }}</span>
                 </div>
               </div>
@@ -377,24 +377,24 @@
           </div>
           <div v-else class="empty-state">
             <span class="codicon codicon-graph"></span>
-            <p>暂无时间线数据</p>
+            <p>No timeline data</p>
           </div>
         </div>
         </template>
         <div v-else class="empty-state empty-tab-placeholder">
           <span class="codicon codicon-graph"></span>
           <p v-if="error">{{ error }}</p>
-          <p v-else>{{ projectScope === 'current' ? '当前项目暂无使用数据' : '暂无使用数据' }}</p>
+          <p v-else>{{ projectScope === 'current' ? 'No usage data for the current project' : 'No usage data' }}</p>
           <button class="action-btn" @click="handleRefresh">
             <span class="codicon codicon-refresh"></span>
-            刷新数据
+            Refresh data
           </button>
         </div>
       </div>
 
-      <!-- 更新时间 -->
+      <!-- Last update -->
       <div v-if="statistics" class="last-update">
-        最后更新: {{ formatLastUpdate }}
+        Last updated: {{ formatLastUpdate }}
       </div>
     </div>
   </div>
@@ -406,11 +406,11 @@ import { useUsageStore, type DailyUsage } from '../stores/usageStore';
 
 const usageStore = useUsageStore();
 
-// 响应式数据
+// Reactive data
 const currentPage = ref(1);
 const pageSize = 10;
 
-// Tooltip 状态
+// Tooltip state
 const tooltip = ref<{
   visible: boolean;
   x: number;
@@ -423,22 +423,22 @@ const tooltip = ref<{
   data: null
 });
 
-// 日期范围选项
+// Date range options
 const dateRanges = [
-  { label: '最近 7 天', value: '7d' as const },
-  { label: '最近 30 天', value: '30d' as const },
-  { label: '全部时间', value: 'all' as const }
+  { label: 'Last 7 days', value: '7d' as const },
+  { label: 'Last 30 days', value: '30d' as const },
+  { label: 'All time', value: 'all' as const }
 ];
 
-// 标签页定义
+// Tab definitions
 const tabs = [
-  { id: 'overview', label: '概览', icon: 'codicon-dashboard' },
-  { id: 'models', label: '按模型', icon: 'codicon-circuit-board' },
-  { id: 'sessions', label: '会话', icon: 'codicon-comment-discussion' },
-  { id: 'timeline', label: '时间线', icon: 'codicon-graph-line' }
+  { id: 'overview', label: 'Overview', icon: 'codicon-dashboard' },
+  { id: 'models', label: 'By model', icon: 'codicon-circuit-board' },
+  { id: 'sessions', label: 'Sessions', icon: 'codicon-comment-discussion' },
+  { id: 'timeline', label: 'Timeline', icon: 'codicon-graph-line' }
 ];
 
-// 从 store 获取数据
+// Fetch data from store
 const statistics = computed(() => usageStore.statistics);
 const loading = computed(() => usageStore.loading);
 const error = computed(() => usageStore.error);
@@ -449,38 +449,38 @@ const selectedDateRange = computed(() => usageStore.selectedDateRange);
 const activeTab = computed(() => usageStore.activeTab);
 const projectScope = computed(() => usageStore.projectScope);
 
-// 排序方式
-const sortBy = ref<'cost' | 'time'>('cost');  // 默认按消费排序
+// Sorting options
+const sortBy = ref<'cost' | 'time'>('cost');  // Default sort by cost
 
-// 排序后的会话列表（限制最多显示100条）
+// Sorted session list (limit to top 100 entries)
 const sortedSessions = computed(() => {
   if (!statistics.value) return [];
-  // 根据选择的排序方式排序
+  // Sort based on the selected sort mode
   const sorted = [...statistics.value.sessions].sort((a, b) => {
     if (sortBy.value === 'cost') {
-      // 按消费金额降序排序（金额高的在前）
+      // Order by cost (highest first)
       const costDiff = b.cost - a.cost;
-      // 如果金额相同，则按时间排序（最新的在前）
+      // If cost ties, sort by time (most recent first)
       if (costDiff === 0) {
-        // 时间戳已经是毫秒单位
+        // Timestamp already in milliseconds
         const timeA = Number(a.timestamp) || 0;
         const timeB = Number(b.timestamp) || 0;
         return timeB - timeA;
       }
       return costDiff;
     } else {
-      // 按时间戳倒序排序（最新的在前）
-      // 时间戳已经是毫秒单位
+      // Sort by timestamp descending (most recent first)
+      // Timestamp already in milliseconds
       const timeA = Number(a.timestamp) || 0;
       const timeB = Number(b.timestamp) || 0;
       return timeB - timeA;
     }
   });
-  // 只取前100条用于展示（从200条中选出最相关的100条）
+  // Keep top 100 entries for display (from the top 200)
   return sorted.slice(0, 100);
 });
 
-// 分页会话列表
+// Pagination for sessions
 const paginatedSessions = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   const end = start + pageSize;
@@ -491,24 +491,24 @@ const totalPages = computed(() => {
   return Math.ceil(sortedSessions.value.length / pageSize);
 });
 
-// 格式化最后更新时间
+// Format last updated
 const formatLastUpdate = computed(() => {
   const date = new Date(lastUpdate.value);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const minutes = Math.floor(diff / 60000);
 
-  if (minutes < 1) return '刚刚';
-  if (minutes < 60) return `${minutes}分钟前`;
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes} minutes ago`;
 
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}小时前`;
+  if (hours < 24) return `${hours} hours ago`;
 
   const days = Math.floor(hours / 24);
-  return `${days}天前`;
+  return `${days} days ago`;
 });
 
-// 格式化数字
+// Format numbers
 function formatNumber(num: number): string {
   if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
   if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
@@ -516,16 +516,16 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-// 格式化时间
+// Format time
 function formatTime(timestamp: number): string {
-  // 时间戳已经从后端转换为毫秒单位
+  // Timestamp already converted to milliseconds
   const date = new Date(timestamp);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
 
-  // 防止负数时间差（未来时间）
+  // Guard against negative time differences
   if (diff < 0) {
-    return '刚刚';
+    return 'Just now';
   }
 
   const hours = Math.floor(diff / 3600000);
@@ -533,18 +533,18 @@ function formatTime(timestamp: number): string {
 
   if (hours < 1) {
     const minutes = Math.floor(diff / 60000);
-    if (minutes <= 0) return '刚刚';
-    return `${minutes}分钟前`;
+    if (minutes <= 0) return 'Just now';
+    return `${minutes} minutes ago`;
   } else if (days < 1) {
-    return `${hours}小时前`;
+    return `${hours} hours ago`;
   } else if (days < 7) {
-    return `${days}天前`;
+    return `${days} days ago`;
   } else {
     return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
   }
 }
 
-// 获取 Token 百分比
+// Get token percentages
 function getTokenPercentage(type: 'inputTokens' | 'outputTokens' | 'cacheWriteTokens' | 'cacheReadTokens'): number {
   if (!statistics.value) return 0;
   const total = statistics.value.totalUsage.totalTokens;
@@ -552,29 +552,29 @@ function getTokenPercentage(type: 'inputTokens' | 'outputTokens' | 'cacheWriteTo
   return (statistics.value.totalUsage[type] / total) * 100;
 }
 
-// 获取趋势类名
+// Get trend class
 function getTrendClass(trend: number): string {
   if (trend > 0) return 'trend-up';
   if (trend < 0) return 'trend-down';
   return 'trend-neutral';
 }
 
-// 获取趋势图标
+// Get trend icon
 function getTrendIcon(trend: number): string {
   if (trend > 0) return 'codicon-arrow-up';
   if (trend < 0) return 'codicon-arrow-down';
   return 'codicon-dash';
 }
 
-// 格式化趋势百分比
+// Format trend percentages
 function formatTrend(trend: number): string {
   const absValue = Math.abs(trend);
-  if (absValue < 1) return '无变化';
+  if (absValue < 1) return 'No change';
   const sign = trend > 0 ? '+' : '';
   return `${sign}${trend.toFixed(1)}%`;
 }
 
-// 计算每天柱状图的高度百分比
+// Compute daily bar heights
 function getDayBarHeight(value: number, type: 'cost' | 'sessions'): number {
   if (!statistics.value || !statistics.value.dailyUsage) return 0;
 
@@ -590,7 +590,7 @@ function getDayBarHeight(value: number, type: 'cost' | 'sessions'): number {
   }
 }
 
-// 格式化图表日期
+// Format chart dates
 function formatChartDate(dateStr: string): string {
   const date = new Date(dateStr);
   const month = date.getMonth() + 1;
@@ -598,15 +598,15 @@ function formatChartDate(dateStr: string): string {
   return `${month}/${day}`;
 }
 
-// 格式化极简图表日期
+// Format simplified chart dates
 function formatChartDateMinimal(dateStr: string): string {
   const date = new Date(dateStr);
   const month = date.getMonth() + 1;
   const day = date.getDate();
-  return `${month}月${day}日`;
+  return `${month}/${day}`;
 }
 
-// 获取最大成本
+// Get maximum cost
 function getMaxCost(): number {
   if (!statistics.value || !statistics.value.dailyUsage) return 0;
   const days = statistics.value.dailyUsage.slice(-7);
@@ -614,14 +614,14 @@ function getMaxCost(): number {
   return Math.max(...days.map(d => d.cost), 0.01);
 }
 
-// 计算极简柱状图高度
+// Calculate simplified bar heights
 function getDayBarHeightMinimal(value: number): number {
   const maxCost = getMaxCost();
   if (maxCost === 0) return 0;
   return (value / maxCost) * 100;
 }
 
-// Tooltip 显示/隐藏
+// Show/hide tooltip
 function showDayTooltip(event: MouseEvent, day: DailyUsage) {
   const rect = (event.target as HTMLElement).getBoundingClientRect();
   tooltip.value = {
@@ -636,24 +636,24 @@ function hideDayTooltip() {
   tooltip.value.visible = false;
 }
 
-// 事件处理
+// Event handling
 async function handleRefresh() {
   await usageStore.refresh();
 }
 
 async function handleDateRangeChange(range: '7d' | '30d' | 'all') {
   await usageStore.setDateRange(range);
-  currentPage.value = 1; // 重置分页
+  currentPage.value = 1; // Reset pagination
 }
 
 async function handleProjectScopeChange(scope: 'current' | 'all') {
   await usageStore.setProjectScope(scope);
-  currentPage.value = 1; // 重置分页
+  currentPage.value = 1; // Reset pagination
 }
 
 function handleTabChange(tab: string) {
   usageStore.setActiveTab(tab);
-  currentPage.value = 1; // 重置分页
+  currentPage.value = 1; // Reset pagination
 }
 
 function handleExportCSV() {
@@ -664,18 +664,18 @@ function handleExportJSON() {
   usageStore.exportToJSON();
 }
 
-// 处理排序方式变更
+// Handle sort mode change
 function handleSortChange(sort: 'cost' | 'time') {
   sortBy.value = sort;
-  currentPage.value = 1; // 重置分页
+  currentPage.value = 1; // Reset pagination
 }
 
-// 监听标签页变化，重置分页
+// Watch tab changes and reset pagination
 watch(activeTab, () => {
   currentPage.value = 1;
 });
 
-// 生命周期
+// Lifecycle
 onMounted(async () => {
   await usageStore.initialize();
 });
@@ -686,7 +686,7 @@ onMounted(async () => {
   width: 100%;
 }
 
-/* 加载状态 */
+/* Loading state */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -701,12 +701,12 @@ onMounted(async () => {
   margin-bottom: 16px;
 }
 
-/* 主要内容 */
+/* Main content */
 .statistics-content {
   padding: 0;
 }
 
-/* 项目信息头部 */
+/* Project info header */
 .project-info-header {
   margin-bottom: 20px;
 }
@@ -726,7 +726,7 @@ onMounted(async () => {
   font-size: 18px;
 }
 
-/* 控制栏 */
+/* Control bar */
 .control-bar {
   display: flex;
   justify-content: space-between;
@@ -738,14 +738,14 @@ onMounted(async () => {
   flex-wrap: wrap;
 }
 
-/* 项目范围切换器 */
+/* Scope switcher */
 .scope-switcher {
   display: flex;
   gap: 4px;
   background: var(--vscode-input-background);
   border-radius: 6px;
   padding: 4px;
-  flex: 0 0 auto; /* 不占用过多空间 */
+  flex: 0 0 auto; /* Avoid taking too much space */
 }
 
 .scope-btn {
@@ -773,14 +773,14 @@ onMounted(async () => {
   color: var(--vscode-button-foreground);
 }
 
-/* 日期筛选器 */
+/* Date filter */
 .date-filter {
   display: flex;
   gap: 4px;
   background: var(--vscode-input-background);
   border-radius: 6px;
   padding: 4px;
-  flex: 0 0 auto; /* 不占用过多空间 */
+  flex: 0 0 auto; /* Avoid taking too much space */
 }
 
 .filter-btn {
@@ -804,7 +804,7 @@ onMounted(async () => {
   color: var(--vscode-button-foreground);
 }
 
-/* 操作按钮 */
+/* Action buttons */
 .action-group {
   display: flex;
   gap: 8px;
@@ -828,20 +828,20 @@ onMounted(async () => {
   background: var(--vscode-toolbar-hoverBackground);
 }
 
-/* 标签页 */
+/* Tabs */
 .tabs {
   display: flex;
   gap: 4px;
   margin-bottom: 24px;
   border-bottom: 1px solid var(--vscode-panel-border);
-  overflow-x: auto; /* 支持横向滚动 */
+  overflow-x: auto; /* Support horizontal scrolling */
   overflow-y: hidden;
-  /* 隐藏滚动条但保持功能 */
+  /* Hide scrollbar while keeping functionality */
   scrollbar-width: thin; /* Firefox */
   -ms-overflow-style: -ms-autohiding-scrollbar; /* IE/Edge */
 }
 
-/* WebKit 浏览器滚动条样式 */
+/* WebKit scrollbar styles */
 .tabs::-webkit-scrollbar {
   height: 4px;
 }
@@ -872,8 +872,8 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s;
-  white-space: nowrap; /* 不换行 */
-  flex-shrink: 0; /* 防止被压缩 */
+  white-space: nowrap; /* Prevent wrapping */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .tab:hover {
@@ -887,7 +887,7 @@ onMounted(async () => {
   background: transparent;
 }
 
-/* 标签页内容 */
+/* Tab content */
 .tab-content {
   min-height: 400px;
 }
@@ -907,7 +907,7 @@ onMounted(async () => {
   }
 }
 
-/* 总览卡片 */
+/* Overview cards */
 .overview-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -972,7 +972,7 @@ onMounted(async () => {
   color: var(--vscode-foreground);
 }
 
-/* 趋势指示器 */
+/* Trend indicator */
 .card-trend {
   display: flex;
   align-items: center;
@@ -998,7 +998,7 @@ onMounted(async () => {
   background: var(--vscode-input-background);
 }
 
-/* 章节 */
+/* Sections */
 .section {
   margin-bottom: 32px;
 }
@@ -1010,7 +1010,7 @@ onMounted(async () => {
   margin-bottom: 16px;
 }
 
-/* 排序按钮组 */
+/* Sort button group */
 .sort-buttons {
   display: flex;
   gap: 4px;
@@ -1073,7 +1073,7 @@ onMounted(async () => {
   background: var(--vscode-toolbar-hoverBackground);
 }
 
-/* Token 分解 */
+/* Token breakdown */
 .token-breakdown {
   display: flex;
   flex-direction: column;
@@ -1156,7 +1156,7 @@ onMounted(async () => {
   background: #8b5cf6;
 }
 
-/* 模型概要 */
+/* Model summary */
 .model-summary {
   display: flex;
   flex-direction: column;
@@ -1207,7 +1207,7 @@ onMounted(async () => {
   margin: 0 6px;
 }
 
-/* 模型列表 */
+/* Model list */
 .models-list {
   display: flex;
   flex-direction: column;
@@ -1268,7 +1268,7 @@ onMounted(async () => {
   color: var(--vscode-foreground);
 }
 
-/* 会话列表 */
+/* Session list */
 .sessions-list {
   display: flex;
   flex-direction: column;
@@ -1349,7 +1349,7 @@ onMounted(async () => {
   color: var(--vscode-descriptionForeground);
 }
 
-/* 分页 */
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
@@ -1385,7 +1385,7 @@ onMounted(async () => {
   color: var(--vscode-foreground);
 }
 
-/* 极简时间线图表 */
+/* Minimal timeline chart */
 .daily-chart-minimal {
   background: var(--vscode-sideBar-background);
   border: 1px solid var(--vscode-panel-border);
@@ -1413,7 +1413,7 @@ onMounted(async () => {
   overflow-y: hidden;
 }
 
-/* Y轴 */
+/* Y-axis */
 .y-axis {
   display: flex;
   flex-direction: column;
@@ -1429,7 +1429,7 @@ onMounted(async () => {
   line-height: 1;
 }
 
-/* 图表内容区域 */
+/* Chart area */
 .chart-content {
   flex: 1;
   position: relative;
@@ -1439,7 +1439,7 @@ onMounted(async () => {
   flex-direction: column;
 }
 
-/* 网格线 */
+/* Grid lines */
 .grid-lines {
   position: absolute;
   top: 0;
@@ -1458,7 +1458,7 @@ onMounted(async () => {
   opacity: 0.3;
 }
 
-/* 柱状图区域 */
+/* Bar area */
 .chart-bars-minimal {
   display: flex;
   align-items: flex-end;
@@ -1515,7 +1515,7 @@ onMounted(async () => {
   opacity: 0.7;
 }
 
-/* 极简 Tooltip */
+/* Minimal tooltip */
 .chart-tooltip-minimal {
   position: fixed;
   transform: translate(-50%, -100%);
@@ -1546,7 +1546,7 @@ onMounted(async () => {
   color: var(--vscode-descriptionForeground);
 }
 
-/* 空状态 */
+/* Empty state */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -1582,7 +1582,7 @@ onMounted(async () => {
   margin-bottom: 8px;
 }
 
-/* 最后更新 */
+/* Last update */
 .last-update {
   margin-top: 24px;
   padding-top: 16px;
@@ -1592,7 +1592,7 @@ onMounted(async () => {
   text-align: center;
 }
 
-/* 响应式 */
+/* Responsive */
 @media (max-width: 768px) {
   .overview-cards {
     grid-template-columns: 1fr;
@@ -1606,7 +1606,7 @@ onMounted(async () => {
 
   .scope-switcher {
     width: 100%;
-    flex: 1 0 auto; /* 在小屏幕下占满宽度 */
+    flex: 1 0 auto; /* Fill width on small screens */
   }
 
   .scope-btn {
@@ -1616,7 +1616,7 @@ onMounted(async () => {
 
   .date-filter {
     width: 100%;
-    flex: 1 0 auto; /* 在小屏幕下占满宽度 */
+    flex: 1 0 auto; /* Fill width on small screens */
   }
 
   .filter-btn {
@@ -1625,8 +1625,8 @@ onMounted(async () => {
   }
 
   .tabs {
-    /* 已经在主样式中设置了 overflow-x: auto */
-    margin-left: -12px; /* 对齐到页面边缘,增加滚动空间 */
+    /* overflow-x: auto already set in main styles */
+    margin-left: -12px; /* Align to page edge and add scroll padding */
     margin-right: -12px;
     padding-left: 12px;
     padding-right: 12px;
@@ -1636,7 +1636,7 @@ onMounted(async () => {
     grid-template-columns: 1fr 1fr;
   }
 
-  /* 图表适配 */
+  /* Chart adjustments */
   .daily-chart-minimal {
     padding: 16px;
   }

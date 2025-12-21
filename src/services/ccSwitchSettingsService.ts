@@ -59,17 +59,15 @@ export interface ClaudeProvider {
   id: string;
   /** 供应商名称 */
   name: string;
-  /** Claude settings.json 的配置内容 */
+  /** 
+   * Claude settings.json 的完整配置内容 (动态)
+   * 直接 copy 用户的 ~/.claude/settings.json，不硬编码结构
+   */
   settingsConfig: {
-    env: {
-      ANTHROPIC_AUTH_TOKEN?: string;
-      ANTHROPIC_BASE_URL?: string;
-      [key: string]: any;
-    };
-    permissions?: {
-      allow?: string[];
-      deny?: string[];
-    };
+    /** 环境变量 - 唯一需要特殊处理用于 overlay */
+    env?: Record<string, any>;
+    /** 其他任意配置 - 动态从 settings.json 读取 */
+    [key: string]: any;
   };
   /** 官网链接 */
   websiteUrl?: string;
@@ -269,24 +267,20 @@ export class CCSwitchSettingsService implements ICCSwitchSettingsService {
    */
   private async createDefaultProviderFromClaudeSettings(): Promise<ClaudeProvider> {
     try {
-      // 尝试读取 Claude settings
+      // 尝试读取 Claude settings (完整的 settings.json)
       const settings = await this.claudeSettingsService.readSettings();
 
       // 检查是否有有效的配置
       if (settings.env && (settings.env.ANTHROPIC_AUTH_TOKEN || settings.env.ANTHROPIC_BASE_URL)) {
-        this.logService.info('Loading default provider config from ~/.claude/settings.json');
+        this.logService.info('Loading FULL config from ~/.claude/settings.json into provider');
 
         const baseUrl = settings.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com';
 
+        // Copy 全部 settings.json 内容到 settingsConfig
         return {
           id: 'default',
           name: 'default',
-          settingsConfig: {
-            env: {
-              ANTHROPIC_AUTH_TOKEN: settings.env.ANTHROPIC_AUTH_TOKEN || '',
-              ANTHROPIC_BASE_URL: baseUrl
-            }
-          },
+          settingsConfig: { ...settings },  // Copy toàn bộ settings
           websiteUrl: baseUrl,
           category: 'official',
           createdAt: Date.now()

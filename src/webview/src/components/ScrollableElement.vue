@@ -7,7 +7,7 @@
     @mouseenter="showScrollbars"
     @mouseleave="hideScrollbars"
   >
-    <!-- 内容容器 -->
+    <!-- Content container -->
     <div
       ref="contentWrapper"
       class="scrollable-content-wrapper"
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- 垂直滚动条 -->
+    <!-- Vertical scrollbar -->
     <div
       v-show="showVerticalScrollbar"
       ref="verticalScrollbar"
@@ -41,7 +41,7 @@
       ></div>
     </div>
 
-    <!-- 水平滚动条 -->
+    <!-- Horizontal scrollbar -->
     <div
       v-show="showHorizontalScrollbar"
       ref="horizontalScrollbar"
@@ -59,7 +59,7 @@
       ></div>
     </div>
 
-    <!-- 阴影效果 -->
+    <!-- Shadow effect -->
     <div v-show="scrollTop > 0" class="shadow top"></div>
     <div v-show="scrollTop > 0" class="shadow top-left-corner top"></div>
     <div v-show="!isScrolledToBottom" class="shadow"></div>
@@ -79,7 +79,7 @@ const props = withDefaults(defineProps<Props>(), {
   width: '100%'
 })
 
-// DOM 引用
+// DOM references
 const scrollableContainer = ref<HTMLElement>()
 const contentWrapper = ref<HTMLElement>()
 const contentContainer = ref<HTMLElement>()
@@ -88,7 +88,7 @@ const verticalSlider = ref<HTMLElement>()
 const horizontalScrollbar = ref<HTMLElement>()
 const horizontalSlider = ref<HTMLElement>()
 
-// 滚动状态
+// Scroll state
 const scrollTop = ref(0)
 const scrollLeft = ref(0)
 const scrollHeight = ref(0)
@@ -100,13 +100,13 @@ const scrollbarFadeTimer = ref<number>()
 const smooth = ref(false)
 const smoothOffTimer = ref<number>()
 
-// 拖拽状态
+// Drag state
 const isDragging = ref(false)
 const dragType = ref<'vertical' | 'horizontal' | null>(null)
 const dragStartPos = ref(0)
 const dragStartScroll = ref(0)
 
-// 计算属性
+// Computed properties
 const showVerticalScrollbar = computed(() => scrollHeight.value > clientHeight.value)
 const showHorizontalScrollbar = computed(() => scrollWidth.value > clientWidth.value)
 
@@ -183,7 +183,7 @@ const horizontalSliderStyle = computed((): CSSProperties => {
   }
 })
 
-// 更新尺寸信息
+// Update size information
 const updateDimensions = () => {
   if (!contentWrapper.value || !contentContainer.value) return
 
@@ -191,11 +191,11 @@ const updateDimensions = () => {
   clientHeight.value = wrapperRect.height
   clientWidth.value = wrapperRect.width
 
-  // 获取实际内容尺寸，考虑子元素
+  // Get actual content size, considering children
   let actualHeight = contentContainer.value.scrollHeight
   let actualWidth = contentContainer.value.scrollWidth
 
-  // 如果容器内有子元素，检查子元素的尺寸
+  // If the container has children, check their sizes
   const children = contentContainer.value.children
   if (children.length > 0) {
     let maxHeight = 0
@@ -206,7 +206,7 @@ const updateDimensions = () => {
       const childRect = child.getBoundingClientRect()
       const containerRect = contentContainer.value.getBoundingClientRect()
 
-      // 计算子元素相对于容器的位置
+      // Calculate each child position relative to the container
       const childBottom = childRect.bottom - containerRect.top
       const childRight = childRect.right - containerRect.left
 
@@ -222,7 +222,7 @@ const updateDimensions = () => {
   scrollWidth.value = actualWidth
 }
 
-// 显示滚动条
+// Show scrollbar
 const showScrollbars = () => {
   isScrollbarVisible.value = true
 
@@ -235,7 +235,7 @@ const showScrollbars = () => {
   }
 }
 
-// 隐藏滚动条
+// Hide scrollbar
 const hideScrollbars = () => {
   if (!isDragging.value) {
     scrollbarFadeTimer.value = window.setTimeout(() => {
@@ -244,7 +244,7 @@ const hideScrollbars = () => {
   }
 }
 
-// 滚轮处理
+// Wheel handling
 const handleWheel = (event: WheelEvent) => {
   event.preventDefault()
 
@@ -252,16 +252,16 @@ const handleWheel = (event: WheelEvent) => {
   const deltaX = event.deltaX
 
   if (Math.abs(deltaY) > Math.abs(deltaX)) {
-    // 垂直滚动
+    // Vertical scroll
     const newScrollTop = Math.max(0, Math.min(scrollHeight.value - clientHeight.value, scrollTop.value + deltaY))
     scrollTop.value = newScrollTop
   } else {
-    // 水平滚动
+    // Horizontal scroll
     const newScrollLeft = Math.max(0, Math.min(scrollWidth.value - clientWidth.value, scrollLeft.value + deltaX))
     scrollLeft.value = newScrollLeft
   }
 
-  // 用户滚轮滚动：启用短暂平滑过渡
+  // User wheel scroll: enable a short smooth transition
   smooth.value = true
   if (smoothOffTimer.value) {
     clearTimeout(smoothOffTimer.value)
@@ -273,7 +273,7 @@ const handleWheel = (event: WheelEvent) => {
   showScrollbars()
 }
 
-// 垂直拖拽
+// Vertical drag
 const startVerticalDrag = (event: MouseEvent) => {
   event.preventDefault()
   isDragging.value = true
@@ -286,7 +286,7 @@ const startVerticalDrag = (event: MouseEvent) => {
   document.addEventListener('mouseup', endDrag)
 }
 
-// 水平拖拽
+// Horizontal drag
 const startHorizontalDrag = (event: MouseEvent) => {
   event.preventDefault()
   isDragging.value = true
@@ -299,7 +299,7 @@ const startHorizontalDrag = (event: MouseEvent) => {
   document.addEventListener('mouseup', endDrag)
 }
 
-// 处理拖拽
+// Handle drag
 const handleDrag = (event: MouseEvent) => {
   if (!isDragging.value) return
 
@@ -316,7 +316,7 @@ const handleDrag = (event: MouseEvent) => {
   }
 }
 
-// 结束拖拽
+// End drag
 const endDrag = () => {
   isDragging.value = false
   dragType.value = null
@@ -328,14 +328,14 @@ const endDrag = () => {
   smooth.value = false
 }
 
-// 监听容器尺寸变化
+// Observe container size changes
 const resizeObserver = new ResizeObserver(() => {
   nextTick(() => {
     updateDimensions()
   })
 })
 
-// 在 setup 同步阶段创建 mutationObserver 引用
+// Create mutationObserver reference during setup sync
 let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
@@ -350,7 +350,7 @@ onMounted(() => {
   nextTick(() => {
     updateDimensions()
 
-    // 监听内容变化
+    // Observe content changes
     if (contentContainer.value) {
       mutationObserver = new MutationObserver(() => {
         nextTick(() => {
@@ -368,11 +368,11 @@ onMounted(() => {
   })
 })
 
-// 在 setup 同步阶段注册 onUnmounted
+// Register onUnmounted during setup sync
 onUnmounted(() => {
   resizeObserver.disconnect()
 
-  // 清理 mutationObserver
+  // Clean up mutationObserver
   if (mutationObserver) {
     mutationObserver.disconnect()
     mutationObserver = null
@@ -386,7 +386,7 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', endDrag)
 })
 
-// 暴露方法给父组件（支持行为选项）
+// Expose methods to parent component (supports behavior options)
 type ScrollBehaviorOptions = { behavior?: 'auto' | 'smooth' }
 const scrollTo = (top: number, left = 0, options?: ScrollBehaviorOptions) => {
   const behavior = options?.behavior ?? 'auto'

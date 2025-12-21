@@ -1,7 +1,7 @@
 <template>
   <div class="thinking-block">
     <div class="thinking-header" @click="toggleExpanded">
-      <span class="thinking-label">思考完成</span>
+      <span class="thinking-label">Thinking</span>
       <span class="codicon" :class="expanded ? 'codicon-chevron-up' : 'codicon-chevron-down'" />
     </div>
     <div v-if="expanded" class="thinking-content">

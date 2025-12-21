@@ -2,7 +2,7 @@
   <div class="dialog-overlay" @click.self="$emit('close')">
     <div class="dialog">
       <div class="dialog-header">
-        <h3>选择预设服务器</h3>
+        <h3>Choose a Preset Server</h3>
         <button class="close-btn" @click="$emit('close')">
           <span class="codicon codicon-close"></span>
         </button>
@@ -10,7 +10,7 @@
 
       <div class="dialog-body">
         <p class="dialog-desc">
-          选择一个预设的 MCP 服务器快速添加。这些是官方推荐的常用工具。
+          Select a preset MCP server to add quickly. These are officially recommended utilities.
         </p>
 
         <div class="preset-list">
@@ -43,9 +43,9 @@
       <div class="dialog-footer">
         <div class="footer-hint">
           <span class="codicon codicon-info"></span>
-          点击预设项即可添加
+          Click a preset to add it
         </div>
-        <button class="btn btn-secondary" @click="$emit('close')">取消</button>
+        <button class="btn btn-secondary" @click="$emit('close')">Cancel</button>
       </div>
     </div>
   </div>
@@ -63,10 +63,10 @@ const emit = defineEmits<{
 
 const mcpStore = useMcpStore();
 
-// 获取预设列表
+// Get preset list
 const presets = computed(() => MCP_PRESETS);
 
-// 服务器图标颜色
+// Server icon colors
 const iconColors = [
   '#3B82F6', // blue
   '#10B981', // green
@@ -86,12 +86,12 @@ function getIconColor(presetId: string): string {
   return iconColors[Math.abs(hash) % iconColors.length];
 }
 
-// 获取服务器类型
+// Determine server type
 function getServerType(preset: McpPreset): string {
   return preset.server.type || 'stdio';
 }
 
-// 获取服务器类型标签
+// Get server type label
 function getServerTypeLabel(preset: McpPreset): string {
   const type = getServerType(preset);
   const labels: Record<string, string> = {
@@ -102,7 +102,7 @@ function getServerTypeLabel(preset: McpPreset): string {
   return labels[type] || type.toUpperCase();
 }
 
-// 选择预设
+// Select preset
 function handleSelect(preset: McpPreset) {
   emit('select', preset);
 }
@@ -323,7 +323,7 @@ function handleSelect(preset: McpPreset) {
   background: var(--vscode-list-hoverBackground);
 }
 
-/* 响应式适配 */
+/* Responsive tweaks */
 @media (max-width: 480px) {
   .dialog {
     width: 95%;

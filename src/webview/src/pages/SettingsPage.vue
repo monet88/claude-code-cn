@@ -6,7 +6,7 @@
         <button class="back-btn" @click="$emit('back')">
           <span class="codicon codicon-arrow-left"></span>
         </button>
-        <h2 class="settings-title">设置</h2>
+        <h2 class="settings-title">Settings</h2>
       </div>
       <div class="header-right">
         <!-- 已隐藏保存更改按钮 -->
@@ -24,7 +24,7 @@
             :title="isCollapsed ? '基础配置' : ''"
           >
             <span class="codicon codicon-settings-gear"></span>
-            <span class="sidebar-item-text">基础配置</span>
+            <span class="sidebar-item-text">Basic settings</span>
           </div>
           <div
             :class="['sidebar-item', { active: currentTab === 'usage' }]"
@@ -32,7 +32,7 @@
             :title="isCollapsed ? '使用统计' : ''"
           >
             <span class="codicon codicon-graph"></span>
-            <span class="sidebar-item-text">使用统计</span>
+            <span class="sidebar-item-text">Usage & limits</span>
           </div>
           <div
             :class="['sidebar-item', { active: currentTab === 'mcp' }]"
@@ -40,7 +40,7 @@
             :title="isCollapsed ? 'MCP服务器' : ''"
           >
             <span class="codicon codicon-server"></span>
-            <span class="sidebar-item-text">MCP服务器</span>
+            <span class="sidebar-item-text">MCP servers</span>
           </div>
           <div
             :class="['sidebar-item', { active: currentTab === 'skills' }]"
@@ -56,7 +56,7 @@
             :title="isCollapsed ? '权限配置' : ''"
           >
             <span class="codicon codicon-shield"></span>
-            <span class="sidebar-item-text">权限配置</span>
+            <span class="sidebar-item-text">Permissions</span>
             <span class="codicon codicon-warning"></span>
           </div>
           <div
@@ -74,7 +74,7 @@
             :title="isCollapsed ? '官方交流群' : ''"
           >
             <span class="codicon codicon-comment-discussion"></span>
-            <span class="sidebar-item-text">官方交流群</span>
+            <span class="sidebar-item-text">Community</span>
           </div>
         </div>
 
@@ -88,15 +88,15 @@
       <div class="settings-content">
         <!-- 基础配置 -->
         <div v-if="currentTab === 'basic'" class="config-section">
-          <h3 class="section-title">基础配置</h3>
-          <p class="section-desc">配置页面主题和 Node.js 运行环境</p>
+          <h3 class="section-title">Basic settings</h3>
+          <p class="section-desc">Configure basic settings and environment for Claude Code.</p>
 
           <!-- 界面主题 -->
           <div class="theme-section">
             <div class="section-header">
               <h4>
                 <span class="codicon codicon-symbol-color"></span>
-                界面主题
+                Interface Theme
               </h4>
             </div>
 
@@ -109,8 +109,8 @@
                   <span class="codicon codicon-circle-large"></span>
                 </div>
                 <div class="theme-info">
-                  <h5>亮色主题</h5>
-                  <span class="theme-desc">清爽明亮，适合白天使用</span>
+                  <h5>Light theme</h5>
+                  <span class="theme-desc">Fresh and bright, suitable for daytime use.</span>
                 </div>
                 <div v-if="themeStore.mode === 'light'" class="theme-check">
                   <span class="codicon codicon-check"></span>
@@ -125,8 +125,8 @@
                   <span class="codicon codicon-circle-filled"></span>
                 </div>
                 <div class="theme-info">
-                  <h5>暗色主题</h5>
-                  <span class="theme-desc">护眼舒适，适合夜间使用</span>
+                  <h5>Dark theme</h5>
+                  <span class="theme-desc">Eye-friendly and comfortable, suitable for nighttime use.</span>
                 </div>
                 <div v-if="themeStore.mode === 'dark'" class="theme-check">
                   <span class="codicon codicon-check"></span>
@@ -141,7 +141,7 @@
                   :checked="themeStore.followSystem"
                   @change="(e) => themeStore.setFollowSystem((e.target as HTMLInputElement).checked)"
                 />
-                <span>跟随系统主题</span>
+                <span>Follow the system theme</span>
               </label>
             </div>
           </div>
@@ -149,10 +149,10 @@
           <!-- 供应商列表 -->
           <div class="provider-section">
             <div class="section-header">
-              <h4>供应商管理</h4>
+              <h4>Providers Management</h4>
               <button class="add-provider-btn" @click="showAddDialog = true">
                 <span class="codicon codicon-add"></span>
-                添加供应商
+                Add Providers
               </button>
             </div>
 
@@ -166,7 +166,7 @@
                   <div class="provider-info">
                     <h5 class="provider-name">
                       {{ provider.name }}
-                      <span v-if="provider.isActive" class="active-badge">当前使用</span>
+                      <span v-if="provider.isActive" class="active-badge">Active</span>
                     </h5>
                     <a
                       v-if="provider.websiteUrl"
@@ -184,21 +184,21 @@
                       @click="handleSwitchProvider(provider.id)"
                     >
                       <span class="codicon codicon-play"></span>
-                      启用
+                      Enable
                     </button>
                     <span v-else class="using-badge">
                       <span class="codicon codicon-check"></span>
-                      使用中
+                      In use
                     </span>
-                    <button class="edit-btn" @click="handleEditProvider(provider)" title="编辑">
+                    <button class="edit-btn" @click="handleEditProvider(provider)" title="Edit">
                       <span class="codicon codicon-edit"></span>
                     </button>
-                    <!-- <button class="stats-btn" title="统计">
+                    <!-- <button class="stats-btn" title="Stats">
                       <span class="codicon codicon-graph"></span>
                     </button> -->
                     <button
                       class="delete-btn"
-                      :title="providers.length === 1 ? '至少保留一个供应商' : '删除'"
+                      :title="providers.length === 1 ? 'Keep at least 1 provider' : 'Delete'"
                       :disabled="providers.length === 1"
                       @click="handleDeleteProvider(provider)"
                     >
@@ -210,7 +210,7 @@
 
               <div v-if="providers.length === 0" class="empty-state">
                 <span class="codicon codicon-info"></span>
-                <p>暂无供应商，点击上方"添加供应商"按钮添加</p>
+                <p>There are no providers currently listed. Click the "Add Provider" button above to add one.</p>
               </div>
             </div>
           </div>
@@ -218,33 +218,33 @@
 
         <!-- 使用统计 -->
         <div v-else-if="currentTab === 'usage'" class="config-section usage-section">
-          <h3 class="section-title">使用统计</h3>
-          <p class="section-desc">查看您的 Token 消耗、费用统计和使用趋势分析</p>
+          <h3 class="section-title">Usage & limits</h3>
+          <p class="section-desc">View token usage and context window information.</p>
 
           <UsageStatisticsSection />
         </div>
 
         <!-- 官方交流群 -->
         <div v-else-if="currentTab === 'community'" class="config-section community-section">
-          <h3 class="section-title">官方交流群</h3>
-          <p class="section-desc">扫描下方二维码加入官方微信交流群,获取最新资讯和技术支持</p>
+          <h3 class="section-title">Community</h3>
+          <p class="section-desc">Join the community to get help, share feedback, and follow updates.</p>
 
           <div class="qrcode-container">
             <div class="qrcode-wrapper">
               <img
                 src="https://claudecodecn-1253302184.cos.ap-beijing.myqcloud.com/vscode/wxq.png"
-                alt="官方微信交流群二维码"
+                alt="Scan to join the Claude Code community"
                 class="qrcode-image"
               />
-              <p class="qrcode-tip">使用微信扫一扫加入交流群</p>
+              <p class="qrcode-tip">Scan the QR code to join the community.</p>
             </div>
           </div>
         </div>
 
-        <!-- MCP 服务器 -->
+        <!-- MCP Server -->
         <div v-else-if="currentTab === 'mcp'" class="config-section mcp-section">
-          <h3 class="section-title">MCP 服务器</h3>
-          <p class="section-desc">管理 MCP (Model Context Protocol) 服务器，为 Claude 提供额外的工具和功能</p>
+          <h3 class="section-title">MCP servers</h3>
+          <p class="section-desc">Configure MCP (Model Context Protocol) servers so Claude can connect to your tools and data.</p>
 
           <McpServerPanel />
         </div>
@@ -252,15 +252,15 @@
         <!-- Skills -->
         <div v-else-if="currentTab === 'skills'" class="config-section skills-section">
           <h3 class="section-title">Skills</h3>
-          <p class="section-desc">管理自定义 Skills，为 Claude Code 扩展功能</p>
+          <p class="section-desc">Manage Claude Code skills that extend the agent's capabilities.</p>
 
           <SkillPanel />
         </div>
 
-        <!-- 其他标签页占位 -->
+        <!-- Other tabs are placeholders. -->
         <div v-else class="config-section">
           <h3 class="section-title">{{ currentTab }}</h3>
-          <p class="section-desc">此功能即将推出...</p>
+          <p class="section-desc">More settings coming soon...</p>
         </div>
       </div>
     </div>
@@ -346,10 +346,10 @@ const providers = ref<ProviderConfig[]>([]);
 const messageDialog = reactive({
   visible: false,
   type: 'confirm' as 'confirm' | 'alert',
-  title: '提示',
+  title: 'Tip',
   message: '',
-  confirmText: '确定',
-  cancelText: '取消',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
   onConfirm: () => {},
   onCancel: () => {}
 });
@@ -360,8 +360,8 @@ function showConfirm(title: string, message: string): Promise<boolean> {
     messageDialog.type = 'confirm';
     messageDialog.title = title;
     messageDialog.message = message;
-    messageDialog.confirmText = '确定';
-    messageDialog.cancelText = '取消';
+    messageDialog.confirmText = 'Confirm';
+    messageDialog.cancelText = 'Cancel';
     messageDialog.onConfirm = () => {
       messageDialog.visible = false;
       resolve(true);
@@ -380,7 +380,7 @@ function showAlert(title: string, message: string): Promise<void> {
     messageDialog.type = 'alert';
     messageDialog.title = title;
     messageDialog.message = message;
-    messageDialog.confirmText = '确定';
+    messageDialog.confirmText = 'Confirm';
     messageDialog.onConfirm = () => {
       messageDialog.visible = false;
       resolve();
@@ -455,20 +455,20 @@ async function handleAddProvider(provider: ProviderConfig) {
 async function handleDeleteProvider(provider: ProviderConfig) {
   // 如果只有一个供应商，禁止删除
   if (providers.value.length === 1) {
-    await showAlert('无法删除', '至少需要保留一个供应商配置。');
+    await showAlert('Unable to delete', 'At least one provider configuration needs to be retained.');
     return;
   }
 
   // 如果是当前使用的供应商，禁止删除，提示先切换
   if (provider.isActive) {
-    await showAlert('无法删除', '无法删除当前使用的供应商。请先切换到其他供应商后再删除。');
+    await showAlert('Unable to delete', 'You cannot delete the currently used provider. Please switch to another provider before deleting.');
     return;
   }
 
   // 二次确认对话框
-  const confirmMessage = `确定要删除供应商"${provider.name}"吗？\n\n此操作无法撤销。`;
+  const confirmMessage = `Confirm to remove provider "${provider.name}"? \n\nThis operation cannot be undone.`;
 
-  const confirmed = await showConfirm('删除供应商', confirmMessage);
+  const confirmed = await showConfirm('Remove provider', confirmMessage);
   if (!confirmed) {
     return;
   }
@@ -478,7 +478,7 @@ async function handleDeleteProvider(provider: ProviderConfig) {
     providers.value = providerStore.providers;
   } catch (error) {
     console.error('Failed to delete provider:', error);
-    await showAlert('错误', `删除供应商失败: ${error}`);
+    await showAlert('Error', `Failed to delete supplier: ${error}`);
   }
 }
 
@@ -498,10 +498,10 @@ async function handleSwitchProvider(id: string) {
       }
     }
 
-    await showAlert('成功', '供应商切换成功！会话已自动重启');
+    await showAlert('Success', 'Provider switch successful! Session has been automatically restarted');
   } catch (error) {
     console.error('Failed to switch provider:', error);
-    await showAlert('错误', `切换供应商失败: ${error}`);
+    await showAlert('Error', `Failed to switch provider: ${error}`);
   }
 }
 
@@ -512,18 +512,18 @@ async function handleDeleteFromEdit(id: string) {
 
   // 如果只有一个供应商，禁止删除
   if (providers.value.length === 1) {
-    await showAlert('无法删除', '至少需要保留一个供应商配置。');
+    await showAlert('Cannot be deleted', 'At least one provider configuration must be retained');
     return;
   }
 
   // 如果是当前使用的供应商，禁止删除，提示先切换
   if (provider.isActive) {
-    await showAlert('无法删除', '无法删除当前使用的供应商。请先切换到其他供应商后再删除。');
+    await showAlert('Unable to delete', 'Unable to delete the currently used provider. Please switch to another provider before deleting.');
     return;
   }
 
-  const confirmMessage = `确定要删除供应商"${provider.name}"吗？\n\n此操作无法撤销。`;
-  const confirmed = await showConfirm('删除供应商', confirmMessage);
+  const confirmMessage = `Are you sure you want to remove provider "${provider.name}"? \n\nThis operation cannot be undone. `;
+  const confirmed = await showConfirm('Delete Provider', confirmMessage);
 
   if (confirmed) {
     try {
@@ -532,14 +532,14 @@ async function handleDeleteFromEdit(id: string) {
       showEditDialog.value = false;
     } catch (error) {
       console.error('Failed to delete provider:', error);
-      await showAlert('错误', `删除供应商失败: ${error}`);
+      await showAlert('Error', `Failed to remove provider: ${error}`);
     }
   }
 }
 
 // 处理测试连接
 async function handleTestConnection() {
-  await showAlert('提示', '连接测试功能即将推出！');
+  await showAlert('Alert', 'Connection testing feature coming soon!');
 }
 </script>
 
@@ -1434,3 +1434,10 @@ async function handleTestConnection() {
   }
 }
 </style>
+
+
+
+
+
+
+

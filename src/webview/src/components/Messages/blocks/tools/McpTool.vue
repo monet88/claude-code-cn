@@ -11,29 +11,29 @@
     </template>
 
     <template #expandable>
-      <!-- 输入参数 -->
+      <!-- Input parameters -->
       <div v-if="hasInput" class="mcp-section">
         <div class="section-header">
           <span class="codicon codicon-symbol-parameter"></span>
-          <span>输入</span>
+          <span>Input</span>
         </div>
         <pre class="json-content">{{ formattedInput }}</pre>
       </div>
 
-      <!-- 输出结果 -->
+      <!-- Output result -->
       <div v-if="hasOutput" class="mcp-section">
         <div class="section-header">
           <span class="codicon codicon-output"></span>
-          <span>输出</span>
+          <span>Output</span>
         </div>
         <pre class="json-content">{{ formattedOutput }}</pre>
       </div>
 
-      <!-- 错误信息 -->
+      <!-- Error information -->
       <div v-if="toolResult?.is_error" class="error-section">
         <div class="section-header">
           <span class="codicon codicon-error"></span>
-          <span>错误</span>
+          <span>Error</span>
         </div>
         <pre class="error-content">{{ errorMessage }}</pre>
       </div>
@@ -53,7 +53,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// 解析MCP工具名称: mcp__<server>__<tool>
+// Parse MCP tool name: mcp__<server>__<tool>
 const mcpParts = computed(() => {
   const name = props.toolUse?.name || '';
   const parts = name.split('__');

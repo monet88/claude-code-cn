@@ -321,17 +321,24 @@ export class ClaudeSdkService implements IClaudeSdkService {
         // 获取当前激活的 provider 配置并 overlay
         try {
             const activeProvider = await this.ccSwitchSettingsService.getActiveClaudeProvider();
-            if (activeProvider?.settingsConfig?.env) {
-                const providerEnv = activeProvider.settingsConfig.env;
-                this.logService.info('[ClaudeSdkService] Overlay provider env variables:');
-                for (const [key, value] of Object.entries(providerEnv)) {
-                    if (value !== undefined && value !== '') {
-                        env[key] = value;
-                        // 不要 log API key 完整值
-                        if (key.includes('TOKEN') || key.includes('KEY')) {
-                            this.logService.info(`  - ${key}: ***${value.slice(-4)}`);
-                        } else {
-                            this.logService.info(`  - ${key}: ${value}`);
+            if (activeProvider?.settingsConfig) {
+                const settingsConfig = activeProvider.settingsConfig;
+                
+                this.logService.info(`[ClaudeSdkService] Active provider: ${activeProvider.name} (${activeProvider.id})`);
+                this.logService.info(`[ClaudeSdkService] Provider settingsConfig keys: ${Object.keys(settingsConfig).join(', ')}`);
+
+                // Overlay env variables (唯一需要特殊处理的字段)
+                if (settingsConfig.env && typeof settingsConfig.env === 'object') {
+                    this.logService.info('[ClaudeSdkService] Overlay provider env variables:');
+                    for (const [key, value] of Object.entries(settingsConfig.env)) {
+                        if (value !== undefined && value !== '') {
+                            env[key] = String(value);
+                            // 不要 log 敏感信息完整值
+                            if (key.includes('TOKEN') || key.includes('KEY') || key.includes('SECRET')) {
+                                this.logService.info(`  - ${key}: ***${String(value).slice(-4)}`);
+                            } else {
+                                this.logService.info(`  - ${key}: ${value}`);
+                            }
                         }
                     }
                 }

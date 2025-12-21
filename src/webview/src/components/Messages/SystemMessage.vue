@@ -1,6 +1,6 @@
 <template>
   <div class="system-message">
-    <div class="system-message-label">系统</div>
+    <div class="system-message-label">System</div>
     <div class="system-message-content">
       {{ content }}
     </div>
@@ -14,7 +14,7 @@ import type { ToolContext } from '../../types/tool';
 
 interface Props {
   message: Message;
-  context?: ToolContext; // MessageRenderer 会传递，需声明以避免渲染到 DOM
+  context?: ToolContext; // MessageRenderer will pass this; declare to avoid rendering to DOM
 }
 
 const props = defineProps<Props>();
@@ -23,7 +23,7 @@ const content = computed(() => {
   if (typeof props.message.message.content === 'string') {
     return props.message.message.content;
   }
-  return props.message.subtype === 'init' ? '会话已初始化' : '系统消息';
+  return props.message.subtype === 'init' ? 'Conversation initialized' : 'System message';
 });
 </script>
 

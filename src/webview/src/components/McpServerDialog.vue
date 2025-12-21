@@ -2,10 +2,10 @@
   <div class="dialog-overlay" @click.self="$emit('close')">
     <div class="dialog">
       <div class="dialog-header">
-        <h3>手动配置</h3>
+        <h3>Manual Configuration</h3>
         <div class="header-actions">
           <button class="mode-btn" :class="{ active: true }">
-            原始配置（JSON）
+            Raw configuration (JSON)
           </button>
           <button class="close-btn" @click="$emit('close')">
             <span class="codicon codicon-close"></span>
@@ -15,7 +15,7 @@
 
       <div class="dialog-body">
         <p class="dialog-desc">
-          请输入 MCP Servers 配置 JSON（优先使用 NPX 或 UVX 配置）
+          Enter MCP Servers configuration JSON (prefer NPX or UVX setups)
         </p>
 
         <div class="json-editor">
@@ -42,13 +42,13 @@
       <div class="dialog-footer">
         <div class="footer-hint">
           <span class="codicon codicon-info"></span>
-          配置前请自行确认来源，甄别风险
+          Verify the source and assess risks before applying the configuration
         </div>
         <div class="footer-actions">
-          <button class="btn btn-secondary" @click="$emit('close')">取消</button>
+          <button class="btn btn-secondary" @click="$emit('close')">Cancel</button>
           <button class="btn btn-primary" @click="handleConfirm" :disabled="!isValid || saving">
             <span v-if="saving" class="codicon codicon-loading codicon-modifier-spin"></span>
-            {{ saving ? '保存中...' : '确认' }}
+            {{ saving ? 'Saving...' : 'Confirm' }}
           </button>
         </div>
       </div>
@@ -70,14 +70,14 @@ const emit = defineEmits<{
   save: [server: McpServer];
 }>();
 
-// 状态
+// Status
 const saving = ref(false);
 const jsonContent = ref('');
 const parseError = ref('');
 const editorRef = ref<HTMLTextAreaElement | null>(null);
 
-// 示例占位符
-const placeholder = `// 示例:
+// Placeholder example
+const placeholder = `// Example:
 // {
 //   "mcpServers": {
 //     "example-server": {
@@ -90,16 +90,16 @@ const placeholder = `// 示例:
 //   }
 // }`;
 
-// 计算行数
+// Count lines
 const lineCount = computed(() => {
   const content = jsonContent.value || placeholder;
   return Math.max(content.split('\n').length, 12);
 });
 
-// 验证 JSON 是否有效
+// Validate JSON
 const isValid = computed(() => {
   if (!jsonContent.value.trim()) return false;
-  // 移除注释行
+  // Remove comment lines
   const cleanedContent = jsonContent.value
     .split('\n')
     .filter(line => !line.trim().startsWith('//'))
@@ -107,11 +107,11 @@ const isValid = computed(() => {
   if (!cleanedContent.trim()) return false;
   try {
     const parsed = JSON.parse(cleanedContent);
-    // 验证结构
+    // Validate the structure
     if (parsed.mcpServers && typeof parsed.mcpServers === 'object') {
       return Object.keys(parsed.mcpServers).length > 0;
     }
-    // 直接是服务器配置 (有 command 或 url)
+    // Direct server configuration (has command or url)
     if (parsed.command || parsed.url) {
       return true;
     }
@@ -121,12 +121,12 @@ const isValid = computed(() => {
   }
 });
 
-// 处理输入
+// Process input
 function handleInput() {
   parseError.value = '';
 }
 
-// 处理 Tab 键
+// Handle Tab key
 function handleTab(e: KeyboardEvent) {
   const textarea = editorRef.value;
   if (!textarea) return;
@@ -142,10 +142,10 @@ function handleTab(e: KeyboardEvent) {
   });
 }
 
-// 解析 JSON 配置
+// Parse JSON configuration
 function parseConfig(): McpServer[] | null {
   try {
-    // 移除注释行
+    // Remove comment lines
     const cleanedContent = jsonContent.value
       .split('\n')
       .filter(line => !line.trim().startsWith('//'))
@@ -154,12 +154,12 @@ function parseConfig(): McpServer[] | null {
     const parsed = JSON.parse(cleanedContent);
     const servers: McpServer[] = [];
 
-    // mcpServers 格式
+    // mcpServers format
     if (parsed.mcpServers && typeof parsed.mcpServers === 'object') {
       for (const [id, config] of Object.entries(parsed.mcpServers)) {
-        // 检查 ID 是否已存在（编辑模式除外）
+        // Check if the ID already exists (except in edit mode)
         if (!props.server && props.existingIds?.includes(id)) {
-          parseError.value = `服务器 ID "${id}" 已存在`;
+          parseError.value = `Server ID "${id}" already exists`;
           return null;
         }
 
@@ -186,7 +186,7 @@ function parseConfig(): McpServer[] | null {
         servers.push(server);
       }
     }
-    // 直接服务器配置格式
+    // Direct server configuration format
     else if (parsed.command || parsed.url) {
       const id = `server-${Date.now()}`;
       const server: McpServer = {
@@ -212,25 +212,25 @@ function parseConfig(): McpServer[] | null {
     }
 
     if (servers.length === 0) {
-      parseError.value = '无法识别的配置格式';
+      parseError.value = 'Unrecognized configuration format.';
       return null;
     }
 
     return servers;
   } catch (e) {
-    parseError.value = `JSON 解析错误: ${(e as Error).message}`;
+    parseError.value = `JSON parse error: ${(e as Error).message}`;
     return null;
   }
 }
 
-// 确认保存
+// Confirm save
 async function handleConfirm() {
   const servers = parseConfig();
   if (!servers) return;
 
   saving.value = true;
   try {
-    // 逐个保存服务器
+    // Save servers one by one
     for (const server of servers) {
       emit('save', server);
     }
@@ -239,10 +239,10 @@ async function handleConfirm() {
   }
 }
 
-// 初始化编辑模式
+// Initialize edit mode
 onMounted(() => {
   if (props.server) {
-    // 编辑模式：转换为 JSON 格式
+    // Edit mode: convert to JSON format
     const config: any = {
       mcpServers: {
         [props.server.id]: {
@@ -465,7 +465,7 @@ onMounted(() => {
   background: var(--vscode-list-hoverBackground);
 }
 
-/* 加载动画 */
+/* Loading animation */
 .codicon-modifier-spin {
   animation: spin 1s linear infinite;
 }
@@ -479,7 +479,7 @@ onMounted(() => {
   }
 }
 
-/* 响应式适配 */
+/* Responsive tweaks */
 @media (max-width: 480px) {
   .dialog {
     width: 95%;

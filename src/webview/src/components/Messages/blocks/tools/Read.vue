@@ -68,13 +68,13 @@ const lineRangeLabel = computed(() => {
   if (offset.value !== undefined && limit.value !== undefined) {
     const start = offset.value + 1;
     const end = offset.value + limit.value;
-    return `读取第 ${start}-${end} 行`;
+    return `Read lines ${start}-${end}`;
   } else if (offset.value !== undefined) {
-    return `从第 ${offset.value + 1} 行开始读取`;
+    return `Read from line ${offset.value + 1}`;
   } else if (limit.value !== undefined) {
-    return `读取第 1-${limit.value} 行`;
+    return `Read lines 1-${limit.value}`;
   } else {
-    return '读取';
+    return 'Read';
   }
 });
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible && filesEdited.length > 0" class="file-edited-section">
-    <!-- Files Edited 头部 -->
+    <!-- Files Edited header -->
     <div
       style="display: flex; justify-content: space-between; align-items: center; height: 24px; cursor: pointer;"
       @click="toggleExpanded"
@@ -12,7 +12,7 @@
           style="color: var(--vscode-foreground); opacity: 0.6; font-size: 12px;"
         />
         <div style="font-size: 12px; color: var(--vscode-input-placeholderForeground); opacity: 0.8;">
-          <span>{{ filesEdited.length }} 个文件已编辑</span>
+          <span>{{ filesEdited.length }} files edited</span>
           <span style="margin-left: 8px;">
             <span style="color: var(--vscode-gitDecoration-addedResourceForeground);">+{{ totalAdditions }}</span>
             <span style="color: var(--vscode-gitDecoration-deletedResourceForeground); margin-left: 6px;">-{{ totalDeletions }}</span>
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <!-- Files列表 (当展开时) -->
+    <!-- Files list (expanded) -->
     <div
       v-if="expanded"
       style="padding: 4px 0;"

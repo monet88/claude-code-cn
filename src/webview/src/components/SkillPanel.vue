@@ -1,25 +1,25 @@
 <template>
   <div class="skill-panel">
-    <!-- 工具栏：筛选和搜索 -->
+    <!-- Toolbar: filter and search -->
     <div class="toolbar">
       <div class="filter-tabs">
         <div
           :class="['tab-item', { active: currentFilter === 'all' }]"
           @click="currentFilter = 'all'"
         >
-          全部 <span class="count-badge">{{ skillStore.totalCount }}</span>
+          All <span class="count-badge">{{ skillStore.totalCount }}</span>
         </div>
         <div
           :class="['tab-item', { active: currentFilter === 'global' }]"
           @click="currentFilter = 'global'"
         >
-          全局 <span class="count-badge">{{ skillStore.globalCount }}</span>
+          Global <span class="count-badge">{{ skillStore.globalCount }}</span>
         </div>
         <div
           :class="['tab-item', { active: currentFilter === 'local' }]"
           @click="currentFilter = 'local'"
         >
-          本项目 <span class="count-badge">{{ skillStore.localCount }}</span>
+          Local <span class="count-badge">{{ skillStore.localCount }}</span>
         </div>
       </div>
 
@@ -29,28 +29,28 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="搜索 Skills..."
+            placeholder="Search Skills..."
             class="search-input"
           />
         </div>
 
         <div class="add-dropdown" ref="dropdownRef">
-          <button class="action-btn primary" @click="toggleDropdown" title="导入 Skill">
+          <button class="action-btn primary" @click="toggleDropdown" title="Import Skill">
             <span class="codicon codicon-add"></span>
           </button>
           <div v-if="showDropdown" class="dropdown-menu">
             <div class="dropdown-item" @click="handleImport('global')">
               <span class="codicon codicon-globe"></span>
-              导入到全局
+              Import to Global
             </div>
             <div class="dropdown-item" @click="handleImport('local')">
               <span class="codicon codicon-desktop-download"></span>
-              导入到本项目
+              Import to Local
             </div>
           </div>
         </div>
 
-        <button class="action-btn" @click="handleRefresh" :disabled="skillStore.loading" title="刷新">
+        <button class="action-btn" @click="handleRefresh" :disabled="skillStore.loading" title="Refresh">
              <span :class="['codicon', 'codicon-refresh', { 'spinning': skillStore.loading }]"></span>
         </button>
       </div>
@@ -74,7 +74,7 @@
                     <span class="skill-name">{{ skill.name }}</span>
                     <span :class="['scope-badge', skill.scope]">
                         <span :class="['codicon', skill.scope === 'global' ? 'codicon-globe' : 'codicon-desktop-download']"></span>
-                        {{ skill.scope === 'global' ? '全局' : '本项目' }}
+                        {{ skill.scope === 'global' ? 'Global' : 'Local' }}
                     </span>
                 </div>
                 <div class="skill-path" :title="skill.path">{{ skill.path }}</div>
@@ -89,20 +89,20 @@
           <div v-if="expandedSkills.has(skill.id)" class="card-content">
             <div class="info-section">
               <div class="description-container" v-if="skill.description">
-                <div class="description-label">描述:</div>
+                <div class="description-label">Description:</div>
                 <div class="description-content">{{ skill.description }}</div>
               </div>
               <div v-else class="description-placeholder">
-                暂无描述
+                No description
               </div>
             </div>
 
              <div class="actions-section">
                   <button class="action-btn edit-btn" @click.stop="handleOpen(skill)">
-                      <span class="codicon codicon-edit"></span> 编辑
+                      <span class="codicon codicon-edit"></span> Edit
                   </button>
                   <button class="action-btn delete-btn" @click.stop="handleDelete(skill)">
-                      <span class="codicon codicon-trash"></span> 删除
+                      <span class="codicon codicon-trash"></span> Delete
                   </button>
              </div>
           </div>
@@ -110,13 +110,13 @@
 
         <!-- 空状态 -->
         <div v-if="filteredSkills.length === 0 && !skillStore.loading" class="empty-state">
-            <p>未找到匹配的 Skills</p>
+            <p>No matching Skills found</p>
         </div>
 
         <!-- 加载状态 -->
         <div v-if="skillStore.loading && filteredSkills.length === 0" class="loading-state">
           <span class="codicon codicon-loading codicon-modifier-spin"></span>
-          <p>加载中...</p>
+          <p>Loading...</p>
         </div>
     </div>
 
@@ -177,10 +177,10 @@ const filteredSkills = computed(() => {
 const confirmDialog = reactive({
   visible: false,
   type: 'confirm' as 'confirm' | 'alert',
-  title: '提示',
+  title: 'Confirm',
   message: '',
-  confirmText: '确定',
-  cancelText: '取消',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
   onConfirm: () => {},
   onCancel: () => {}
 });
@@ -230,10 +230,10 @@ function handleClickOutside(event: MouseEvent) {
   }
 }
 
-// 刷新
+// Refresh
 async function handleRefresh() {
   await skillStore.loadSkills();
-  toastStore.success('已刷新 Skills 列表');
+  toastStore.success('Skills list refreshed');
 }
 
 // 导入 Skill
@@ -246,54 +246,54 @@ async function handleImport(scope: SkillScope) {
     const count = result.count || 0;
     const total = result.total || 0;
 
-    // 如果有导入失败的项目
+    // If there are failed imports
     if (result.errors && result.errors.length > 0) {
       const errorMsg = result.errors.map((e: any) => `• ${e.path}: ${e.error}`).join('\n');
       await showAlert(
-        '部分导入失败',
-        `成功导入 ${count}/${total} 个到${scopeName} Skills\n\n失败的项目:\n${errorMsg}`
+        'Partial import failed',
+        `Successfully imported ${count}/${total} to ${scopeName} Skills\n\nFailed projects:\n${errorMsg}`
       );
     } else {
-      // 全部成功
+      // All successful
       if (count === 1) {
-        toastStore.success(`已导入 1 个到${scopeName} Skills`);
+        toastStore.success(`Successfully imported 1 to ${scopeName} Skills`);
       } else {
-        toastStore.success(`已成功导入 ${count} 个到${scopeName} Skills`);
+        toastStore.success(`Successfully imported ${count} to ${scopeName} Skills`);
       }
     }
   } else {
-    await showAlert('导入失败', result.error || '导入 Skill 失败');
+    await showAlert('Import failed', result.error || 'Failed to import Skill');
   }
 }
 
-// 在编辑器中打开 Skill
+// In editor
 async function handleOpen(skill: Skill) {
   const result = await skillStore.openSkill(skill.path);
   if (!result.success) {
-    await showAlert('打开失败', result.error || '无法在编辑器中打开 Skill');
+    await showAlert('Open failed', result.error || 'Failed to open Skill in editor');
   }
 }
 
-// 删除 Skill
+// Delete Skill
 async function handleDelete(skill: Skill) {
-  const scopeName = skill.scope === 'global' ? '全局' : '本项目';
+  const scopeName = skill.scope === 'global' ? 'Global' : 'Local';
   const confirmed = await showConfirm(
-    '删除 Skill',
-    `确定要删除${scopeName} Skill "${skill.name}" 吗？\n\n此操作无法撤销。`
+    'Delete Skill',
+    `Are you sure you want to delete ${scopeName} Skill "${skill.name}"?\n\nThis action cannot be undone.`
   );
 
   if (confirmed) {
     const result = await skillStore.deleteSkill(skill.id, skill.scope);
     if (result.success) {
       expandedSkills.value.delete(skill.id);
-      toastStore.success(`已删除${scopeName} Skill「${skill.name}」`);
+      toastStore.success(`Successfully deleted ${scopeName} Skill「${skill.name}」`);
     } else {
-      await showAlert('删除失败', result.error || '删除 Skill 失败');
+      await showAlert('Delete failed', result.error || 'Failed to delete Skill');
     }
   }
 }
 
-// 格式化日期
+// Format date
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN', {
@@ -305,14 +305,14 @@ function formatDate(dateString: string): string {
   });
 }
 
-// 显示确认对话框
+// Show confirm dialog
 function showConfirm(title: string, message: string): Promise<boolean> {
   return new Promise((resolve) => {
     confirmDialog.type = 'confirm';
     confirmDialog.title = title;
     confirmDialog.message = message;
-    confirmDialog.confirmText = '确定';
-    confirmDialog.cancelText = '取消';
+    confirmDialog.confirmText = 'Confirm';
+    confirmDialog.cancelText = 'Cancel';
     confirmDialog.onConfirm = () => {
       confirmDialog.visible = false;
       resolve(true);
@@ -325,13 +325,13 @@ function showConfirm(title: string, message: string): Promise<boolean> {
   });
 }
 
-// 显示提示对话框
+// Show alert dialog
 function showAlert(title: string, message: string): Promise<void> {
   return new Promise((resolve) => {
     confirmDialog.type = 'alert';
     confirmDialog.title = title;
     confirmDialog.message = message;
-    confirmDialog.confirmText = '确定';
+    confirmDialog.confirmText = 'Confirm';
     confirmDialog.onConfirm = () => {
       confirmDialog.visible = false;
       resolve();

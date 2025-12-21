@@ -5,7 +5,7 @@
     :default-expanded="shouldExpand"
   >
     <template #main>
-      <span class="tool-label">笔记本编辑</span>
+      <span class="tool-label">Notebook Edit</span>
       <ToolFilePath v-if="notebookPath" :file-path="notebookPath" :context="context" />
       <span v-if="editMode" class="mode-badge" :class="`mode-${editMode}`">{{ editMode }}</span>
     </template>
@@ -13,17 +13,17 @@
     <template #expandable>
       <!-- Cell ID -->
       <div v-if="cellId" class="info-row">
-        <span class="info-label">单元格ID:</span>
+        <span class="info-label">Cell ID:</span>
         <span class="info-value">{{ cellId }}</span>
       </div>
 
       <!-- New Source Content -->
       <div v-if="newSource" class="source-section">
-        <div class="section-label">新内容</div>
+        <div class="section-label">New Content</div>
         <pre class="source-content">{{ newSource }}</pre>
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>
@@ -45,7 +45,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Notebook路径
+// Notebook path
 const notebookPath = computed(() => {
   return props.toolUse?.input?.notebook_path || props.toolUseResult?.notebook_path;
 });
@@ -65,19 +65,19 @@ const newSource = computed(() => {
   return props.toolUse?.input?.new_source || props.toolUseResult?.new_source;
 });
 
-// 判断是否为权限请求阶段
+// Determine if it is a permission request stage
 const isPermissionRequest = computed(() => {
   const hasToolUseResult = !!props.toolUseResult;
   const hasToolResult = !!props.toolResult && !props.toolResult.is_error;
   return !hasToolUseResult && !hasToolResult;
 });
 
-// 权限请求阶段默认展开,执行完成后不展开
+// Only expand by default in the permission request stage, do not expand after execution
 const shouldExpand = computed(() => {
-  // 权限请求阶段展开
+  // Permission request stage expand
   if (isPermissionRequest.value) return true;
 
-  // 有错误时展开
+  // Expand when there is an error
   if (props.toolResult?.is_error) return true;
 
   return false;

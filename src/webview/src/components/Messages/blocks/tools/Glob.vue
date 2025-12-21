@@ -4,22 +4,22 @@
     :tool-result="toolResult"
   >
     <template #main>
-      <span class="tool-label">全局搜索</span>
+      <span class="tool-label">Global search</span>
       <code v-if="pattern" class="pattern-text">{{ pattern }}</code>
     </template>
 
-    <!-- 展开内容：显示详细信息 -->
+    <!-- Expandable content: display detailed information -->
     <template #expandable>
-      <!-- 搜索路径 -->
+      <!-- Search path -->
       <div v-if="globPath" class="detail-item">
-        <span class="detail-label">搜索路径:</span>
+        <span class="detail-label">Search path:</span>
         <span class="detail-value">{{ globPath }}</span>
       </div>
 
-      <!-- 搜索结果列表 -->
+      <!-- Search result list -->
       <div v-if="resultFiles.length > 0" class="detail-item">
         <div class="detail-label">
-          <span>找到 {{ fileCount }} 个文件:</span>
+          <span>Found {{ fileCount }} files:</span>
         </div>
         <div class="file-list">
           <ToolFilePath
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>

@@ -1,6 +1,5 @@
 <template>
-  <!-- 根据 block.type 选择性传递 wrapper -->
-  <!-- 只有 tool_use 需要 wrapper 来访问 toolResult Signal -->
+  <!-- Only pass wrapper to tool_use blocks to access toolResult Signal -->
   <component
     v-if="block.type === 'tool_use'"
     :is="blockComponent"
@@ -8,7 +7,7 @@
     :wrapper="wrapper"
     :context="context"
   />
-  <!-- 其他类型不需要 wrapper，避免渲染到 DOM -->
+  <!-- Other types do not need wrapper, avoid rendering to DOM -->
   <component
     v-else
     :is="blockComponent"
@@ -23,7 +22,7 @@ import type { ContentBlockType } from '../../models/ContentBlock';
 import type { ContentBlockWrapper } from '../../models/ContentBlockWrapper';
 import type { ToolContext } from '../../types/tool';
 
-// 导入所有内容块组件
+// Import all content block components
 import TextBlock from './blocks/TextBlock.vue';
 import ThinkingBlock from './blocks/ThinkingBlock.vue';
 import ImageBlock from './blocks/ImageBlock.vue';
@@ -44,7 +43,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// 根据 block.type 选择对应的组件
+// Select the corresponding component based on block.type
 const blockComponent = computed(() => {
   switch (props.block.type) {
     case 'text':

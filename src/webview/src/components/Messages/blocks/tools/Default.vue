@@ -42,12 +42,12 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// 工具名称
+// Tool name
 const toolName = computed(() => {
-  return props.toolUse?.name || '未知工具';
+  return props.toolUse?.name || 'Unknown tool';
 });
 
-// 获取输入参数
+// Get input parameters
 const input = computed(() => {
   // 优先使用 toolUseResult (会话加载)
   if (props.toolUseResult?.input) {

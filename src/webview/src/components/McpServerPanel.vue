@@ -1,45 +1,45 @@
 <template>
   <div class="mcp-panel">
-    <!-- 头部 -->
+    <!-- Header -->
     <div class="panel-header">
       <div class="header-left">
         <span class="header-title">MCP</span>
-        <button class="help-btn" @click="showHelp" title="什么是 MCP?">
+        <button class="help-btn" @click="showHelp" title="What is MCP?">
           <span class="codicon codicon-question"></span>
         </button>
       </div>
       <div class="header-right">
-        <button class="refresh-btn" @click="handleRefresh" :disabled="mcpStore.loading" title="刷新服务器状态">
+        <button class="refresh-btn" @click="handleRefresh" :disabled="mcpStore.loading" title="Refresh server status">
           <span :class="['codicon', 'codicon-refresh', { 'spinning': mcpStore.loading }]"></span>
         </button>
         <div class="add-dropdown" ref="dropdownRef">
           <button class="add-btn" @click="toggleDropdown">
             <span class="codicon codicon-add"></span>
-            添加
+            Add
             <span class="codicon codicon-chevron-down"></span>
           </button>
           <div v-if="showDropdown" class="dropdown-menu">
-            <div class="dropdown-item" @click="handleAddManual">
+             <div class="dropdown-item" @click="handleAddManual">
               <span class="codicon codicon-json"></span>
-              手动配置
+               Manual configuration
             </div>
-            <div class="dropdown-item" @click="handleAddFromMarket">
+             <div class="dropdown-item" @click="handleAddFromMarket">
               <span class="codicon codicon-extensions"></span>
-              从 MCP市场 添加
+               Add from MCP Market
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 服务器列表 -->
+    <!-- Server list -->
     <div class="server-list" v-if="!mcpStore.loading || mcpStore.serverList.length > 0">
       <div
         v-for="server in mcpStore.serverList"
         :key="server.id"
         :class="['server-card', { expanded: expandedServers.has(server.id), disabled: !isServerEnabled(server) }]"
       >
-        <!-- 卡片头部 - 始终显示 -->
+        <!-- Card header - always visible -->
         <div class="card-header" @click="toggleExpand(server.id)">
           <div class="header-left-section">
             <span :class="['expand-icon', 'codicon', expandedServers.has(server.id) ? 'codicon-chevron-down' : 'codicon-chevron-right']"></span>
@@ -69,16 +69,16 @@
           </div>
         </div>
 
-        <!-- 展开内容 -->
+        <!-- Expanded content -->
         <div v-if="expandedServers.has(server.id)" class="card-content">
-          <!-- 服务器信息 -->
+          <!-- Server information -->
           <div class="info-section">
             <div class="info-row" v-if="server.description">
-              <span class="info-label">描述:</span>
+              <span class="info-label">Description:</span>
               <span class="info-value">{{ server.description }}</span>
             </div>
             <div class="info-row" v-if="server.server.command">
-              <span class="info-label">命令:</span>
+              <span class="info-label">Command:</span>
               <code class="info-value command">{{ server.server.command }} {{ (server.server.args || []).join(' ') }}</code>
             </div>
             <!-- <div class="info-row" v-else-if="server.server.url">
@@ -87,75 +87,75 @@
             </div> -->
           </div>
 
-          <!-- 标签 -->
+          <!-- Tags -->
           <div class="tags-section" v-if="server.tags && server.tags.length">
             <span v-for="tag in server.tags" :key="tag" class="tag">{{ tag }}</span>
           </div>
 
-          <!-- 操作按钮 -->
+          <!-- Action buttons -->
           <div class="actions-section">
             <button
               class="action-btn check-btn"
               @click="handleCheckStatus(server)"
               :disabled="checkingStatus[server.id]"
-              title="检测连接状态"
+               title="Check connection status"
             >
               <span :class="['codicon', checkingStatus[server.id] ? 'codicon-loading codicon-modifier-spin' : 'codicon-plug']"></span>
-              {{ checkingStatus[server.id] ? '检测中...' : '检测连接' }}
+               {{ checkingStatus[server.id] ? 'Checking...' : 'Check connection' }}
             </button>
             <button
               v-if="server.homepage"
               class="action-btn"
               @click="openUrl(server.homepage!)"
-              title="访问主页"
+               title="Visit homepage"
             >
               <span class="codicon codicon-home"></span>
-              主页
+               Homepage
             </button>
             <button
               v-if="server.docs"
               class="action-btn"
               @click="openUrl(server.docs!)"
-              title="查看文档"
+               title="View documentation"
             >
               <span class="codicon codicon-book"></span>
-              文档
+               Docs
             </button>
             <button
               class="action-btn edit-btn"
               @click="handleEdit(server)"
-              title="编辑配置"
+               title="Edit configuration"
             >
               <span class="codicon codicon-edit"></span>
-              编辑
+               Edit
             </button>
             <button
               class="action-btn delete-btn"
               @click="handleDelete(server)"
-              title="删除服务器"
+               title="Remove server"
             >
               <span class="codicon codicon-trash"></span>
-              删除
+               Delete
             </button>
           </div>
         </div>
       </div>
 
-      <!-- 空状态 -->
+      <!-- Empty state -->
       <div v-if="mcpStore.serverCount === 0 && !mcpStore.loading" class="empty-state">
         <span class="codicon codicon-server"></span>
-        <p>暂无 MCP 服务器</p>
-        <p class="hint">点击"添加"按钮添加服务器</p>
+         <p>No MCP servers yet</p>
+         <p class="hint">Click the "Add" button to create a server</p>
       </div>
     </div>
 
-    <!-- 加载状态 -->
+    <!-- Loading state -->
     <div v-if="mcpStore.loading && mcpStore.serverList.length === 0" class="loading-state">
       <span class="codicon codicon-loading codicon-modifier-spin"></span>
-      <p>加载中...</p>
+       <p>Loading...</p>
     </div>
 
-    <!-- 添加/编辑对话框 -->
+    <!-- Add/Edit dialog -->
     <McpServerDialog
       v-if="showAddDialog || editingServer"
       :server="editingServer"
@@ -164,14 +164,14 @@
       @save="handleSave"
     />
 
-    <!-- 预设选择对话框 -->
+    <!-- Preset selection dialog -->
     <McpPresetDialog
       v-if="showPresetDialog"
       @close="showPresetDialog = false"
       @select="handleSelectPreset"
     />
 
-    <!-- 确认对话框 -->
+    <!-- Confirmation dialog -->
     <MessageDialog
       v-model:visible="confirmDialog.visible"
       :type="confirmDialog.type"
@@ -199,7 +199,7 @@ const mcpStore = useMcpStore();
 const toastStore = useToastStore();
 const runtime = inject(RuntimeKey);
 
-// 状态
+// State
 const showAddDialog = ref(false);
 const showPresetDialog = ref(false);
 const showDropdown = ref(false);
@@ -209,22 +209,22 @@ const serverStatus = ref<Record<string, 'connected' | 'checking' | 'error' | nul
 const checkingStatus = ref<Record<string, boolean>>({});
 const dropdownRef = ref<HTMLElement | null>(null);
 
-// 确认对话框状态
+// Confirm dialog state
 const confirmDialog = reactive({
   visible: false,
   type: 'confirm' as 'confirm' | 'alert',
-  title: '提示',
+  title: 'Notice',
   message: '',
-  confirmText: '确定',
-  cancelText: '取消',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
   onConfirm: () => {},
   onCancel: () => {}
 });
 
-// 计算已存在的 ID 列表
+// Compute existing ID list
 const existingIds = computed(() => Object.keys(mcpStore.servers));
 
-// 服务器图标颜色
+// Server icon colors
 const iconColors = [
   '#3B82F6', // blue
   '#10B981', // green
@@ -249,12 +249,12 @@ function getServerInitial(server: McpServer): string {
   return name.charAt(0).toUpperCase();
 }
 
-// 获取服务器类型
+// Determine server type
 function getServerType(server: McpServer): string {
   return server.server.type || 'stdio';
 }
 
-// 获取服务器类型标签
+// Get server type label
 function getServerTypeLabel(server: McpServer): string {
   const type = getServerType(server);
   const labels: Record<string, string> = {
@@ -265,9 +265,9 @@ function getServerTypeLabel(server: McpServer): string {
   return labels[type] || type.toUpperCase();
 }
 
-// 判断服务器是否启用
+// Check if the server is enabled
 function isServerEnabled(server: McpServer): boolean {
-  // 优先使用 enabled 字段，如果没有则检查 apps.claude
+  // Prefer the enabled field, falling back to apps.claude
   if (server.enabled !== undefined) {
     return server.enabled;
   }
@@ -275,9 +275,9 @@ function isServerEnabled(server: McpServer): boolean {
 }
 
 /**
- * 重启当前会话以应用 MCP 配置更改
- * @param message 提示消息
- * @param type 提示类型：'success' 启用/添加，'error' 禁用/删除
+ * Restart the current session to apply MCP configuration changes
+ * @param message Notification message
+ * @param type Notification type: 'success' for enable/add, 'error' for disable/remove
  */
 async function restartSessionForMcp(message: string, type: 'success' | 'error' = 'success') {
   const activeSession = runtime?.sessionStore.activeSession();
@@ -289,10 +289,10 @@ async function restartSessionForMcp(message: string, type: 'success' | 'error' =
       } else {
         toastStore.success(message);
       }
-      console.log('[McpServerPanel] 会话已重启，MCP 配置已生效');
+      console.log('[McpServerPanel] Session restarted; MCP configuration applied');
     } catch (error) {
-      console.warn('[McpServerPanel] 重启会话失败:', error);
-      toastStore.warning('MCP 配置已保存，但会话重启失败，请手动重启');
+      console.warn('[McpServerPanel] Failed to restart session:', error);
+      toastStore.warning('MCP configuration saved but session restart failed; please restart manually.');
     }
   } else {
     if (type === 'error') {
@@ -303,22 +303,22 @@ async function restartSessionForMcp(message: string, type: 'success' | 'error' =
   }
 }
 
-// 获取状态提示
+// Get status tooltip
 function getStatusTitle(serverId: string): string {
   const status = serverStatus.value[serverId];
   switch (status) {
     case 'connected':
-      return '已连接';
+      return 'Connected';
     case 'checking':
-      return '检测中...';
+      return 'Checking...';
     case 'error':
-      return '连接失败';
+      return 'Connection failed';
     default:
       return '';
   }
 }
 
-// 切换展开状态
+// Toggle expansion state
 function toggleExpand(serverId: string) {
   if (expandedServers.value.has(serverId)) {
     expandedServers.value.delete(serverId);
@@ -328,30 +328,30 @@ function toggleExpand(serverId: string) {
   expandedServers.value = new Set(expandedServers.value);
 }
 
-// 切换下拉菜单
+// Toggle dropdown
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-// 点击外部关闭下拉菜单
+// Close dropdown when clicking outside
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     showDropdown.value = false;
   }
 }
 
-// 显示帮助
+// Show help
 function showHelp() {
   showAlert(
-    '什么是 MCP?',
-    'MCP (Model Context Protocol) 是一个让 AI 模型访问外部工具和数据的协议。通过配置 MCP 服务器，您可以为 Claude 扩展更多能力，如访问文件系统、执行代码、查询数据库等。\n\n了解更多: https://modelcontextprotocol.io'
+    'What is MCP?',
+    'MCP (Model Context Protocol) is a framework that enables AI models to reach external tools and data. Configure MCP servers to give Claude capabilities such as file system access, running code, and querying databases.\n\nLearn more: https://modelcontextprotocol.io'
   );
 }
 
-// 刷新
+// Refresh
 async function handleRefresh() {
   await mcpStore.loadServers();
-  // 重新检测所有服务器状态
+  // Recheck all server statuses
   for (const server of mcpStore.serverList) {
     if (isServerEnabled(server)) {
       handleCheckStatus(server, true);
@@ -359,57 +359,57 @@ async function handleRefresh() {
   }
 }
 
-// 手动添加
+// Manual add
 function handleAddManual() {
   showDropdown.value = false;
   showAddDialog.value = true;
 }
 
-// 从 MCP市场 添加
+// Add from MCP Market
 function handleAddFromMarket() {
   showDropdown.value = false;
-  showAlert('提示', 'MCP市场功能暂未开发完成,敬请期待');
+  showAlert('Notice', 'The MCP Market feature is under development. Stay tuned.');
 }
 
-// 从预设添加
+// Add from presets
 function handleAddPreset() {
   showDropdown.value = false;
   showPresetDialog.value = true;
 }
 
-// 选择预设
+// Choose preset
 async function handleSelectPreset(preset: McpPreset) {
   showPresetDialog.value = false;
   const server = mcpStore.createFromPreset(preset);
-  // 如果 ID 已存在，生成唯一 ID
+  // If the ID already exists, generate a unique ID
   if (mcpStore.isIdExists(server.id)) {
     server.id = mcpStore.generateUniqueId(server.id);
   }
   const result = await mcpStore.upsertServer(server);
   if (!result.success) {
-    await showAlert('错误', result.error || '添加失败');
+    await showAlert('Error', result.error || 'Failed to add server');
   } else {
-    // 自动检测服务器
+    // Auto-detect the server
     handleCheckStatus(server, true);
-    // 重启会话以应用 MCP 配置
+    // Restart session to apply MCP configuration
     const serverName = server.name || server.id;
-    await restartSessionForMcp(`已添加 MCP 服务器「${serverName}」`);
+    await restartSessionForMcp(`MCP server "${serverName}" added successfully`);
   }
 }
 
-// 打开 URL
+// Open URL
 function openUrl(url: string) {
   window.open(url, '_blank');
 }
 
-// 显示确认对话框
+// Show confirmation dialog
 function showConfirm(title: string, message: string): Promise<boolean> {
   return new Promise((resolve) => {
     confirmDialog.type = 'confirm';
     confirmDialog.title = title;
     confirmDialog.message = message;
-    confirmDialog.confirmText = '确定';
-    confirmDialog.cancelText = '取消';
+    confirmDialog.confirmText = 'Confirm';
+    confirmDialog.cancelText = 'Cancel';
     confirmDialog.onConfirm = () => {
       confirmDialog.visible = false;
       resolve(true);
@@ -422,13 +422,13 @@ function showConfirm(title: string, message: string): Promise<boolean> {
   });
 }
 
-// 显示提示对话框
+// Show alert dialog
 function showAlert(title: string, message: string): Promise<void> {
   return new Promise((resolve) => {
     confirmDialog.type = 'alert';
     confirmDialog.title = title;
     confirmDialog.message = message;
-    confirmDialog.confirmText = '确定';
+    confirmDialog.confirmText = 'Confirm';
     confirmDialog.onConfirm = () => {
       confirmDialog.visible = false;
       resolve();
@@ -437,12 +437,12 @@ function showAlert(title: string, message: string): Promise<void> {
   });
 }
 
-// 切换服务器启用状态
+// Toggle server enabled state
 async function handleToggleServer(server: McpServer, event: Event) {
   const target = event.target as HTMLInputElement;
   const enabled = target.checked;
 
-  // 更新服务器配置
+  // Update server configuration
   const updatedServer: McpServer = {
     ...server,
     enabled,
@@ -455,28 +455,28 @@ async function handleToggleServer(server: McpServer, event: Event) {
 
   const result = await mcpStore.upsertServer(updatedServer);
   if (!result.success) {
-    // 回滚 checkbox 状态
+    // Roll back checkbox state
     target.checked = !enabled;
-    await showAlert('错误', result.error || '更新失败');
+    await showAlert('Error', result.error || 'Update failed');
   } else {
-    // 重启会话以应用 MCP 配置
+    // Restart session to apply MCP configuration
     const serverName = server.name || server.id;
     const message = enabled
-      ? `已启用 MCP 服务器「${serverName}」`
-      : `已禁用 MCP 服务器「${serverName}」`;
+      ? `Enabled MCP server "${serverName}"`
+      : `Disabled MCP server "${serverName}"`;
     await restartSessionForMcp(message, enabled ? 'success' : 'error');
 
     if (enabled) {
-      // 如果启用了，自动检测连接状态
+      // If enabled, automatically check connection status
       handleCheckStatus(server, true);
     } else {
-      // 如果禁用了，清除状态
+      // If disabled, clear the status
       serverStatus.value[server.id] = null;
     }
   }
 }
 
-// 检测服务器状态
+// Check server status
 async function handleCheckStatus(server: McpServer, silent = false) {
   if (checkingStatus.value[server.id]) return;
 
@@ -484,89 +484,89 @@ async function handleCheckStatus(server: McpServer, silent = false) {
   serverStatus.value[server.id] = 'checking';
 
   try {
-    // 调用 store 的验证方法
+    // Call the store verification method
     const result = await mcpStore.validateServer(server);
 
     if (result.valid) {
       serverStatus.value[server.id] = 'connected';
       if (!silent) {
-        await showAlert('检测成功', `服务器 "${server.name || server.id}" 配置有效`);
+        await showAlert('Success', `Server "${server.name || server.id}" configuration is valid`);
       }
     } else {
       serverStatus.value[server.id] = 'error';
       if (!silent) {
-        await showAlert('检测失败', `服务器配置有问题:\n${result.errors.join('\n')}`);
+        await showAlert('Failure', `Server configuration has issues:\n${result.errors.join('\n')}`);
       }
     }
   } catch (error) {
     serverStatus.value[server.id] = 'error';
     if (!silent) {
-      await showAlert('检测失败', `无法检测服务器状态: ${error}`);
+      await showAlert('Failure', `Unable to detect server status: ${error}`);
     }
   } finally {
     checkingStatus.value[server.id] = false;
   }
 }
 
-// 处理编辑
+// Handle edit
 function handleEdit(server: McpServer) {
   editingServer.value = { ...server };
   showAddDialog.value = true;
 }
 
-// 处理删除
+// Handle delete
 async function handleDelete(server: McpServer) {
   const serverName = server.name || server.id;
   const confirmed = await showConfirm(
-    '删除服务器',
-    `确定要删除服务器 "${serverName}" 吗？\n\n此操作无法撤销。`
+    'Delete Server',
+    `Are you sure you want to delete server "${serverName}"?\n\nThis action cannot be undone.`
   );
 
   if (confirmed) {
     const result = await mcpStore.deleteServer(server.id);
     if (!result.success) {
-      await showAlert('错误', result.error || '删除失败');
+      await showAlert('Error', result.error || 'Failed to delete');
     } else {
-      // 清除相关状态
+      // Clear related state
       expandedServers.value.delete(server.id);
       delete serverStatus.value[server.id];
-      // 重启会话以应用 MCP 配置
-      await restartSessionForMcp(`已删除 MCP 服务器「${serverName}」`, 'error');
+      // Restart session to apply MCP configuration
+      await restartSessionForMcp(`MCP server "${serverName}" removed`, 'error');
     }
   }
 }
 
-// 处理保存
+// Handle save
 async function handleSave(server: McpServer) {
   const isNew = !mcpStore.isIdExists(server.id) || editingServer.value === null;
   const result = await mcpStore.upsertServer(server);
   if (result.success) {
     handleCloseDialog();
-    // 自动检测服务器
+    // Auto-detect the server
     handleCheckStatus(server, true);
-    // 重启会话以应用 MCP 配置
+    // Restart session to apply MCP configuration
     const serverName = server.name || server.id;
     const message = isNew
-      ? `已添加 MCP 服务器「${serverName}」`
-      : `已更新 MCP 服务器「${serverName}」`;
+      ? `Added MCP server "${serverName}"`
+      : `Updated MCP server "${serverName}"`;
     await restartSessionForMcp(message);
   } else {
-    await showAlert('错误', result.error || '保存失败');
+    await showAlert('Error', result.error || 'Failed to save');
   }
 }
 
-// 关闭对话框
+// Close dialog
 function handleCloseDialog() {
   showAddDialog.value = false;
   editingServer.value = null;
 }
 
-// 初始化
+// Initialize
 onMounted(async () => {
   await mcpStore.initialize();
   document.addEventListener('click', handleClickOutside);
 
-  // 自动检测已启用的服务器状态
+  // Automatically check statuses of enabled servers
   for (const server of mcpStore.serverList) {
     if (isServerEnabled(server)) {
       handleCheckStatus(server, true);
@@ -586,7 +586,7 @@ onUnmounted(() => {
   gap: 16px;
 }
 
-/* 头部样式 */
+/* Header styles */
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -657,7 +657,7 @@ onUnmounted(() => {
   animation: spin 1s linear infinite;
 }
 
-/* 下拉菜单 */
+/* Dropdown */
 .add-dropdown {
   position: relative;
 }
@@ -712,14 +712,14 @@ onUnmounted(() => {
   opacity: 0.8;
 }
 
-/* 服务器列表 */
+/* Server list */
 .server-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* 服务器卡片 */
+/* Server cards */
 .server-card {
   border: 1px solid var(--vscode-panel-border);
   border-radius: 8px;
@@ -740,7 +740,7 @@ onUnmounted(() => {
   background: transparent;
 }
 
-/* 卡片头部 */
+/* Card header */
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -820,7 +820,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* Toggle 开关 */
+/* Toggle switch */
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -869,7 +869,7 @@ onUnmounted(() => {
   background-color: #ffffff;
 }
 
-/* 卡片内容 */
+/* Card content */
 .card-content {
   padding: 0 14px 14px 14px;
   border-top: 1px solid var(--vscode-panel-border);
@@ -887,7 +887,7 @@ onUnmounted(() => {
   }
 }
 
-/* 信息区 */
+/* Info section */
 .info-section {
   padding: 12px 0;
 }
@@ -944,7 +944,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* 标签区 */
+/* Tags area */
 .tags-section {
   display: flex;
   flex-wrap: wrap;
@@ -960,7 +960,7 @@ onUnmounted(() => {
   color: var(--vscode-badge-foreground);
 }
 
-/* 操作区 */
+/* Actions area */
 .actions-section {
   display: flex;
   flex-wrap: wrap;
@@ -1017,7 +1017,7 @@ onUnmounted(() => {
   border-color: transparent;
 }
 
-/* 空状态 & 加载状态 */
+/* Empty & loading states */
 .empty-state,
 .loading-state {
   text-align: center;
@@ -1043,7 +1043,7 @@ onUnmounted(() => {
   opacity: 0.8;
 }
 
-/* 动画 */
+/* Animations */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -1057,7 +1057,7 @@ onUnmounted(() => {
   animation: spin 1s linear infinite;
 }
 
-/* 响应式适配 */
+/* Responsive adjustments */
 @media (max-width: 480px) {
   .panel-header {
     flex-wrap: wrap;

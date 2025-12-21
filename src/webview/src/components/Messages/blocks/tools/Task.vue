@@ -5,22 +5,22 @@
     :default-expanded="shouldExpand"
   >
     <template #main>
-      <span class="tool-label">任务</span>
+      <span class="tool-label">Task</span>
       <span v-if="subagentType" class="agent-badge">{{ subagentType }}</span>
       <span v-if="description" class="description-text">{{ description }}</span>
     </template>
 
     <template #expandable>
-      <!-- Prompt内容 -->
+      <!-- Prompt content -->
       <div v-if="prompt" class="prompt-section">
         <div class="section-header">
           <span class="codicon codicon-comment-discussion"></span>
-          <span>提示</span>
+          <span>Prompt</span>
         </div>
         <pre class="prompt-content">{{ prompt }}</pre>
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>
@@ -39,34 +39,34 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// 子代理类型
+// Subagent type
 const subagentType = computed(() => {
   return props.toolUse?.input?.subagent_type || props.toolUseResult?.subagent_type;
 });
 
-// 任务描述
+// Task description
 const description = computed(() => {
   return props.toolUse?.input?.description || props.toolUseResult?.description;
 });
 
-// Prompt内容
+// Prompt content
 const prompt = computed(() => {
   return props.toolUse?.input?.prompt || props.toolUseResult?.prompt;
 });
 
-// 判断是否为权限请求阶段
+// Determine if it is a permission request stage
 const isPermissionRequest = computed(() => {
   const hasToolUseResult = !!props.toolUseResult;
   const hasToolResult = !!props.toolResult && !props.toolResult.is_error;
   return !hasToolUseResult && !hasToolResult;
 });
 
-// 权限请求阶段默认展开,执行完成后不展开
+// Only expand by default in the permission request stage, do not expand after execution
 const shouldExpand = computed(() => {
-  // 权限请求阶段展开
+  // Permission request stage expand
   if (isPermissionRequest.value) return true;
 
-  // 有错误时展开
+  // Expand when there is an error
   if (props.toolResult?.is_error) return true;
 
   return false;

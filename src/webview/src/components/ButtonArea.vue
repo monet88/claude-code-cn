@@ -208,7 +208,7 @@ const props = withDefaults(defineProps<Props>(), {
   showProgress: true,
   progressPercentage: 0,
   thinkingLevel: 'default_on',
-  permissionMode: 'default'
+  permissionMode: 'acceptEdits'
 })
 
 const emit = defineEmits<Emits>()

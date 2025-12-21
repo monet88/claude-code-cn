@@ -5,7 +5,7 @@
         <button class="back-btn" @click="$emit('switchToChat')">
           <span class="codicon codicon-arrow-left"></span>
         </button>
-        <h2 class="page-title">会话历史</h2>
+        <h2 class="page-title">Sessions</h2>
       </div>
       <div class="header-center">
       </div>
@@ -32,7 +32,7 @@
         ref="searchInput"
         v-model="searchQuery"
         type="text"
-        placeholder="搜索 Agent/聊天线程"
+        placeholder="Search agents or sessions"
         class="search-input"
         @keydown.escape="hideSearch"
       >
@@ -42,13 +42,13 @@
       <!-- 加载状态 -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
-        <p>正在加载会话历史...</p>
+        <p>Loading sessions...</p>
       </div>
 
       <!-- 错误状态 -->
       <div v-else-if="error" class="error-state">
         <p class="error-message">{{ error }}</p>
-        <button class="btn-primary" @click="refreshSessions">重试</button>
+        <button class="btn-primary" @click="refreshSessions">Retry</button>
       </div>
 
       <!-- 空状态 -->
@@ -56,9 +56,9 @@
         <div class="empty-icon">
           <Icon icon="comment-discussion" :size="48" />
         </div>
-        <h3>暂无历史会话</h3>
-        <p class="empty-hint">开始与 Claude 对话后，会话历史将出现在这里</p>
-        <button class="btn-primary" @click="startNewChat">开始新对话</button>
+        <h3>No sessions yet</h3>
+        <p class="empty-hint">Start a chat with Claude to create your first session.</p>
+        <button class="btn-primary" @click="startNewChat">Start new chat</button>
       </div>
 
       <!-- 会话列表 -->
@@ -70,12 +70,12 @@
           @click="openSession(session)"
         >
             <div class="session-card-header">
-              <h3 class="session-title">{{ session.summary.value || '新对话' }}</h3>
+              <h3 class="session-title">{{ session.summary.value || 'Untitled session' }}</h3>
               <div class="session-date">{{ formatRelativeTime(session.lastModifiedTime.value) }}</div>
             </div>
 
             <div class="session-meta">
-              <span class="session-messages">{{ session.messageCount.value }} 条消息</span>
+              <span class="session-messages">{{ session.messageCount.value }} messages</span>
               <span v-if="session.sessionId.value" class="session-id">{{ session.sessionId.value }}</span>
             </div>
 
@@ -130,7 +130,7 @@ const filteredSessions = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
   if (query) {
     sessions = sessions.filter(session => {
-      const summary = (session.summary.value || '').toLowerCase();
+      const summary = (session.summary.value || 'Untitled session').toLowerCase();
       const sessionId = (session.sessionId.value || '').toLowerCase();
       return summary.includes(query) || sessionId.includes(query);
     });
@@ -494,3 +494,6 @@ onMounted(() => {
 }
 
 </style>
+
+
+

@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible" class="todo-list-section">
-    <!-- Todo 头部 -->
+    <!-- Todo header -->
     <div
       style="display: flex; align-items: center; height: 24px; cursor: pointer;"
       @click="toggleExpanded"
@@ -12,12 +12,12 @@
           style="color: var(--vscode-foreground); opacity: 0.6; font-size: 12px; transition: transform 0.1s;"
         />
         <div style="font-size: 12px; color: var(--vscode-input-placeholderForeground); opacity: 0.8;">
-          {{ todos.length }} 任务清单
+          {{ todos.length }} Todo List
         </div>
       </div>
     </div>
 
-    <!-- Todo列表 -->
+    <!-- Todo list -->
     <div
       v-if="expanded && todos.length > 0"
       style="height: 190px; overflow: hidden; padding-bottom: 3px;"

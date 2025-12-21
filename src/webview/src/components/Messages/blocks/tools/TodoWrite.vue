@@ -4,7 +4,7 @@
       <div class="todo-list-header-left">
         <div class="todo-list-header-left-title">
           <span class="codicon codicon-checklist todo-list-header-left-title-icon"></span>
-          任务清单
+          Task List
           <span class="todo-count">{{ todos.length }}</span>
         </div>
       </div>

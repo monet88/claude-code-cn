@@ -13,14 +13,14 @@ import { ILogService } from './logService';
 export const IClaudeSettingsService = createDecorator<IClaudeSettingsService>('claudeSettingsService');
 
 /**
- * Claude 配置结构
+ * Claude 配置结构 (动态 ~/.claude/settings.json)
+ * 完全动态，不硬编码任何字段
  */
 export interface ClaudeSettings {
-  env: {
-    ANTHROPIC_AUTH_TOKEN?: string;
-    ANTHROPIC_BASE_URL?: string;
-    [key: string]: string | undefined;
-  };
+  /** 环境变量 - 唯一需要特殊处理的字段 */
+  env?: Record<string, string | undefined>;
+  /** 其他任意配置 - 动态从 settings.json 读取 */
+  [key: string]: any;
 }
 
 /**
@@ -87,9 +87,14 @@ export class ClaudeSettingsService implements IClaudeSettingsService {
         return { env: {} };
       }
 
-      // 读取文件内容
+      // 读取文件内容（保留所有字段）
       const content = await fs.promises.readFile(settingsPath, 'utf-8');
       const settings = JSON.parse(content) as ClaudeSettings;
+
+      // 确保 env 对象存在
+      if (!settings.env) {
+        settings.env = {};
+      }
 
       this.logService.info(`Successfully read Claude settings from: ${settingsPath}`);
       return settings;

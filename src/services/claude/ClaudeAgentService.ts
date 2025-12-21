@@ -88,6 +88,7 @@ export const IClaudeAgentService = createDecorator<IClaudeAgentService>('claudeA
 export interface Channel {
     in: AsyncStream<SDKUserMessage>;  // 输入流：向 SDK 发送用户消息
     query: Query;                      // Query 对象：从 SDK 接收响应
+    permissionMode: PermissionMode;    // 当前权限模式（用于 canUseTool callback）
 }
 
 /**
@@ -290,7 +291,7 @@ export class ClaudeAgentService implements IClaudeAgentService {
                             message.resume || null,
                             message.cwd || this.getCwd(),
                             message.model || null,
-                            message.permissionMode || "default",
+                            message.permissionMode || "acceptEdits",
                             message.thinkingLevel || null
                         );
                         break;
@@ -379,18 +380,31 @@ export class ClaudeAgentService implements IClaudeAgentService {
             // 2. 调用 spawnClaude
             this.logService.info('');
             this.logService.info('📝 步骤 2: 调用 spawnClaude()');
+            // 先创建 channel 对象（permissionMode 可以 runtime 更新）
+            const channel: Channel = {
+                in: inputStream,
+                query: null as any,  // 稍后设置
+                permissionMode: permissionMode as PermissionMode
+            };
+
+            // 存储到 channels Map（提前存储，以便 canUseTool 回调可以访问）
+            this.channels.set(channelId, channel);
+
             const query = await this.spawnClaude(
                 inputStream,
                 resume,
                 async (toolName, input, options) => {
+                    // 从 channel 读取当前 permissionMode（支持 runtime 更新）
+                    const currentMode = this.channels.get(channelId)?.permissionMode;
+
                     // Agent mode (acceptEdits): 自动允许所有工具，类似 --dangerously-skip-permissions
-                    if (permissionMode === 'acceptEdits') {
+                    if (currentMode === 'acceptEdits') {
                         this.logService.info(`🔧 [Agent Mode] 自动允许工具: ${toolName}`);
                         return { behavior: 'allow' as const };
                     }
 
                     // 其他模式：通过 RPC 请求 WebView 确认
-                    this.logService.info(`🔧 工具权限请求: ${toolName}`);
+                    this.logService.info(`🔧 工具权限请求: ${toolName} (mode: ${currentMode})`);
                     return this.requestToolPermission(
                         channelId,
                         toolName,
@@ -403,15 +417,14 @@ export class ClaudeAgentService implements IClaudeAgentService {
                 permissionMode,
                 maxThinkingTokens
             );
+
+            // 更新 channel 的 query
+            channel.query = query;
             this.logService.info('  ✓ spawnClaude() 完成，Query 对象已创建');
 
-            // 3. 存储到 channels Map
+            // 3. Channel 已注册
             this.logService.info('');
-            this.logService.info('📝 步骤 3: 注册 Channel');
-            this.channels.set(channelId, {
-                in: inputStream,
-                query: query
-            });
+            this.logService.info('📝 步骤 3: Channel 已注册');
             this.logService.info(`  ✓ Channel 已注册，当前 ${this.channels.size} 个活跃会话`);
 
             // 4. 启动监听任务：将 SDK 输出转发给客户端
@@ -889,6 +902,10 @@ export class ClaudeAgentService implements IClaudeAgentService {
             throw new Error(`Channel ${channelId} not found`);
         }
 
+        // 更新 channel 的 permissionMode（canUseTool 回调会读取这个值）
+        channel.permissionMode = mode;
+
+        // 同时更新 SDK 的 permissionMode
         await channel.query.setPermissionMode(mode);
         this.logService.info(`[setPermissionMode] Set channel ${channelId} to mode: ${mode}`);
     }
