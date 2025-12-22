@@ -77,7 +77,7 @@ const exitCode = computed(() => {
 });
 
 const outputContent = computed(() => {
-  // 优先使用 toolUseResult（会话加载时）
+  // Prioritize using toolUseResult (when the session loads)
   if (props.toolUseResult) {
     const stdout = props.toolUseResult.stdout || '';
     const stderr = props.toolUseResult.stderr || '';
@@ -93,12 +93,12 @@ const outputContent = computed(() => {
     }
   }
 
-  // 实时对话：从 toolResult.content 获取
+  // Real-time conversation: get from toolResult.content
   if (typeof props.toolResult?.content === 'string') {
-    // 解析 XML 格式的输出
+    // Parse XML formatted output
     const content = props.toolResult.content;
 
-    // 提取 stdout
+    // Extract stdout
     const stdoutMatch = content.match(/<stdout>([\s\S]*?)<\/stdout>/);
     const stderrMatch = content.match(/<stderr>([\s\S]*?)<\/stderr>/);
 
@@ -115,7 +115,7 @@ const outputContent = computed(() => {
       return `[stderr]\n${stderr}`;
     }
 
-    // 如果没有匹配到，返回原始内容
+    // If no match, return original content
     return content;
   }
 
@@ -126,7 +126,7 @@ const hasOutput = computed(() => {
   return !!outputContent.value && !props.toolResult?.is_error;
 });
 
-// 默认展开条件: 有输出或有错误
+// Default expand condition: has output or error
 const shouldExpand = computed(() => {
   return hasOutput.value || !!props.toolResult?.is_error;
 });

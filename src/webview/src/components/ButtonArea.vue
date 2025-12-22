@@ -22,6 +22,7 @@
         <TokenIndicator
           v-if="shouldShowTokenIndicator"
           :percentage="normalizedProgress"
+          :context-window="contextWindow"
         />
 
         <!-- Thinking toggle button (hidden) -->
@@ -183,6 +184,7 @@ interface Props {
   hasInputContent?: boolean
   showProgress?: boolean
   progressPercentage?: number
+  contextWindow?: number
   thinkingLevel?: string
   permissionMode?: PermissionMode
 }
@@ -207,6 +209,7 @@ const props = withDefaults(defineProps<Props>(), {
   hasInputContent: false,
   showProgress: true,
   progressPercentage: 0,
+  contextWindow: 200000,
   thinkingLevel: 'default_on',
   permissionMode: 'acceptEdits'
 })

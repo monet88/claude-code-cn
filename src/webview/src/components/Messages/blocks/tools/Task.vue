@@ -11,15 +11,6 @@
     </template>
 
     <template #expandable>
-      <!-- Prompt content -->
-      <div v-if="prompt" class="prompt-section">
-        <div class="section-header">
-          <span class="codicon codicon-comment-discussion"></span>
-          <span>Prompt</span>
-        </div>
-        <pre class="prompt-content">{{ prompt }}</pre>
-      </div>
-
       <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
@@ -47,11 +38,6 @@ const subagentType = computed(() => {
 // Task description
 const description = computed(() => {
   return props.toolUse?.input?.description || props.toolUseResult?.description;
-});
-
-// Prompt content
-const prompt = computed(() => {
-  return props.toolUse?.input?.prompt || props.toolUseResult?.prompt;
 });
 
 // Always collapse by default - user can click to expand if needed
@@ -84,40 +70,5 @@ const shouldExpand = computed(() => {
   font-size: 0.85em;
   color: color-mix(in srgb, var(--vscode-foreground) 85%, transparent);
   font-style: italic;
-}
-
-.prompt-section {
-  margin-bottom: 12px;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  font-size: 0.85em;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--vscode-foreground) 80%, transparent);
-}
-
-.section-header .codicon {
-  font-size: 14px;
-}
-
-.prompt-content {
-  background-color: color-mix(in srgb, var(--vscode-editor-background) 80%, transparent);
-  border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
-  padding: 8px;
-  margin: 0;
-  font-family: var(--vscode-editor-font-family);
-  color: var(--vscode-editor-foreground);
-  overflow-x: auto;
-  max-height: 400px;
-  overflow-y: auto;
-  font-size: 0.85em;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
 }
 </style>

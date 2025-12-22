@@ -19,16 +19,16 @@ const errorContent = computed(() => {
     return null;
   }
 
-  // 提取错误内容
+  // Extract error content
   const content = props.toolResult.content;
 
-  // 1. 字符串类型：尝试解析 <tool_use_error> 标签，否则直接返回
+  // 1. String type: try to parse <tool_use_error> tag, otherwise return directly
   if (typeof content === 'string') {
     const match = content.match(/<tool_use_error>(.*?)<\/tool_use_error>/s);
     return match ? match[1].trim() : content;
   }
 
-  // 2. 数组类型：提取所有文本内容
+  // 2. Array type: extract all text content
   if (Array.isArray(content)) {
     return content
       .map(item => {
@@ -39,7 +39,7 @@ const errorContent = computed(() => {
       .join('\n');
   }
 
-  // 3. 对象类型：格式化为 JSON
+  // 3. Object type: format as JSON
   if (content && typeof content === 'object') {
     return JSON.stringify(content, null, 2);
   }

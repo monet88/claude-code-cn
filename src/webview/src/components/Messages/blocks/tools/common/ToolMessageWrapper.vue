@@ -1,13 +1,13 @@
 <template>
   <div class="tool-message-wrapper">
-    <!-- 自定义布局模式 -->
+    <!-- Custom layout mode -->
     <template v-if="isCustomLayout">
       <slot name="custom"></slot>
     </template>
 
-    <!-- 标准布局模式 -->
+    <!-- Standard layout mode -->
     <template v-else>
-      <!-- 主信息行 -->
+      <!-- Main info line -->
       <div
         class="main-line"
         :class="{ 'is-expandable': hasExpandableContent }"
@@ -15,7 +15,7 @@
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
       >
-        <!-- 工具图标 -->
+        <!-- Tool icon -->
         <button class="tool-icon-btn" :title="toolName">
           <span
             v-if="!isHovered || !hasExpandableContent"
@@ -32,12 +32,12 @@
           ></span>
         </button>
 
-        <!-- 主内容 -->
+        <!-- Main content -->
         <div class="main-content">
           <slot name="main"></slot>
         </div>
 
-        <!-- 状态指示器 -->
+        <!-- Status indicator -->
         <ToolStatusIndicator
           v-if="indicatorState"
           :state="indicatorState"
@@ -45,13 +45,13 @@
         />
       </div>
 
-      <!-- 展开内容 -->
+      <!-- Expandable content -->
       <div v-if="hasExpandableContent && isExpanded" class="expandable-content">
         <slot name="expandable"></slot>
       </div>
     </template>
 
-    <!-- 权限审批按钮 -->
+    <!-- Permission approval buttons -->
     <div v-if="permissionState === 'pending'" class="permission-actions">
       <button @click.stop="$emit('deny')" class="btn-reject">
         <span>Deny</span>
@@ -90,23 +90,23 @@ defineEmits<{
 
 const slots = useSlots();
 
-// 检测是否有展开内容
+// Check if there is expandable content
 const hasExpandableContent = computed(() => {
   return !!slots.expandable || !!props.toolResult?.is_error;
 });
 
-// 展开状态
+// Expand state
 const userToggled = ref(false);
 const userToggledState = ref(false);
 
 const isExpanded = computed({
   get: () => {
-    // 优先使用用户手动切换的状态
+    // Prefer user manually toggled state
     if (userToggled.value) {
       return userToggledState.value;
     }
-    // 否则根据 defaultExpanded 或错误状态决定
-    return props.defaultExpanded || !!props.toolResult?.is_error;
+    // Otherwise use defaultExpanded (no longer auto-expand on error)
+    return props.defaultExpanded;
   },
   set: (value) => {
     userToggled.value = true;
@@ -116,7 +116,7 @@ const isExpanded = computed({
 
 const isHovered = ref(false);
 
-// 状态计算
+// State calculation
 const indicatorState = computed<'success' | 'error' | 'pending' | null>(() => {
   if (props.toolResult?.is_error) return 'error';
   if (props.permissionState === 'pending') return 'pending';
@@ -124,7 +124,7 @@ const indicatorState = computed<'success' | 'error' | 'pending' | null>(() => {
   return null;
 });
 
-// 切换展开
+// Toggle expand
 function toggleExpand() {
   if (hasExpandableContent.value) {
     isExpanded.value = !isExpanded.value;
@@ -190,7 +190,7 @@ function toggleExpand() {
   border-left: 1px solid var(--vscode-panel-border);
 }
 
-/* 权限审批按钮 */
+/* Permission approval buttons */
 .permission-actions {
   display: flex;
   justify-content: flex-end;

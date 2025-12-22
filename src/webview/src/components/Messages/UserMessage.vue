@@ -49,7 +49,7 @@
             <button
               class="restore-button"
               @click.stop="handleRestore"
-              title="恢复检查点"
+              title="Restore checkpoint"
             >
               <span class="codicon codicon-restore"></span>
             </button>
@@ -147,7 +147,7 @@ function extractAttachments(): AttachmentItem[] {
         fileName: `image.${ext}`,
         mediaType: block.source.media_type || 'image/png',
         data: block.source.data,
-        fileSize: 0, // 历史消息无法获取原始大小
+        fileSize: 0, // History messages cannot get the original size
       });
     } else if (block.type === 'document' && block.source) {
       const title = block.title || 'document';
@@ -272,7 +272,7 @@ onUnmounted(() => {
 
 .message-content.editing {
   z-index: 200;
-  /* 编辑模式下保持与普通模式一致的卡片边框和背景，避免左右抖动 */
+  /* Editing mode, keep the same card border and background as normal mode to avoid left and right shaking */
   border: 1px solid var(--vscode-input-border);
   background-color: var(--vscode-input-background);
 }
@@ -285,7 +285,7 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* 附件预览区域：横向滚动 */
+/* Attachment preview area: horizontal scrolling */
 .attachments-scroll-view {
   display: flex;
   align-items: center;
@@ -296,7 +296,7 @@ onUnmounted(() => {
   scrollbar-width: thin;
 }
 
-/* 附件卡片基础样式 */
+/* Attachment card base style */
 .attachment-card {
   position: relative;
   flex-shrink: 0;
@@ -307,7 +307,7 @@ onUnmounted(() => {
   cursor: default;
 }
 
-/* 图片附件卡片 */
+/* Image attachment card */
 .attachment-card.is-image {
   width: 56px;
   height: 56px;
@@ -323,7 +323,7 @@ onUnmounted(() => {
   display: block;
 }
 
-/* 更多图片计数器 */
+/* More image counter */
 .attachment-card.more-count {
   display: flex;
   align-items: center;
@@ -339,7 +339,7 @@ onUnmounted(() => {
   opacity: 0.9;
 }
 
-/* 文件附件卡片 (Chip 样式) */
+/* File attachment card (Chip style) */
 .attachment-card.is-file {
   display: flex;
   align-items: center;
@@ -363,13 +363,13 @@ onUnmounted(() => {
   text-overflow: ellipsis;
 }
 
-/* 文本区域行 */
+/* Text area row */
 .message-text-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  /* 与输入框单行高度对齐，默认最小 34px */
+  /* Aligns with the single-line height of the input box, minimum default 34px */
   min-height: 34px;
   padding: 0;
   width: 100%;
@@ -393,7 +393,7 @@ onUnmounted(() => {
   flex: 1;
 }
 
-/* restore checkpoint 按钮 */
+/* Restore checkpoint button */
 .restore-button {
   background: transparent;
   border: none;
@@ -408,7 +408,7 @@ onUnmounted(() => {
   cursor: pointer;
   border-radius: 3px;
   transition: all 0.2s ease;
-  opacity: 0; /* 默认隐藏，hover 时显示 */
+  opacity: 0; /* Default hidden, show on hover */
 }
 
 .message-content:hover .restore-button {
@@ -424,7 +424,7 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
-/* 滚动条样式 */
+/* Attachment scroll view scrollbar style */
 .attachments-scroll-view::-webkit-scrollbar {
   height: 4px;
 }

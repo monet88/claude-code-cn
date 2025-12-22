@@ -56,14 +56,14 @@
       </div>
     </div>
 
-    <!-- Skills 列表 -->
+    <!-- Skills list -->
     <div class="skill-list">
         <div
           v-for="skill in filteredSkills"
           :key="skill.id"
           :class="['skill-card', { expanded: expandedSkills.has(skill.id) }]"
         >
-          <!-- 卡片头部 -->
+          <!-- Card header -->
           <div class="card-header" @click="toggleExpand(skill.id)">
              <div class="skill-icon-wrapper" :style="{ color: getIconColor(skill.id) }">
                 <span class="codicon codicon-folder"></span>
@@ -85,7 +85,7 @@
              </div>
           </div>
 
-          <!-- 展开内容 -->
+          <!-- Expanded content -->
           <div v-if="expandedSkills.has(skill.id)" class="card-content">
             <div class="info-section">
               <div class="description-container" v-if="skill.description">
@@ -108,19 +108,19 @@
           </div>
         </div>
 
-        <!-- 空状态 -->
+        <!-- Empty state -->
         <div v-if="filteredSkills.length === 0 && !skillStore.loading" class="empty-state">
             <p>No matching Skills found</p>
         </div>
 
-        <!-- 加载状态 -->
+        <!-- Loading state -->
         <div v-if="skillStore.loading && filteredSkills.length === 0" class="loading-state">
           <span class="codicon codicon-loading codicon-modifier-spin"></span>
           <p>Loading...</p>
         </div>
     </div>
 
-    <!-- 确认对话框 -->
+    <!-- Confirmation dialog -->
     <MessageDialog
       v-model:visible="confirmDialog.visible"
       :type="confirmDialog.type"
@@ -144,14 +144,14 @@ import MessageDialog from './MessageDialog.vue';
 const skillStore = useSkillStore();
 const toastStore = useToastStore();
 
-// 状态
+// State
 const showDropdown = ref(false);
 const expandedSkills = ref<Set<string>>(new Set());
 const dropdownRef = ref<HTMLElement | null>(null);
 const currentFilter = ref<'all' | 'global' | 'local'>('all');
 const searchQuery = ref('');
 
-// 过滤后的 Skills
+// Filtered Skills
 const filteredSkills = computed(() => {
   let skills: Skill[] = [];
   if (currentFilter.value === 'all') {
@@ -173,7 +173,7 @@ const filteredSkills = computed(() => {
   return skills;
 });
 
-// 确认对话框状态
+// Confirmation dialog state
 const confirmDialog = reactive({
   visible: false,
   type: 'confirm' as 'confirm' | 'alert',
@@ -185,7 +185,7 @@ const confirmDialog = reactive({
   onCancel: () => {}
 });
 
-// Skill 图标颜色
+// Skill icon colors
 const iconColors = [
   '#3B82F6', // blue
   '#10B981', // green
@@ -205,25 +205,25 @@ function getIconColor(skillId: string): string {
   return iconColors[Math.abs(hash) % iconColors.length];
 }
 
-// 切换展开状态（手风琴效果：同时只能展开一个）
+// Toggle expand state (accordion effect: only one can be expanded at a time)
 function toggleExpand(skillId: string) {
   if (expandedSkills.value.has(skillId)) {
-    // 如果点击的是已展开的，则关闭它
+    // If clicking on an already expanded item, close it
     expandedSkills.value.delete(skillId);
   } else {
-    // 如果点击的是未展开的，则关闭所有其他的，只展开当前的
+    // If clicking on an unexpanded item, close all others and expand only the current one
     expandedSkills.value.clear();
     expandedSkills.value.add(skillId);
   }
   expandedSkills.value = new Set(expandedSkills.value);
 }
 
-// 切换下拉菜单
+// Toggle dropdown
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-// 点击外部关闭下拉菜单
+// Click outside to close dropdown
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     showDropdown.value = false;
@@ -236,7 +236,7 @@ async function handleRefresh() {
   toastStore.success('Skills list refreshed');
 }
 
-// 导入 Skill
+// Import Skill
 async function handleImport(scope: SkillScope) {
   showDropdown.value = false;
   const result = await skillStore.importSkill(scope);
@@ -266,7 +266,7 @@ async function handleImport(scope: SkillScope) {
   }
 }
 
-// In editor
+// Open Skill in editor
 async function handleOpen(skill: Skill) {
   const result = await skillStore.openSkill(skill.path);
   if (!result.success) {
@@ -340,7 +340,7 @@ function showAlert(title: string, message: string): Promise<void> {
   });
 }
 
-// 初始化
+// Initialize
 onMounted(async () => {
   await skillStore.initialize();
   document.addEventListener('click', handleClickOutside);

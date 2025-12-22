@@ -21,10 +21,10 @@
         :item="{
           id: option.id,
           label: option.label,
-          checked: selectedModel === option.id,
+          checked: selectedTier === option.id,
           type: 'model'
         }"
-        :is-selected="selectedModel === option.id"
+        :is-selected="selectedTier === option.id"
         :index="index"
         @click="(item) => handleModelSelect(item, close)"
       />
@@ -52,40 +52,46 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 const providerStore = useProviderStore()
 
-// Get model options from active provider or use defaults
+// Always show all 3 model tiers - ChatPage handles mapping to actual model IDs
 const modelOptions = computed(() => {
+  return [
+    { id: 'opus', label: 'Opus' },
+    { id: 'sonnet', label: 'Sonnet' },
+    { id: 'haiku', label: 'Haiku' }
+  ]
+})
+
+// Reverse map: convert actual model ID back to tier ID for comparison
+const selectedTier = computed(() => {
+  const modelId = props.selectedModel
+  if (!modelId) return 'sonnet' // Default to sonnet
+  
+  // Check if it's already a tier ID
+  if (['opus', 'sonnet', 'haiku'].includes(modelId)) {
+    return modelId
+  }
+  
+  // Map actual model ID back to tier
   const activeProvider = providerStore.activeProvider
-  const options: Array<{ id: string; label: string }> = []
-
-  // Always add "Default" option first - uses provider's ANTHROPIC_DEFAULT_MODEL
-  options.push({ id: 'default', label: 'Default' })
-
-  if (activeProvider?.haikuModel) {
-    options.push({ id: activeProvider.haikuModel, label: 'Haiku' })
+  if (activeProvider) {
+    if (activeProvider.opusModel === modelId) return 'opus'
+    if (activeProvider.sonnetModel === modelId) return 'sonnet'
+    if (activeProvider.haikuModel === modelId) return 'haiku'
   }
-  if (activeProvider?.sonnetModel) {
-    options.push({ id: activeProvider.sonnetModel, label: 'Sonnet' })
-  }
-  if (activeProvider?.opusModel) {
-    options.push({ id: activeProvider.opusModel, label: 'Opus' })
-  }
-
-  // If provider has mainModel configured, add it as an option
-  if (activeProvider?.mainModel) {
-    options.push({ id: activeProvider.mainModel, label: 'Main' })
-  }
-
-  return options
+  
+  // Fallback: try to detect tier from model ID string
+  const lowerModelId = modelId.toLowerCase()
+  if (lowerModelId.includes('opus')) return 'opus'
+  if (lowerModelId.includes('sonnet')) return 'sonnet'
+  if (lowerModelId.includes('haiku')) return 'haiku'
+  
+  return 'sonnet' // Default to sonnet
 })
 
 // Compute the display name for the model
 const selectedModelLabel = computed(() => {
-  // Handle "default" specially
-  if (props.selectedModel === 'default') {
-    return 'Default'
-  }
-
-  const option = modelOptions.value.find(o => o.id === props.selectedModel)
+  const tier = selectedTier.value
+  const option = modelOptions.value.find(o => o.id === tier)
   if (option) return option.label
 
   // Show model ID if unknown (truncate if too long)

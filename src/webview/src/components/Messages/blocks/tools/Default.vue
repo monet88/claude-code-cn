@@ -9,7 +9,7 @@
     </template>
 
     <template #expandable>
-      <!-- 参数列表 -->
+      <!-- Parameter list -->
       <div v-if="hasParams" class="params-list">
         <div v-for="(value, key) in flatParams" :key="key" class="param-row">
           <span class="param-key">{{ key }}:</span>
@@ -17,13 +17,13 @@
         </div>
       </div>
 
-      <!-- 空参数提示 -->
+      <!-- Empty parameter prompt -->
       <div v-if="!hasParams" class="empty-params">
         <span class="codicon codicon-info"></span>
-        无参数
+        No parameters
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>
@@ -49,12 +49,12 @@ const toolName = computed(() => {
 
 // Get input parameters
 const input = computed(() => {
-  // 优先使用 toolUseResult (会话加载)
+  // Prioritize using toolUseResult (session load)
   if (props.toolUseResult?.input) {
     return props.toolUseResult.input;
   }
 
-  // 实时对话
+  // Real-time conversation
   if (props.toolUse?.input) {
     return props.toolUse.input;
   }
@@ -62,7 +62,7 @@ const input = computed(() => {
   return null;
 });
 
-// 扁平化所有参数
+// Flatten all parameters
 const flatParams = computed(() => {
   if (!input.value || typeof input.value !== 'object') {
     return {};
@@ -81,19 +81,19 @@ const hasParams = computed(() => {
   return Object.keys(flatParams.value).length > 0;
 });
 
-// 判断是否为权限请求阶段
+// Determine if it is a permission request stage
 const isPermissionRequest = computed(() => {
   const hasToolUseResult = !!props.toolUseResult;
   const hasToolResult = !!props.toolResult && !props.toolResult.is_error;
   return !hasToolUseResult && !hasToolResult;
 });
 
-// 权限请求阶段默认展开,执行完成后不展开
+// Permission request stage default expansion, do not expand after execution
 const shouldExpand = computed(() => {
-  // 权限请求阶段展开
+  // Permission request stage expansion
   if (isPermissionRequest.value && hasParams.value) return true;
 
-  // 有错误时展开
+  // Expand when there is an error
   if (props.toolResult?.is_error) return true;
 
   return false;

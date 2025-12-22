@@ -15,7 +15,7 @@
       </span>
     </template>
 
-    <!-- 展开内容：显示 diff 视图 -->
+    <!-- Expandable content: display diff view -->
     <template #expandable>
       <!-- Replace option -->
       <div v-if="replaceAll" class="replace-option">

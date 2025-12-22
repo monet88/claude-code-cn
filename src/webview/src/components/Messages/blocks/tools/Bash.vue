@@ -11,7 +11,7 @@
     </template>
 
     <template #expandable>
-      <!-- 命令内容 -->
+      <!-- Command content -->
       <div class="bash-command">
         <pre class="command-content">{{ command }}</pre>
       </div>

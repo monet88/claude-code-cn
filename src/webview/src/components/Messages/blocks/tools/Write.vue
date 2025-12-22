@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <!-- 错误内容 -->
+      <!-- Error content -->
       <ToolError :tool-result="toolResult" />
     </template>
   </ToolMessageWrapper>
@@ -187,7 +187,7 @@ function handleContentScroll() {
   background-color: var(--vscode-editor-background);
 }
 
-/* 左侧行号列 */
+/* Left side line number column */
 .write-line-numbers {
   width: 50px;
   flex-shrink: 0;
@@ -207,14 +207,14 @@ function handleContentScroll() {
   user-select: none;
 }
 
-/* 右侧内容列 */
+/* Right side content column */
 .write-content {
   flex: 1;
   overflow: auto;
   position: relative;
 }
 
-/* Monaco 风格滚动条(仅应用于内容列) */
+/* Monaco style scrollbar (only applied to content column) */
 .write-content::-webkit-scrollbar {
   width: 14px;
   height: 14px;

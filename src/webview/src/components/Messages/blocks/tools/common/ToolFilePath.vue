@@ -27,7 +27,7 @@ const props = defineProps<Props>();
 
 const fileName = computed(() => {
   if (!props.filePath) return '';
-  // 简单的路径解析（跨平台）
+  // Simple path parsing (cross-platform)
   return props.filePath.split('/').pop() || props.filePath.split('\\').pop() || props.filePath;
 });
 
@@ -44,7 +44,7 @@ function handleClick(event: MouseEvent) {
     return;
   }
 
-  // 打开文件并跳转到指定行
+  // Open file and jump to specified line
   props.context.fileOpener.open(props.filePath, {
     startLine: props.startLine,
     endLine: props.endLine,

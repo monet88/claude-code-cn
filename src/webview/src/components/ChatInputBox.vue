@@ -106,6 +106,7 @@
         :has-input-content="!!content.trim()"
         :show-progress="showProgress"
         :progress-percentage="progressPercentage"
+        :context-window="contextWindow"
         :thinking-level="thinkingLevel"
         :permission-mode="permissionMode"
         @submit="handleSubmit"
@@ -213,6 +214,7 @@ import ImagePreviewDialog from './ImagePreviewDialog.vue'
 interface Props {
   showProgress?: boolean
   progressPercentage?: number
+  contextWindow?: number
   placeholder?: string
   readonly?: boolean
   showSearch?: boolean
@@ -245,6 +247,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   showProgress: true,
   progressPercentage: 0,
+  contextWindow: 200000,
   placeholder: '',
   readonly: false,
   showSearch: false,

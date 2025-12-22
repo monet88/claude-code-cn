@@ -103,6 +103,7 @@
           <ChatInputBox
             :show-progress="true"
             :progress-percentage="progressPercentage"
+            :context-window="contextWindow"
             :conversation-working="isBusy"
             :attachments="attachments"
             :thinking-level="session?.thinkingLevel.value"
@@ -140,6 +141,7 @@
   import TodoList from '../components/TodoList.vue';
   import { useKeybinding } from '../utils/useKeybinding';
   import { useSignal } from '@gn8/alien-signals-vue';
+  import { useProviderStore } from '../stores/providerStore';
   import type { PermissionMode } from '@anthropic-ai/claude-agent-sdk';
 
   const runtime = inject(RuntimeKey);
@@ -205,6 +207,13 @@
     }
 
     return 0;
+  });
+
+  // Context window size for display
+  const contextWindow = computed(() => {
+    const s = session.value;
+    if (!s) return 200000;
+    return s.usageData.value.contextWindow || 200000;
   });
 
   // DOM refs
@@ -490,7 +499,26 @@
     const s = session.value;
     if (!s) return;
 
-    await s.setModel({ value: modelId });
+    // Map model tier to actual model ID from provider
+    const providerStore = useProviderStore();
+    const activeProvider = providerStore.activeProvider;
+    let actualModelId = modelId;
+
+    if (activeProvider) {
+      switch (modelId) {
+        case 'opus':
+          actualModelId = activeProvider.opusModel || modelId;
+          break;
+        case 'sonnet':
+          actualModelId = activeProvider.sonnetModel || modelId;
+          break;
+        case 'haiku':
+          actualModelId = activeProvider.haikuModel || modelId;
+          break;
+      }
+    }
+
+    await s.setModel({ value: actualModelId });
   }
 
   function handleStop() {

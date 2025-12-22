@@ -3,34 +3,7 @@
     class="progress-container"
     :style="containerStyle"
   >
-    <span class="progress-text">{{ formattedPercentage }}</span>
-    <div class="progress-circle">
-      <svg width="14" height="14" class="progress-svg">
-        <circle
-          cx="7"
-          cy="7"
-          r="5.25"
-          :stroke="strokeColor"
-          stroke-width="1.5"
-          fill="none"
-          opacity="0.25"
-        />
-        <circle
-          cx="7"
-          cy="7"
-          r="5.25"
-          :stroke="strokeColor"
-          stroke-width="1.5"
-          fill="none"
-          stroke-linecap="round"
-          opacity="0.9"
-          :stroke-dasharray="circumference"
-          :stroke-dashoffset="strokeOffset"
-          transform="rotate(-90 7 7)"
-          class="progress-arc"
-        />
-      </svg>
-    </div>
+    <span class="progress-text">{{ formattedDisplay }}</span>
   </div>
 </template>
 
@@ -39,43 +12,43 @@ import { computed } from 'vue'
 
 interface Props {
   percentage: number
+  contextWindow?: number
   size?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   percentage: 0,
+  contextWindow: 200000,
   size: 14
-})
-
-const circumference = computed(() => {
-  const radius = 5.25
-  return 2 * Math.PI * radius
-})
-
-const strokeOffset = computed(() => {
-  const progress = Math.max(0, Math.min(100, props.percentage))
-  return circumference.value - (progress / 100) * circumference.value
 })
 
 const formattedPercentage = computed(() => {
   const value = props.percentage
   // If integer, do not display decimal point; otherwise display one decimal place
-  return `${value % 1 === 0 ? Math.round(value) : value.toFixed(1)}%`
+  return value % 1 === 0 ? Math.round(value) : value.toFixed(1)
+})
+
+const formattedContextWindow = computed(() => {
+  const window = props.contextWindow
+  if (window >= 1000000) {
+    return `${(window / 1000000).toFixed(1)}M`
+  } else if (window >= 1000) {
+    return `${Math.round(window / 1000)}k`
+  }
+  return String(window)
+})
+
+// Format: "30% of 168k"
+const formattedDisplay = computed(() => {
+  return `${formattedPercentage.value}% of ${formattedContextWindow.value}`
 })
 
 const containerStyle = computed(() => ({
   display: 'flex',
   alignItems: 'center',
   gap: '4px',
-  // paddingLeft: '4px',
-  // paddingRight: '2px',
-  // backgroundColor: 'var(--vscode-input-background)',
-  // borderRadius: '4px',
-  // boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px',
   cursor: 'default'
 }))
-
-const strokeColor = 'color-mix(in srgb,var(--vscode-foreground) 92%,transparent)'
 </script>
 
 <style scoped>
@@ -86,23 +59,7 @@ const strokeColor = 'color-mix(in srgb,var(--vscode-foreground) 92%,transparent)
 
 .progress-text {
   font-size: 12px;
-  color: color-mix(in srgb,var(--vscode-foreground) 48%,transparent);
+  color: color-mix(in srgb, var(--vscode-foreground) 48%, transparent);
   line-height: 1;
-}
-
-.progress-circle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-}
-
-.progress-svg {
-  position: absolute;
-}
-
-.progress-arc {
-  transition: stroke-dashoffset 0.3s ease;
 }
 </style>
