@@ -232,7 +232,7 @@ function toggleExpanded() {
 
 .todo-in-progress-circle .codicon {
   font-size: 10px;
-  color: #fff;
+  color: var(--theme-button-fg);
 }
 
 @keyframes pulse {
@@ -256,7 +256,7 @@ function toggleExpanded() {
 }
 
 .todo-item-indicator .codicon {
-  color: #fff;
+  color: var(--theme-button-fg);
 }
 
 /* Content */
