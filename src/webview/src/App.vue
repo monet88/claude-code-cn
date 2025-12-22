@@ -102,6 +102,7 @@ function handleSwitchToChat(sessionId?: string) {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: var(--vscode-editor-background);
   color: var(--vscode-editor-foreground);
 }
 

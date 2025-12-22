@@ -59,7 +59,8 @@ const containerStyle = computed(() => ({
 
 .progress-text {
   font-size: 12px;
-  color: color-mix(in srgb, var(--vscode-foreground) 48%, transparent);
+  color: #e5a54b;
   line-height: 1;
+  font-weight: 500;
 }
 </style>

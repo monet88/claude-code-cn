@@ -681,6 +681,7 @@
     border-bottom: 1px solid var(--vscode-panel-border);
     min-height: 32px;
     padding: 0 12px;
+    background: transparent;
   }
 
   .header-left {
@@ -855,7 +856,7 @@
   /* Bottom dialog area pinned at bottom */
   .main > :last-child {
     flex-shrink: 0;
-    background-color: var(--vscode-sideBar-background);
+    background-color: transparent;
     /* border-top: 1px solid var(--vscode-panel-border); */
     max-width: 1200px;
     width: 100%;

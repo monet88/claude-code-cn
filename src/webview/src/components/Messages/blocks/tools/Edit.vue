@@ -441,29 +441,29 @@ function getLineNumber(patch: any, lineIndex: number): string {
 }
 
 .diff-line-delete {
-  background-color: color-mix(in srgb, var(--vscode-gitDecoration-deletedResourceForeground) 20%, transparent);
+  background-color: var(--vscode-diffEditor-removedLineBackground, rgba(255, 0, 0, 0.2));
 }
 
 .diff-line-delete .line-prefix {
-  color: var(--vscode-gitDecoration-deletedResourceForeground);
-  background-color: color-mix(in srgb, var(--vscode-gitDecoration-deletedResourceForeground) 25%, transparent);
+  color: var(--vscode-diffEditor-removedTextForeground, #f48771);
+  background-color: var(--vscode-diffEditor-removedTextBackground, rgba(255, 0, 0, 0.3));
 }
 
 .diff-line-delete .line-content {
-  color: var(--vscode-gitDecoration-deletedResourceForeground);
+  color: inherit;
 }
 
 .diff-line-add {
-  background-color: color-mix(in srgb, var(--vscode-gitDecoration-addedResourceForeground) 20%, transparent);
+  background-color: var(--vscode-diffEditor-insertedLineBackground, rgba(0, 255, 0, 0.2));
 }
 
 .diff-line-add .line-prefix {
-  color: var(--vscode-gitDecoration-addedResourceForeground);
-  background-color: color-mix(in srgb, var(--vscode-gitDecoration-addedResourceForeground) 25%, transparent);
+  color: var(--vscode-diffEditor-insertedTextForeground, #89d185);
+  background-color: var(--vscode-diffEditor-insertedTextBackground, rgba(0, 255, 0, 0.3));
 }
 
 .diff-line-add .line-content {
-  color: var(--vscode-gitDecoration-addedResourceForeground);
+  color: inherit;
 }
 
 .diff-line-context {
