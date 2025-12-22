@@ -97,8 +97,8 @@ function handleMouseEnter() {
 .dropdown-menu-item {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  padding: 0.125rem 0.375rem;
+  gap: 0.25rem;
+  padding: 0.375rem 0.5rem;
   min-width: 0;
   cursor: pointer;
   color: var(--vscode-foreground);
@@ -167,20 +167,20 @@ function handleMouseEnter() {
 .menu-item-left-section {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   min-width: 0;
-  height: 16px;
+  height: 32px;
 }
 
 .menu-item-icon-span {
   flex-shrink: 0;
-  width: 16px;
-  min-width: 16px;
+  width: 24px;
+  min-width: 24px;
   color: var(--vscode-foreground);
   display: flex !important;
   align-items: center;
   justify-content: center;
-  font-size: 12px !important;
+  font-size: 20px !important;
 }
 
 .dropdown-menu-item:hover .menu-item-icon-span,
@@ -198,8 +198,8 @@ function handleMouseEnter() {
   width: 100%;
   align-items: center;
   min-width: 0;
-  gap: 0.25rem;
-  height: 17px;
+  gap: 0.5rem;
+  height: 32px;
 }
 
 .file-info-container,
@@ -212,8 +212,8 @@ function handleMouseEnter() {
 
 .monaco-highlighted-label {
   color: inherit;
-  font-size: 12px;
-  line-height: 17px;
+  font-size: 24px;
+  line-height: 28px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -243,8 +243,8 @@ function handleMouseEnter() {
 
 
 .file-path-text {
-  font-size: 11px;
-  line-height: 17px;
+  font-size: 22px;
+  line-height: 28px;
   unicode-bidi: embed;
 }
 
