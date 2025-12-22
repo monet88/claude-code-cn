@@ -123,7 +123,7 @@ const dropdownStyle = computed(() => {
   // Calculate the dropdown total height
   const searchHeight = props.showSearch ? 32 : 0  // Search box height
   const footerHeight = 25 // Footer height
-  const dropdownTotalHeight = searchHeight + 240 + footerHeight // Use max height of 240px
+  const dropdownTotalHeight = searchHeight + 200 + footerHeight // Use max height of 200px
 
   // Compute available space above and below
   const spaceAbove = triggerRect.top

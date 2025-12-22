@@ -413,7 +413,7 @@ defineExpose({
 <style scoped>
 .scrollable-content-wrapper {
   position: relative;
-  max-height: 320px;
+  max-height: 200px;
   height: auto;
 }
 

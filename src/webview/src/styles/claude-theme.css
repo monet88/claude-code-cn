@@ -19,9 +19,9 @@ html {
   --app-spacing-medium: 8px;
   --app-spacing-large: 12px;
   --app-spacing-xlarge: 16px;
-  --app-monospace-font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  --app-monospace-font-size: 13px;
-  --app-monospace-font-size-small: 12px;
+  --app-monospace-font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  --app-monospace-font-size: 12px;
+  --app-monospace-font-size-small: 11px;
   --app-primary-foreground: var(--theme-fg-primary);
   --app-primary-background: var(--theme-sidebar-bg);
   --app-primary-border-color: var(--theme-panel-border);

@@ -29,3 +29,6 @@ records/**
 CLAUDE.md
 AGENTS.md
 GEMINI.md
+
+# bv (beads viewer) local config and caches
+.bv/

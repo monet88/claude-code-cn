@@ -70,12 +70,9 @@ const modelOptions = computed(() => {
     options.push({ id: activeProvider.opusModel, label: 'Opus' })
   }
 
-  // If only "Default" option (no custom models), add fallback options
-  if (options.length === 1) {
-    options.push(
-      { id: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
-      { id: 'claude-opus-4-5-20251101', label: 'Opus 4.5' }
-    )
+  // If provider has mainModel configured, add it as an option
+  if (activeProvider?.mainModel) {
+    options.push({ id: activeProvider.mainModel, label: 'Main' })
   }
 
   return options
@@ -91,16 +88,9 @@ const selectedModelLabel = computed(() => {
   const option = modelOptions.value.find(o => o.id === props.selectedModel)
   if (option) return option.label
 
-  // Fallback labels for known models
-  switch (props.selectedModel) {
-    case 'claude-sonnet-4-5':
-      return 'Sonnet 4.5'
-    case 'claude-opus-4-5-20251101':
-      return 'Opus 4.5'
-    default:
-      // Show model ID if unknown
-      return props.selectedModel || 'Default'
-  }
+  // Show model ID if unknown (truncate if too long)
+  const modelId = props.selectedModel || 'Default'
+  return modelId.length > 20 ? modelId.substring(0, 17) + '...' : modelId
 })
 
 function handleModelSelect(item: DropdownItemData, close: () => void) {

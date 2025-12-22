@@ -1,6 +1,6 @@
 <template>
   <!-- Unified input container -->
-  <div class="full-input-box">
+  <div ref="containerRef" class="full-input-box">
     
     <!-- 1. Attachment preview area (horizontal scroll) -->
     <div
@@ -123,13 +123,13 @@
       v-if="slashCompletion.isOpen.value"
       :is-visible="slashCompletion.isOpen.value"
       :position="slashCompletion.position.value"
-      :width="slashCompletion.position.value.width || 500"
+      :width="dropdownWidth"
       :should-auto-focus="false"
       :close-on-click-outside="false"
       :data-nav="slashCompletion.navigationMode.value"
       :selected-index="slashCompletion.activeIndex.value"
       :offset-y="-8"
-      :offset-x="-8"
+      :offset-x="0"
       :prefer-placement="'above'"
       @close="slashCompletion.close"
     >
@@ -156,13 +156,13 @@
       v-if="fileCompletion.isOpen.value"
       :is-visible="fileCompletion.isOpen.value"
       :position="fileCompletion.position.value"
-      :width="fileCompletion.position.value.width || 500"
+      :width="dropdownWidth"
       :should-auto-focus="false"
       :close-on-click-outside="false"
       :data-nav="fileCompletion.navigationMode.value"
       :selected-index="fileCompletion.activeIndex.value"
       :offset-y="-8"
-      :offset-x="-8"
+      :offset-x="0"
       :prefer-placement="'above'"
       @close="fileCompletion.close"
     >
@@ -263,6 +263,7 @@ const runtime = inject(RuntimeKey)
 const content = ref('')
 const isLoading = ref(false)
 const textareaRef = ref<HTMLDivElement | null>(null)
+const containerRef = ref<HTMLDivElement | null>(null)
 
 // Image preview state
 const previewVisible = ref(false)
@@ -278,6 +279,14 @@ const fileAttachments = computed(() => attachmentsList.value.filter(a => !isImag
 
 const isSubmitDisabled = computed(() => {
   return !content.value.trim() || isLoading.value
+})
+
+// Dropdown width based on container
+const dropdownWidth = computed(() => {
+  if (containerRef.value) {
+    return containerRef.value.getBoundingClientRect().width
+  }
+  return 500
 })
 
 // === Using the new Completion Dropdown composable ===
