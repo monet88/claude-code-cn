@@ -65,29 +65,67 @@ export function useRuntime(): RuntimeInstance {
 
     // Đăng ký Slash Commands mới
     if (claudeConfig?.slashCommands && Array.isArray(claudeConfig.slashCommands)) {
-      slashCommandDisposers = claudeConfig.slashCommands
-        .filter((cmd: any) => typeof cmd?.name === 'string' && cmd.name)
-        .map((cmd: any) => {
-          return appContext.commandRegistry.registerAction(
-            {
-              id: `slash-command-${cmd.name}`,
-              label: `/${cmd.name}`,
-              description: typeof cmd?.description === 'string' ? cmd.description : undefined
-            },
-            'Slash Commands',
-            () => {
-              console.log('[Runtime] Execute slash command:', cmd.name);
-              const activeSession = sessionStore.activeSession();
-              if (activeSession) {
-                void activeSession.send(`/${cmd.name}`, [], false);
-              } else {
-                console.warn('[Runtime] No active session to execute slash command');
-              }
-            }
-          );
-        });
+      // Filter valid commands - must have name as non-empty string
+      // CLI returns both Commands AND Skills, we need to filter out Skills
+      // Skills: model-invoked, long descriptions (>150 chars), end with (user)/(project)
+      // Commands: user-invoked, short descriptions, have ⚡, or are built-in/plugins
+      const validCommands = claudeConfig.slashCommands.filter((cmd: any) => {
+        // Basic validation
+        if (typeof cmd?.name !== 'string' || !cmd.name.trim()) {
+          if (cmd) console.warn('[Runtime] Skipping invalid command:', cmd);
+          return false;
+        }
 
-      console.log('[Runtime] Registered', slashCommandDisposers.length, 'slash commands');
+        const desc = cmd.description || '';
+
+        // Check patterns
+        const endsWithUserOrProject = /\((user|project(?::[^)]+)?)\)\s*$/.test(desc);
+        const hasActionEmoji = desc.includes('⚡');
+        const isPluginCommand = desc.includes('(plugin:');
+        const isLongDescription = desc.length > 150;
+
+        // Built-in commands: no (user)/(project)/(plugin:) suffix - always keep
+        const isBuiltInCommand = !endsWithUserOrProject && !isPluginCommand;
+        if (isBuiltInCommand) return true;
+
+        // Plugin commands - always keep
+        if (isPluginCommand) return true;
+
+        // Commands with ⚡ - always keep
+        if (hasActionEmoji) return true;
+
+        // Filter out: Skills (ends with user/project, long description, no ⚡)
+        // Keep short descriptions (likely commands), filter long ones (likely skills)
+        if (endsWithUserOrProject && isLongDescription) {
+          return false; // This is a Skill
+        }
+
+        return true; // Short descriptions are commands
+      });
+
+      slashCommandDisposers = validCommands.map((cmd: any) => {
+        return appContext.commandRegistry.registerAction(
+          {
+            id: `slash-command-${cmd.name}`,
+            label: `/${cmd.name}`,
+            description: typeof cmd?.description === 'string' ? cmd.description : undefined
+          },
+          'Slash Commands',
+          () => {
+            console.log('[Runtime] Execute slash command:', cmd.name);
+            const activeSession = sessionStore.activeSession();
+            if (activeSession) {
+              void activeSession.send(`/${cmd.name}`, [], false);
+            } else {
+              console.warn('[Runtime] No active session to execute slash command');
+            }
+          }
+        );
+      });
+
+      const totalFromCLI = claudeConfig.slashCommands.length;
+      const filteredSkills = totalFromCLI - validCommands.length;
+      console.log(`[Runtime] Registered ${validCommands.length} slash commands (filtered ${filteredSkills} skills from ${totalFromCLI} total)`);
     }
   });
 

@@ -414,10 +414,13 @@ function updateDropdownPosition(
     rect = new DOMRect(r.left, r.top, r.width, r.height)
   }
 
+  // Use input element's width for dropdown to match chatbox width
+  const inputRect = el.getBoundingClientRect()
+
   completion.updatePosition({
     top: rect.top,
-    left: rect.left,
-    width: rect.width,
+    left: inputRect.left,
+    width: inputRect.width,
     height: rect.height
   })
 }
