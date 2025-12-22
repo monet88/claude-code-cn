@@ -81,6 +81,35 @@
   --theme-code-bg: #f6f8fa;
   --theme-code-fg: #333333;
   --theme-code-border: #e1e4e8;
+
+  /* Syntax Highlighting - Design Spec (Light) */
+  --theme-syntax-keyword: #a626a4;
+  --theme-syntax-string: #50a14f;
+  --theme-syntax-function: #4078f2;
+  --theme-syntax-comment: #a0a1a7;
+
+  /* Accents - Design Spec */
+  --theme-accent-blue: #0366d6;
+  --theme-accent-blue-hover: #0550ae;
+  --theme-accent-purple: #7c3aed;
+  --theme-accent-green: #22c55e;
+  --theme-accent-amber: #d97706;
+
+  /* Borders - Design Spec */
+  --theme-border-subtle: #e5e7eb;
+  --theme-border-default: #d1d5db;
+  --theme-border-focus: #3b82f6;
+
+  /* Typography Scale */
+  --theme-font-ui: 'Inter', 'Geist Sans', system-ui, sans-serif;
+  --theme-font-code: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --theme-font-size-h2: 18px;
+  --theme-font-size-h3: 16px;
+  --theme-font-size-body: 14px;
+  --theme-font-size-code: 13px;
+  --theme-font-size-label: 12px;
+  --theme-font-size-caption: 11px;
+  --theme-font-size-micro: 10px;
 }
 
 /* 暗色主题 */
@@ -89,9 +118,15 @@ body.custom-theme-dark {
   --theme-bg-primary: #1e1e1e;
   --theme-bg-secondary: #252526;
   --theme-bg-tertiary: #2d2e2f;
+  --theme-bg-surface: #1a1a1a;
+  --theme-bg-elevated: #252525;
+  --theme-bg-hover: #1e1e1e;
   --theme-fg-primary: #cccccc;
   --theme-fg-secondary: #999999;
   --theme-fg-tertiary: #666666;
+  --theme-fg-heading: #ffffff;
+  --theme-fg-muted: #666666;
+  --theme-fg-disabled: #858585;
 
   /* 编辑器颜色 */
   --theme-editor-bg: #1e1e1e;
@@ -161,6 +196,35 @@ body.custom-theme-dark {
   --theme-code-bg: #2d2e2f;
   --theme-code-fg: #cccccc;
   --theme-code-border: #464647;
+
+  /* Syntax Highlighting - Design Spec */
+  --theme-syntax-keyword: #c678dd;
+  --theme-syntax-string: #98c379;
+  --theme-syntax-function: #61afef;
+  --theme-syntax-comment: #5c6370;
+
+  /* Accents - Design Spec */
+  --theme-accent-blue: #4fa5f1;
+  --theme-accent-blue-hover: #60a5fa;
+  --theme-accent-purple: #9333ea;
+  --theme-accent-green: #4ade80;
+  --theme-accent-amber: #E3A008;
+
+  /* Borders - Design Spec */
+  --theme-border-subtle: #262626;
+  --theme-border-default: #333333;
+  --theme-border-focus: #3b82f6;
+
+  /* Typography Scale */
+  --theme-font-ui: 'Inter', 'Geist Sans', system-ui, sans-serif;
+  --theme-font-code: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --theme-font-size-h2: 18px;
+  --theme-font-size-h3: 16px;
+  --theme-font-size-body: 14px;
+  --theme-font-size-code: 13px;
+  --theme-font-size-label: 12px;
+  --theme-font-size-caption: 11px;
+  --theme-font-size-micro: 10px;
 }
 
 /* 亮色主题（备用类名） */
