@@ -2,7 +2,7 @@
   "name": "claude-code",
   "displayName": "CCVN",
   "description": "VS Code extension for using Claude Code",
-  "version": "1.2.0",
+  "version": "1.5.0",
   "publisher": "monet",
   "engines": {
     "vscode": "^1.98.0",
