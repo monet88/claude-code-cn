@@ -123,7 +123,7 @@
       v-if="slashCompletion.isOpen.value"
       :is-visible="slashCompletion.isOpen.value"
       :position="slashCompletion.position.value"
-      :width="240"
+      :width="360"
       :should-auto-focus="false"
       :close-on-click-outside="false"
       :data-nav="slashCompletion.navigationMode.value"

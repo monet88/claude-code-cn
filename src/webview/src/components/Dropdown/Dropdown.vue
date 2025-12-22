@@ -111,7 +111,7 @@ const dropdownStyle = computed(() => {
   const style: any = {
     position: 'fixed',
     minWidth: '140px',
-    maxWidth: '240px',
+    maxWidth: props.width ? `${props.width}px` : '360px',
     width: props.width ? `${props.width}px` : 'auto',
     zIndex: 2548
   }
@@ -344,7 +344,7 @@ defineExpose({
   background: transparent;
   border: none;
   align-items: stretch;
-  font-size: 10px;
+  font-size: 12px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -352,7 +352,7 @@ defineExpose({
   transform-origin: left top;
   box-shadow: 0 0 8px 2px color-mix(in srgb, var(--vscode-widget-shadow) 30%, transparent);
   min-width: 140px;
-  max-width: 240px;
+  max-width: 400px;
   width: auto;
 }
 

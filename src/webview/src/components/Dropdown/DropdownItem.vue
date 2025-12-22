@@ -243,7 +243,7 @@ function handleMouseEnter() {
 
 
 .file-path-text {
-  font-size: 9px;
+  font-size: 11px;
   line-height: 17px;
   unicode-bidi: embed;
 }
