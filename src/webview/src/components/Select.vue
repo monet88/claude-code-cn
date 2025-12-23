@@ -107,10 +107,10 @@ onUnmounted(() => {
   gap: 8px;
   padding: 3px 6px;
   min-width: 120px;
-  border: 1px solid var(--vscode-input-border);
+  border: 1px solid var(--theme-border-subtle, rgba(255, 255, 255, 0.03));
   background: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s;
@@ -149,7 +149,7 @@ onUnmounted(() => {
   z-index: 1000;
   background: var(--vscode-dropdown-background);
   border: 1px solid var(--vscode-dropdown-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   max-height: 200px;
   overflow-y: auto;
@@ -175,12 +175,12 @@ onUnmounted(() => {
 }
 
 .select-option:first-child {
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-top-left-radius: var(--theme-radius-sm, 4px);
+  border-top-right-radius: var(--theme-radius-sm, 4px);
 }
 
 .select-option:last-child {
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: var(--theme-radius-sm, 4px);
+  border-bottom-right-radius: var(--theme-radius-sm, 4px);
 }
 </style>

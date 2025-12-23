@@ -49,7 +49,7 @@ function handleClick(diagnostic: DiagnosticsEntry) {
 .diagnostics-block {
   margin: 8px 0;
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   overflow: hidden;
 }
 

@@ -1,5 +1,5 @@
 /**
- * 供应商配置 Store
+ * Provider configuration store
  */
 
 import { defineStore } from 'pinia';
@@ -9,7 +9,7 @@ import { PRESET_PROVIDERS } from '../types/provider';
 import { getVsCodeApi } from '../utils/vscodeApi';
 
 /**
- * 向 VSCode 扩展发送消息并等待响应
+ * Send message to VSCode extension and wait for response
  */
 function sendMessageToExtension(type: string, payload?: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -20,22 +20,22 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       return;
     }
 
-    // 生成唯一消息 ID
+    // Generate unique message ID
     const messageId = `${type}_${Date.now()}_${Math.random()}`;
 
-    // 监听响应
+    // Listen for response
     const handleMessage = (event: MessageEvent) => {
       const data = event.data;
       if (data && data.type === 'from-extension') {
         const message = data.message;
-        // 根据不同的响应类型匹配
+        // Match response type
         const expectedTypes = [
-          'providersData',        // getProviders 的响应
-          'providerAdded',        // addProvider 的响应
-          'providerUpdated',      // updateProvider 的响应
-          'providerDeleted',      // deleteProvider 的响应
-          'activeProviderData',   // getActiveProvider 的响应
-          'providerSwitched'      // switchProvider 的响应
+          'providersData',        // getProviders response
+          'providerAdded',        // addProvider response
+          'providerUpdated',      // updateProvider response
+          'providerDeleted',      // deleteProvider response
+          'activeProviderData',   // getActiveProvider response
+          'providerSwitched'      // switchProvider response
         ];
 
         if (expectedTypes.some(t => message.type === t)) {
@@ -47,11 +47,11 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
 
     window.addEventListener('message', handleMessage);
 
-    // 确保 payload 是可序列化的 - 进行深度克隆以去除不可序列化的属性
+    // Ensure payload is serializable - perform deep clone to remove non-serializable properties
     let serializedPayload = payload;
     if (payload !== undefined && payload !== null) {
       try {
-        // 通过 JSON 序列化/反序列化来确保数据可克隆
+        // Serialize/Deserialize JSON to ensure data is cloneable
         serializedPayload = JSON.parse(JSON.stringify(payload));
       } catch (e) {
         console.error('Failed to serialize payload:', e);
@@ -60,7 +60,7 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       }
     }
 
-    // 发送消息
+    // Send message
     try {
       vscodeApi.postMessage({
         type,
@@ -73,7 +73,7 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       return;
     }
 
-    // 超时处理
+    // Timeout handling
     setTimeout(() => {
       window.removeEventListener('message', handleMessage);
       reject(new Error(`Request timeout: ${type}`));
@@ -82,32 +82,32 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
 }
 
 /**
- * 供应商配置 Store
+ * Provider configuration store
  */
 export const useProviderStore = defineStore('provider', () => {
-  // 供应商列表
+  // Provider list
   const providers = ref<ProviderConfig[]>([]);
 
-  // 当前激活的供应商 ID
+  // Active provider ID
   const activeProviderId = ref<string | null>(null);
 
-  // 计算当前激活的供应商
+  // Calculate active provider
   const activeProvider = computed(() => {
     return providers.value.find(p => p.id === activeProviderId.value) || null;
   });
 
   /**
-   * 初始化供应商列表
+   * Initialize provider list
    */
   async function initialize() {
-    // 从配置文件中加载供应商列表
+    // Load providers from configuration file
     await loadProviders();
-    // 加载当前激活的供应商
+    // Load active provider
     await loadActiveProvider();
   }
 
   /**
-   * 从配置文件中加载供应商列表
+   * Load providers from configuration file
    */
   async function loadProviders() {
     try {
@@ -124,7 +124,7 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   /**
-   * 加载当前激活的供应商
+   * Load active provider
    */
   async function loadActiveProvider() {
     try {
@@ -132,7 +132,7 @@ export const useProviderStore = defineStore('provider', () => {
       if (activeProviderData) {
         activeProviderId.value = activeProviderData.id;
 
-        // 更新所有供应商的激活状态
+        // Update all providers' active status
         providers.value.forEach(p => {
           p.isActive = p.id === activeProviderData.id;
         });
@@ -143,16 +143,16 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   /**
-   * 添加供应商
+   * Add provider
    */
   async function addProvider(provider: ProviderConfig) {
-    // 生成唯一 ID
+    // Generate unique ID
     provider.id = `provider_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
       const result = await sendMessageToExtension('addProvider', provider);
       if (result.success) {
-        // 重新加载供应商列表
+        // Reload provider list
         await loadProviders();
       } else {
         throw new Error(result.error || 'Failed to add provider');
@@ -164,13 +164,13 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   /**
-   * 更新供应商
+   * Update provider
    */
   async function updateProvider(id: string, updates: Partial<ProviderConfig>) {
     try {
       const result = await sendMessageToExtension('updateProvider', { id, updates });
       if (result.success) {
-        // 重新加载供应商列表
+        // Reload provider list
         await loadProviders();
       } else {
         throw new Error(result.error || 'Failed to update provider');
@@ -182,16 +182,16 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   /**
-   * 删除供应商
+   * Delete provider
    */
   async function deleteProvider(id: string) {
     try {
       const result = await sendMessageToExtension('deleteProvider', { id });
       if (result.success) {
-        // 重新加载供应商列表
+        // Reload provider list
         await loadProviders();
 
-        // 如果删除的是当前激活的供应商，清除激活状态
+        // If the deleted provider is the active provider, clear the active state
         if (activeProviderId.value === id) {
           activeProviderId.value = null;
         }
@@ -205,7 +205,7 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   /**
-   * 切换供应商（更新配置文件和 Claude settings.json）
+   * Switch provider (update configuration file and Claude settings.json)
    */
   async function switchProvider(id: string) {
     const provider = providers.value.find(p => p.id === id);
@@ -221,15 +221,15 @@ export const useProviderStore = defineStore('provider', () => {
       });
 
       if (result.success) {
-        // 更新激活状态
+        // Update active state
         activeProviderId.value = id;
 
-        // 更新所有供应商的激活状态
+        // Update all providers' active state
         providers.value.forEach(p => {
           p.isActive = p.id === id;
         });
 
-        // 重新加载供应商列表以确保数据同步
+        // Reload provider list to ensure data synchronization
         await loadProviders();
       } else {
         throw new Error(result.error || 'Failed to switch provider');
@@ -241,7 +241,7 @@ export const useProviderStore = defineStore('provider', () => {
   }
 
   /**
-   * 获取预设供应商列表
+   * Get preset provider list
    */
   function getPresetProviders() {
     return PRESET_PROVIDERS;

@@ -1,5 +1,5 @@
 /**
- * Token使用统计 Store
+ * Token usage statistics store
  */
 
 import { defineStore } from 'pinia';
@@ -20,7 +20,7 @@ export interface SessionSummary {
   model: string;
   usage: UsageData;
   cost: number;
-  summary?: string;  // 添加会话标题字段
+  summary?: string;  // Add session title field
 }
 
 export interface ModelUsage {
@@ -74,7 +74,7 @@ export interface ProjectStatistics {
 }
 
 /**
- * 向 VSCode 扩展发送消息并等待响应
+ * Send message to VSCode extension and wait for response
  */
 function sendMessageToExtension(type: string, payload?: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -85,7 +85,7 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       return;
     }
 
-    // 监听响应
+    // Listen for response
     const handleMessage = (event: MessageEvent) => {
       const data = event.data;
       if (data && data.type === 'from-extension') {
@@ -99,24 +99,24 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
 
     window.addEventListener('message', handleMessage);
 
-    // 发送消息
+    // Send message
     vscodeApi.postMessage({
       type,
       payload
     });
 
-    // 超时处理
+    // Timeout handling
     setTimeout(() => {
       window.removeEventListener('message', handleMessage);
       reject(new Error('Request timeout'));
-    }, 10000); // 10秒超时
+    }, 10000); // 10 seconds timeout
   });
 }
 
 export type ProjectScope = 'current' | 'all';
 
-// 缓存配置
-const CACHE_DURATION = 10 * 60 * 1000; // 10分钟
+// Cache configuration
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
 interface CacheEntry {
   data: ProjectStatistics;
@@ -124,20 +124,20 @@ interface CacheEntry {
 }
 
 export const useUsageStore = defineStore('usage', () => {
-  // 状态
+  // State
   const statistics = ref<ProjectStatistics | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
   const lastUpdate = ref<number>(Date.now());
 
-  // 缓存和筛选状态
+  // Cache and filter state
   const cache = ref<Map<string, CacheEntry>>(new Map());
   const selectedDateRange = ref<'7d' | '30d' | 'all'>('7d');
   const activeTab = ref<string>('overview');
   const loadedTabs = ref<Set<string>>(new Set(['overview']));
   const projectScope = ref<ProjectScope>('current');
 
-  // 计算属性
+  // Computed properties
   const hasData = computed(() => statistics.value !== null && statistics.value.totalSessions > 0);
 
   const formattedTotalCost = computed(() => {
@@ -159,7 +159,7 @@ export const useUsageStore = defineStore('usage', () => {
     return statistics.value.estimatedCost / statistics.value.totalSessions;
   });
 
-  // 检查缓存是否有效
+  // Check if cache is valid
   function isCacheValid(cacheKey: string): boolean {
     const cached = cache.value.get(cacheKey);
     if (!cached) return false;
@@ -168,16 +168,16 @@ export const useUsageStore = defineStore('usage', () => {
     return (now - cached.timestamp) < CACHE_DURATION;
   }
 
-  // 获取缓存键
+  // Get cache key
   function getCacheKey(dateRange: string, scope: ProjectScope): string {
     return `stats_${scope}_${dateRange}`;
   }
 
-  // 方法
+  // Methods
   async function initialize(forceRefresh = false) {
     const cacheKey = getCacheKey(selectedDateRange.value, projectScope.value);
 
-    // 如果有有效缓存且不是强制刷新，则使用缓存
+    // If there is a valid cache and not a forced refresh, use the cache
     if (!forceRefresh && isCacheValid(cacheKey)) {
       const cached = cache.value.get(cacheKey);
       if (cached) {
@@ -199,7 +199,7 @@ export const useUsageStore = defineStore('usage', () => {
       statistics.value = data;
       lastUpdate.value = Date.now();
 
-      // 存入缓存
+      // Store in cache
       cache.value.set(cacheKey, {
         data,
         timestamp: Date.now()
@@ -214,37 +214,37 @@ export const useUsageStore = defineStore('usage', () => {
   }
 
   async function refresh() {
-    await initialize(true); // 强制刷新，跳过缓存
+    await initialize(true); // Force refresh, skip cache
   }
 
-  // 切换日期范围
+  // Switch date range
   async function setDateRange(range: '7d' | '30d' | 'all') {
     if (selectedDateRange.value === range) return;
 
     selectedDateRange.value = range;
-    await initialize(); // 切换后重新加载（会使用缓存）
+    await initialize(); // Switch after re-loading (will use cache)
   }
 
-  // 切换标签页
+  // Switch tab
   function setActiveTab(tab: string) {
     activeTab.value = tab;
     loadedTabs.value.add(tab);
   }
 
-  // 切换项目范围
+  // Switch project scope
   async function setProjectScope(scope: ProjectScope) {
     if (projectScope.value === scope) return;
 
     projectScope.value = scope;
-    await initialize(); // 切换后重新加载（会使用缓存）
+    await initialize(); // Switch after re-loading (will use cache)
   }
 
-  // 清除缓存
+  // Clear cache
   function clearCache() {
     cache.value.clear();
   }
 
-  // 导出到CSV
+  // Export to CSV
   function exportToCSV() {
     if (!statistics.value) return;
 
@@ -273,7 +273,7 @@ export const useUsageStore = defineStore('usage', () => {
     URL.revokeObjectURL(url);
   }
 
-  // 导出到JSON
+  // Export to JSON
   function exportToJSON() {
     if (!statistics.value) return;
 
@@ -288,7 +288,7 @@ export const useUsageStore = defineStore('usage', () => {
   }
 
   return {
-    // 状态
+    // State
     statistics,
     loading,
     error,
@@ -298,13 +298,13 @@ export const useUsageStore = defineStore('usage', () => {
     loadedTabs,
     projectScope,
 
-    // 计算属性
+    // Computed properties
     hasData,
     formattedTotalCost,
     formattedTotalTokens,
     avgCostPerSession,
 
-    // 方法
+    // Methods
     initialize,
     refresh,
     setDateRange,

@@ -73,8 +73,8 @@ function handleCancel() {
 
 .dialog {
   background: var(--vscode-editorWidget-background);
-  border: 1px solid var(--vscode-editorWidget-border);
-  border-radius: 6px;
+  border: 1px solid var(--theme-border-subtle, rgba(255, 255, 255, 0.03));
+  border-radius: var(--theme-radius-md, 8px);
   min-width: 400px;
   max-width: 500px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -114,7 +114,7 @@ function handleCancel() {
 .btn-primary,
 .btn-secondary {
   padding: 6px 16px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   font-size: 13px;
   cursor: pointer;
   border: 1px solid transparent;

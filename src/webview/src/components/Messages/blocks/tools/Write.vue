@@ -10,8 +10,7 @@
       <span class="tool-label">Write</span>
       <ToolFilePath v-if="filePath" :file-path="filePath" :context="context" />
       <span v-if="contentStats" class="content-stats">
-        <span class="stat-lines">{{ contentStats.lines }} lines </span>
-        <span class="stat-chars">{{ contentStats.chars }} characters </span>
+        <span class="stat-new">+{{ contentStats.lines }}</span>
       </span>
     </template>
 
@@ -21,7 +20,10 @@
         <!-- File header -->
         <div v-if="filePath" class="write-file-header">
           <FileIcon :file-name="filePath" :size="16" class="file-icon" />
-          <span class="file-name">{{ fileName }}</span>
+          <span class="file-path">{{ displayFilePath }}</span>
+          <span v-if="contentStats" class="write-stats-badge">
+            <span class="stat-new">+{{ contentStats.lines }}</span>
+          </span>
         </div>
 
         <!-- Content display -->
@@ -51,13 +53,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, inject, onMounted } from 'vue';
 import path from 'path-browserify-esm';
+import type { ComputedRef } from 'vue';
 import type { ToolContext } from '@/types/tool';
 import ToolMessageWrapper from './common/ToolMessageWrapper.vue';
 import ToolError from './common/ToolError.vue';
 import ToolFilePath from './common/ToolFilePath.vue';
 import FileIcon from '@/components/FileIcon.vue';
+import { recordFromWriteResult } from '@/stores/fileChangeStore';
 
 interface Props {
   toolUse?: any;
@@ -68,6 +72,13 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Inject workspace root for relative path display
+const workspaceRootRef = inject<ComputedRef<string> | string>('workspaceRoot', '');
+const workspaceRoot = computed(() => {
+  if (typeof workspaceRootRef === 'string') return workspaceRootRef;
+  return workspaceRootRef?.value || '';
+});
+
 // vcc-re data acquisition method: only from inputs
 const filePath = computed(() => {
   return props.toolUse?.input?.file_path || '';
@@ -76,6 +87,32 @@ const filePath = computed(() => {
 const fileName = computed(() => {
   if (!filePath.value) return '';
   return path.basename(filePath.value);
+});
+
+// Display relative file path
+const displayFilePath = computed(() => {
+  if (!filePath.value) return '';
+  
+  const normalizedPath = filePath.value.replace(/\\/g, '/');
+  const normalizedRoot = (workspaceRoot.value || '').replace(/\\/g, '/');
+  
+  if (normalizedRoot && normalizedPath.toLowerCase().startsWith(normalizedRoot.toLowerCase())) {
+    let relativePath = normalizedPath.substring(normalizedRoot.length);
+    if (relativePath.startsWith('/')) {
+      relativePath = relativePath.substring(1);
+    }
+    return relativePath || fileName.value;
+  }
+  
+  const patterns = ['/src/', '/lib/', '/app/', '/packages/', '/components/', '/webview/'];
+  for (const pattern of patterns) {
+    const index = normalizedPath.toLowerCase().indexOf(pattern);
+    if (index !== -1) {
+      return normalizedPath.substring(index + 1);
+    }
+  }
+  
+  return fileName.value;
 });
 
 // vcc-re data acquisition method: only from inputs.content
@@ -119,6 +156,15 @@ function handleContentScroll() {
     lineNumbersRef.value.scrollTop = contentRef.value.scrollTop;
   }
 }
+
+// Track write for file change stats - only when tool completed successfully
+const hasRecorded = ref(false);
+onMounted(() => {
+  if (!hasRecorded.value && filePath.value && lineCount.value > 0 && !props.toolResult?.is_error) {
+    recordFromWriteResult(filePath.value, lineCount.value);
+    hasRecorded.value = true;
+  }
+});
 </script>
 
 <style scoped>
@@ -139,13 +185,12 @@ function handleContentScroll() {
   display: flex;
   gap: 8px;
   margin-left: 8px;
-  font-size: 0.8em;
-  color: color-mix(in srgb, var(--vscode-foreground) 70%, transparent);
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.stat-lines,
-.stat-chars {
-  font-family: var(--vscode-editor-font-family);
+.stat-new {
+  color: var(--vscode-gitDecoration-addedResourceForeground, #89d185);
 }
 
 .write-view {
@@ -164,10 +209,10 @@ function handleContentScroll() {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px;
-  background-color: color-mix(in srgb, var(--vscode-editor-background) 80%, transparent);
+  padding: 6px 12px;
+  background-color: var(--vscode-sideBarSectionHeader-background, color-mix(in srgb, var(--vscode-editor-background) 90%, var(--vscode-foreground) 10%));
+  border-bottom: 1px solid var(--vscode-widget-border);
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -176,9 +221,26 @@ function handleContentScroll() {
   flex-shrink: 0;
 }
 
-.write-file-header .file-name {
+.write-file-header .file-path {
+  flex: 1;
   color: var(--vscode-foreground);
   font-family: var(--vscode-editor-font-family);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.write-stats-badge {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.write-stats-badge .stat-new {
+  color: var(--vscode-gitDecoration-addedResourceForeground, #89d185);
 }
 
 .write-scroll-container {

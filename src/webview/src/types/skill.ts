@@ -1,50 +1,50 @@
 /**
- * Skills 前端类型定义
+ * Skills Front-end Type Definition
  */
 
 /**
- * Skill 类型
+ * Skill Type
  */
 export type SkillType = 'file' | 'directory';
 
 /**
- * Skill 作用域
+ * Skill Scope
  */
 export type SkillScope = 'global' | 'local';
 
 /**
- * Skill 配置
+ * Skill Configuration
  */
 export interface Skill {
-  /** 唯一标识符 */
+  /** Unique identifier */
   id: string;
-  /** 显示名称 */
+  /** Display name */
   name: string;
-  /** 类型: 文件或目录 */
+  /** Type: file or directory */
   type: SkillType;
-  /** 作用域: 全局或本地 */
+  /** Scope: global or local */
   scope: SkillScope;
-  /** 完整路径 */
+  /** Full path */
   path: string;
-  /** 描述 */
+  /** Description */
   description?: string;
-  /** 创建时间 */
+  /** Created at */
   createdAt?: string;
-  /** 修改时间 */
+  /** Modified at */
   modifiedAt?: string;
 }
 
 /**
- * Skills 映射 (id -> Skill)
+ * Skills Mapping (id -> Skill)
  */
 export type SkillsMap = Record<string, Skill>;
 
 /**
- * Skills 配置结构
+ * Skills Configuration
  */
 export interface SkillsConfig {
-  /** 全局 Skills */
+  /** Global Skills */
   global: SkillsMap;
-  /** 本地 Skills */
+  /** Local Skills */
   local: SkillsMap;
 }

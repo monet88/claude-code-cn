@@ -98,7 +98,7 @@ function toggleExpanded() {
 .sticky-todo-list {
   background: color-mix(in srgb, var(--vscode-editor-background) 95%, transparent);
   border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 60%, transparent);
-  border-radius: 6px;
+  border-radius: var(--theme-radius-md, 8px);
   margin-bottom: 8px;
   overflow: hidden;
 }

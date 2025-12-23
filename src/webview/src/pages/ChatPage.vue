@@ -32,12 +32,11 @@
 
     <!-- Top header bar -->
     <div class="chat-header">
-      <div class="header-left">
-        <button class="menu-btn" @click="$emit('switchToSessions')">
-          <span class="codicon codicon-menu"></span>
-        </button>
-        <h2 class="chat-title">{{ title }}</h2>
-      </div>
+      <SessionDropdown
+        :current-title="title"
+        @switch-to-sessions="$emit('switchToSessions')"
+        @session-selected="scrollToBottom"
+      />
       <div class="header-right">
         <button class="settings-btn" title="Settings" @click="$emit('switchToSettings')">
           <span class="codicon codicon-settings-gear"></span>
@@ -124,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, inject, onMounted, onUnmounted, nextTick, watch } from 'vue';
+  import { ref, computed, inject, provide, onMounted, onUnmounted, nextTick, watch } from 'vue';
   import { RuntimeKey } from '../composables/runtimeContext';
   import { useSession } from '../composables/useSession';
   import type { Session } from '../core/Session';
@@ -139,13 +138,19 @@
   import RandomTip from '../components/RandomTip.vue';
   import MessageRenderer from '../components/Messages/MessageRenderer.vue';
   import TodoList from '../components/TodoList.vue';
+  import SessionDropdown from '../components/SessionDropdown.vue';
   import { useKeybinding } from '../utils/useKeybinding';
   import { useSignal } from '@gn8/alien-signals-vue';
   import { useProviderStore } from '../stores/providerStore';
+  import { resetFileChanges } from '../stores/fileChangeStore';
   import type { PermissionMode } from '@anthropic-ai/claude-agent-sdk';
 
   const runtime = inject(RuntimeKey);
   if (!runtime) throw new Error('[ChatPage] runtime not provided');
+
+  // Provide workspace root for child components (relative path display)
+  const workspaceRoot = computed(() => session.value?.cwd.value || '');
+  provide('workspaceRoot', workspaceRoot);
 
   const toolContext = computed<ToolContext>(() => ({
     fileOpener: {
@@ -361,6 +366,8 @@
   watch(session, async () => {
     // Session switch: reset and scroll to bottom
     prevCount = 0;
+    // Reset file change stats for new session
+    resetFileChanges();
     await nextTick();
     scrollToBottom();
   });
@@ -571,6 +578,11 @@
     flex-direction: column;
     height: 100%;
     min-width: 360px;
+    background: var(--theme-bg-primary, var(--vscode-editor-background));
+    border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 60%, transparent);
+    border-radius: var(--theme-radius-md, 8px);
+    margin: 4px;
+    overflow: hidden;
   }
 
   /* Drag overlay - glass morphism and micro-interactions */
@@ -678,56 +690,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--vscode-panel-border);
-    min-height: 32px;
-    padding: 0 12px;
-    background: transparent;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border: none;
-    background: transparent;
-    color: var(--vscode-titleBar-activeForeground);
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    opacity: 0.7;
-  }
-
-  .menu-btn .codicon {
-    font-size: 12px;
-  }
-
-  .menu-btn:hover {
-    background: var(--vscode-toolbar-hoverBackground);
-    opacity: 1;
-  }
-
-  .chat-title {
-    margin: 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--vscode-titleBar-activeForeground);
-    /* Adapt to remaining space, avoid overflow */
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    border-bottom: 1px solid var(--theme-border-subtle, rgba(255, 255, 255, 0.03));
+    min-height: 36px;
+    padding: 0 8px 0 4px;
+    background: var(--theme-bg-secondary, var(--vscode-sideBar-background));
+    border-radius: var(--theme-radius-md, 8px) var(--theme-radius-md, 8px) 0 0;
   }
 
   .header-right {
@@ -851,6 +818,7 @@
   /* Input area container */
   .inputContainer {
     padding: 8px 12px 12px;
+    background: var(--theme-bg-primary, var(--vscode-editor-background));
   }
 
   /* Bottom dialog area pinned at bottom */

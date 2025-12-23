@@ -79,7 +79,7 @@ function toggleExpanded() {
   align-items: center;
   padding: 4px 8px;
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   transition: background-color 0.1s ease;
   cursor: pointer;
 }

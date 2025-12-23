@@ -32,7 +32,7 @@ const content = computed(() => {
   padding: 8px 12px;
   background-color: var(--vscode-inputValidation-infoBackground);
   border-left: 3px solid var(--vscode-inputValidation-infoBorder);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   font-size: 12px;
 }
 

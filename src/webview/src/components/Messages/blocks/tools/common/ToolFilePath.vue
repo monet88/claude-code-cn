@@ -7,12 +7,12 @@
     :title="fullPath"
   >
     <FileIcon :file-name="fileName" :size="14" class="file-icon" />
-    <span class="filepath-name">{{ fileName }}</span>
+    <span class="filepath-name">{{ displayPath }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import type { ToolContext } from '@/types/tool';
 import FileIcon from '@/components/FileIcon.vue';
 
@@ -25,6 +25,16 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Try to get workspace root from runtime or context (injected as ComputedRef)
+import type { ComputedRef } from 'vue';
+const workspaceRootRef = inject<ComputedRef<string> | string>('workspaceRoot', '');
+
+// Unwrap: could be a ComputedRef or plain string
+const workspaceRoot = computed(() => {
+  if (typeof workspaceRootRef === 'string') return workspaceRootRef;
+  return workspaceRootRef?.value || '';
+});
+
 const fileName = computed(() => {
   if (!props.filePath) return '';
   // Simple path parsing (cross-platform)
@@ -33,6 +43,38 @@ const fileName = computed(() => {
 
 const fullPath = computed(() => {
   return props.filePath;
+});
+
+// Display relative path if possible
+const displayPath = computed(() => {
+  if (!props.filePath) return '';
+  
+  // Normalize path separators
+  const normalizedPath = props.filePath.replace(/\\/g, '/');
+  const normalizedRoot = (workspaceRoot.value || '').replace(/\\/g, '/');
+  
+  // If workspace root is available and path starts with it, show relative
+  if (normalizedRoot && normalizedPath.toLowerCase().startsWith(normalizedRoot.toLowerCase())) {
+    let relativePath = normalizedPath.substring(normalizedRoot.length);
+    // Remove leading slash
+    if (relativePath.startsWith('/')) {
+      relativePath = relativePath.substring(1);
+    }
+    return relativePath || fileName.value;
+  }
+  
+  // Fallback: try to extract relative path from common patterns
+  // Look for src/, lib/, app/, packages/, etc.
+  const patterns = ['/src/', '/lib/', '/app/', '/packages/', '/components/', '/webview/'];
+  for (const pattern of patterns) {
+    const index = normalizedPath.toLowerCase().indexOf(pattern);
+    if (index !== -1) {
+      return normalizedPath.substring(index + 1); // Include the folder name
+    }
+  }
+  
+  // Last fallback: just show the file name
+  return fileName.value;
 });
 
 function handleClick(event: MouseEvent) {
@@ -60,7 +102,7 @@ function handleClick(event: MouseEvent) {
   background: none;
   border: none;
   padding: 0px 4px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   cursor: pointer;
   font-family: var(--vscode-editor-font-family);
   font-size: 0.9em;

@@ -1,5 +1,5 @@
 /**
- * Output Styles 配置 Store
+ * Output Styles configuration store
  */
 
 import { defineStore } from 'pinia';

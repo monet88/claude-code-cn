@@ -1,13 +1,13 @@
 export function normalizeKeystroke(e: KeyboardEvent): string {
   const parts: string[] = []
   if (e.ctrlKey) parts.push('ctrl')
-  // On mac, metaKey 作为 cmd
+  // On mac, metaKey is as cmd
   if (e.metaKey) parts.push('cmd')
   if (e.altKey) parts.push('alt')
   if (e.shiftKey) parts.push('shift')
 
   let key = (e.key || '').toLowerCase()
-  // 统一特殊键命名
+  // Standardize special key naming
   const map: Record<string, string> = {
     ' ': 'space',
     escape: 'escape',

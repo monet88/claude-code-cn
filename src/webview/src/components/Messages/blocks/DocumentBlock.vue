@@ -23,7 +23,7 @@ const documentTitle = computed(() => props.block.title || 'Document');
   padding: 12px;
   background-color: var(--vscode-editor-background);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
 }
 
 .document-label {

@@ -236,7 +236,7 @@ const shouldExpand = computed(() => {
 .result-content {
   background-color: color-mix(in srgb, var(--vscode-editor-background) 80%, transparent);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   padding: 8px;
   margin: 0;
   font-family: var(--vscode-editor-font-family);

@@ -1,5 +1,5 @@
 /**
- * Commands 配置 Store
+ * Commands Store
  */
 
 import { defineStore } from 'pinia';

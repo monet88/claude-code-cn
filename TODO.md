@@ -7,3 +7,6 @@
 4. Coloring in the diff code view
 
 5. Opening the editor's Diff view tab simultaneously for viewing during Edit or Write permission approval
+
+
+khung chatbox bây giờ thêm bộ đếm tổng file change

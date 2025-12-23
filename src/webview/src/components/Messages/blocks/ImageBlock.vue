@@ -45,7 +45,7 @@ function handleError() {
 .image-content {
   max-width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   border: 1px solid var(--vscode-panel-border);
 }
 
@@ -55,6 +55,6 @@ function handleError() {
   color: var(--vscode-descriptionForeground);
   background-color: var(--vscode-editor-background);
   border: 1px dashed var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
 }
 </style>

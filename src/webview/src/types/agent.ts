@@ -1,50 +1,50 @@
 /**
- * Agents 前端类型定义
+ * Agents frontend type definitions
  */
 
 /**
- * Agent 类型
+ * Agent type
  */
 export type AgentType = 'file' | 'directory';
 
 /**
- * Agent 作用域
+ * Agent scope
  */
 export type AgentScope = 'global' | 'local';
 
 /**
- * Agent 配置
+ * Agent configuration
  */
 export interface Agent {
-  /** 唯一标识符 */
+  /** Unique identifier */
   id: string;
-  /** 显示名称 */
+  /** Display name */
   name: string;
-  /** 类型: 文件或目录 */
+  /** Type: file or directory */
   type: AgentType;
-  /** 作用域: 全局或本地 */
+  /** Scope: global or local */
   scope: AgentScope;
-  /** 完整路径 */
+  /** Full path */
   path: string;
-  /** 描述 */
+  /** Description */
   description?: string;
-  /** 创建时间 */
+  /** Created at */
   createdAt?: string;
-  /** 修改时间 */
+  /** Modified at */
   modifiedAt?: string;
 }
 
 /**
- * Agents 映射 (id -> Agent)
+ * Agents mapping (id -> Agent)
  */
 export type AgentsMap = Record<string, Agent>;
 
 /**
- * Agents 配置结构
+ * Agents configuration
  */
 export interface AgentsConfig {
-  /** 全局 Agents */
+  /** Global Agents */
   global: AgentsMap;
-  /** 本地 Agents */
+  /** Local Agents */
   local: AgentsMap;
 }

@@ -71,7 +71,7 @@ const toggleExpand = () => {
   flex-direction: column;
   background-color: var(--vscode-editor-background);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 6px;
+  border-radius: var(--theme-radius-md, 8px);
   overflow: hidden;
 }
 
@@ -178,7 +178,7 @@ const toggleExpand = () => {
 .plan-content :deep(pre) {
   background-color: var(--vscode-textCodeBlock-background);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   padding: 8px;
   overflow-x: auto;
   margin-bottom: 8px;

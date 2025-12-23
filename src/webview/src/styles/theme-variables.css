@@ -1,11 +1,11 @@
 /*!
- * 独立主题变量系统
- * 完全替代VSCode变量，实现独立的主题切换
+ * Independent theme variable system
+ Completely replace VSCode variables to enable independent theme switching.
  */
 
-/* 默认主题变量（亮色） */
+/* Default theme variables (light) */
 :root {
-  /* 主要颜色 */
+  /* Main colors */
   --theme-bg-primary: #ffffff;
   --theme-bg-secondary: #f5f5f5;
   --theme-bg-tertiary: #ebebeb;
@@ -13,92 +13,99 @@
   --theme-fg-secondary: #666666;
   --theme-fg-tertiary: #999999;
 
-  /* 编辑器颜色 */
+  /* Editor colors */
   --theme-editor-bg: #ffffff;
   --theme-editor-fg: #333333;
   --theme-sidebar-bg: #f5f5f5;
   --theme-panel-bg: #f8f8f8;
   --theme-panel-border: #e0e0e0;
 
-  /* 输入框 */
+  /* Input */
   --theme-input-bg: #ffffff;
   --theme-input-fg: #333333;
   --theme-input-border: #e0e0e0;
   --theme-input-border-focus: #007acc;
   --theme-input-placeholder: #999999;
 
-  /* 按钮 */
+  /* Button */
   --theme-button-bg: #007acc;
   --theme-button-fg: #ffffff;
   --theme-button-hover-bg: #0062a3;
   --theme-button-disabled-bg: #cccccc;
 
-  /* 列表 */
+  /* List */
   --theme-list-hover-bg: #e8e8e8;
   --theme-list-active-bg: #e0e0e0;
   --theme-list-active-fg: #333333;
   --theme-list-selection-bg: #cce5ff;
   --theme-list-selection-fg: #333333;
 
-  /* 菜单 */
+  /* Menu */
   --theme-menu-bg: #ffffff;
   --theme-menu-fg: #333333;
   --theme-menu-border: #e0e0e0;
   --theme-menu-selection-bg: #e8e8e8;
   --theme-menu-selection-fg: #333333;
 
-  /* Badge徽章 */
+  /* Badge badge */
   --theme-badge-bg: #007acc;
   --theme-badge-fg: #ffffff;
 
-  /* 滚动条 */
+  /* Scrollbar */
   --theme-scrollbar-bg: transparent;
   --theme-scrollbar-thumb: rgba(0, 0, 0, 0.2);
   --theme-scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
   --theme-scrollbar-thumb-active: rgba(0, 0, 0, 0.4);
 
-  /* 链接 */
+  /* Link */
   --theme-link-fg: #0366d6;
   --theme-link-active-fg: #0062a3;
 
-  /* 错误/警告/信息 */
+  /* Error/warning/info */
   --theme-error-fg: #d73a49;
   --theme-warning-fg: #e36209;
   --theme-info-fg: #0366d6;
   --theme-success-fg: #28a745;
 
-  /* 特殊颜色 */
+  /* Special colors */
   --theme-focus-border: #007acc;
   --theme-selection-bg: #add6ff;
   --theme-shadow: rgba(0, 0, 0, 0.1);
   --theme-overlay-bg: rgba(0, 0, 0, 0.5);
 
-  /* Claude特色 */
+  /* Claude Features */
   --theme-claude-orange: #d97757;
   --theme-claude-orange-hover: #c6613f;
 
-  /* 代码高亮 */
+  /* Code Highlighting */
   --theme-code-bg: #f6f8fa;
   --theme-code-fg: #333333;
   --theme-code-border: #e1e4e8;
 
-  /* Syntax Highlighting - Design Spec (Light) */
+  /* Syntax Highlighting */
   --theme-syntax-keyword: #a626a4;
   --theme-syntax-string: #50a14f;
   --theme-syntax-function: #4078f2;
   --theme-syntax-comment: #a0a1a7;
 
-  /* Accents - Design Spec */
+  /* Accents */
   --theme-accent-blue: #0366d6;
   --theme-accent-blue-hover: #0550ae;
   --theme-accent-purple: #7c3aed;
   --theme-accent-green: #22c55e;
   --theme-accent-amber: #d97706;
 
-  /* Borders - Design Spec */
+  /* Borders */
   --theme-border-subtle: #e5e7eb;
   --theme-border-default: #d1d5db;
   --theme-border-focus: #3b82f6;
+
+  /* Border Radius - Rounded corners for modern UI */
+  --theme-radius-sm: 4px;
+  --theme-radius-md: 8px;
+  --theme-radius-lg: 12px;
+  --theme-radius-xl: 16px;
+  --theme-radius-full: 9999px;
 
   /* Typography Scale */
   --theme-font-ui: 'Inter', 'Geist Sans', system-ui, sans-serif;
@@ -112,9 +119,9 @@
   --theme-font-size-micro: 10px;
 }
 
-/* 暗色主题 */
+/* Dark Theme */
 body.custom-theme-dark {
-  /* 主要颜色 - 使用 VSCode 变量实现动态同步 */
+  /* Main colors - Use VSCode variables to dynamically sync */
   --theme-bg-primary: var(--vscode-editor-background, #1e1e1e);
   --theme-bg-secondary: var(--vscode-sideBar-background, #252526);
   --theme-bg-tertiary: var(--vscode-editorWidget-background, #2d2e2f);
@@ -128,71 +135,71 @@ body.custom-theme-dark {
   --theme-fg-muted: var(--vscode-disabledForeground, #666666);
   --theme-fg-disabled: var(--vscode-disabledForeground, #858585);
 
-  /* 编辑器颜色 - 使用 VSCode 变量 */
+  /* Editor colors - Use VSCode variables */
   --theme-editor-bg: var(--vscode-editor-background, #1e1e1e);
   --theme-editor-fg: var(--vscode-editor-foreground, #cccccc);
   --theme-sidebar-bg: var(--vscode-sideBar-background, #252526);
   --theme-panel-bg: var(--vscode-panel-background, #1e1e1e);
   --theme-panel-border: var(--vscode-panel-border, #464647);
 
-  /* 输入框 - 使用 VSCode 变量 */
+  /* Input - Use VSCode variables */
   --theme-input-bg: var(--vscode-input-background, #3c3c3c);
   --theme-input-fg: var(--vscode-input-foreground, #cccccc);
   --theme-input-border: var(--vscode-input-border, #464647);
   --theme-input-border-focus: var(--vscode-focusBorder, #007fd4);
   --theme-input-placeholder: var(--vscode-input-placeholderForeground, #666666);
 
-  /* 按钮 - 使用 VSCode 变量 */
+  /* Button - Use VSCode variables */
   --theme-button-bg: var(--vscode-button-background, #0e639c);
   --theme-button-fg: var(--vscode-button-foreground, #ffffff);
   --theme-button-hover-bg: var(--vscode-button-hoverBackground, #1177bb);
   --theme-button-disabled-bg: var(--vscode-button-secondaryBackground, #4a4a4a);
 
-  /* 列表 - 使用 VSCode 变量 */
+  /* List - Use VSCode variables */
   --theme-list-hover-bg: var(--vscode-list-hoverBackground, #2a2d2e);
   --theme-list-active-bg: var(--vscode-list-activeSelectionBackground, #094771);
   --theme-list-active-fg: var(--vscode-list-activeSelectionForeground, #ffffff);
   --theme-list-selection-bg: var(--vscode-list-activeSelectionBackground, #094771);
   --theme-list-selection-fg: var(--vscode-list-activeSelectionForeground, #ffffff);
 
-  /* 菜单 - 使用 VSCode 变量 */
+  /* Menu - Use VSCode variables */
   --theme-menu-bg: var(--vscode-menu-background, #252526);
   --theme-menu-fg: var(--vscode-menu-foreground, #cccccc);
   --theme-menu-border: var(--vscode-menu-border, #464647);
   --theme-menu-selection-bg: var(--vscode-menu-selectionBackground, #094771);
   --theme-menu-selection-fg: var(--vscode-menu-selectionForeground, #ffffff);
 
-  /* Badge徽章 - 使用 VSCode 变量 */
+  /* Badge - Use VSCode variables */
   --theme-badge-bg: var(--vscode-badge-background, #4d4d4d);
   --theme-badge-fg: var(--vscode-badge-foreground, #ffffff);
 
-  /* 滚动条 - 使用 VSCode 变量 */
+  /* Scrollbar - Use VSCode variables */
   --theme-scrollbar-bg: transparent;
   --theme-scrollbar-thumb: var(--vscode-scrollbarSlider-background, rgba(255, 255, 255, 0.2));
   --theme-scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, rgba(255, 255, 255, 0.3));
   --theme-scrollbar-thumb-active: var(--vscode-scrollbarSlider-activeBackground, rgba(255, 255, 255, 0.4));
 
-  /* 链接 - 使用 VSCode 变量 */
+  /* Link - Use VSCode variables */
   --theme-link-fg: var(--vscode-textLink-foreground, #3794ff);
   --theme-link-active-fg: var(--vscode-textLink-activeForeground, #1177bb);
 
-  /* 错误/警告/信息 - 使用 VSCode 变量 */
+  /* Error/Warning/Info - Use VSCode variables */
   --theme-error-fg: var(--vscode-errorForeground, #f48771);
   --theme-warning-fg: var(--vscode-editorWarning-foreground, #ffcc00);
   --theme-info-fg: var(--vscode-editorInfo-foreground, #3794ff);
   --theme-success-fg: var(--vscode-testing-iconPassed, #89d185);
 
-  /* 特殊颜色 - 使用 VSCode 变量 */
+  /* Special colors - Use VSCode variables */
   --theme-focus-border: var(--vscode-focusBorder, #007fd4);
   --theme-selection-bg: var(--vscode-editor-selectionBackground, #264f78);
   --theme-shadow: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
   --theme-overlay-bg: rgba(0, 0, 0, 0.75);
 
-  /* Claude特色 */
+  /* Claude Features */
   --theme-claude-orange: #ff8c42;
   --theme-claude-orange-hover: #ff7a29;
 
-  /* 代码高亮 */
+  /* Code Highlighting */
   --theme-code-bg: #2d2e2f;
   --theme-code-fg: #cccccc;
   --theme-code-border: #464647;
@@ -215,6 +222,13 @@ body.custom-theme-dark {
   --theme-border-default: #333333;
   --theme-border-focus: #3b82f6;
 
+  /* Border Radius - Rounded corners for modern UI */
+  --theme-radius-sm: 4px;
+  --theme-radius-md: 8px;
+  --theme-radius-lg: 12px;
+  --theme-radius-xl: 16px;
+  --theme-radius-full: 9999px;
+
   /* Typography Scale */
   --theme-font-ui: 'Inter', 'Geist Sans', system-ui, sans-serif;
   --theme-font-code: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
@@ -227,9 +241,9 @@ body.custom-theme-dark {
   --theme-font-size-micro: 10px;
 }
 
-/* 亮色主题（备用类名） */
+/* Light Theme (Backup Class Name) */
 body.custom-theme-light {
-  /* 主要颜色 - 使用 VSCode 变量实现动态同步 */
+  /* Main colors - Use VSCode variables to dynamically sync */
   --theme-bg-primary: var(--vscode-editor-background, #ffffff);
   --theme-bg-secondary: var(--vscode-sideBar-background, #f5f5f5);
   --theme-bg-tertiary: var(--vscode-editorWidget-background, #ebebeb);
@@ -237,77 +251,78 @@ body.custom-theme-light {
   --theme-fg-secondary: var(--vscode-descriptionForeground, #666666);
   --theme-fg-tertiary: var(--vscode-disabledForeground, #999999);
 
-  /* 编辑器颜色 - 使用 VSCode 变量 */
+  /* Editor colors - Use VSCode variables */
   --theme-editor-bg: var(--vscode-editor-background, #ffffff);
   --theme-editor-fg: var(--vscode-editor-foreground, #333333);
   --theme-sidebar-bg: var(--vscode-sideBar-background, #f5f5f5);
   --theme-panel-bg: var(--vscode-panel-background, #f8f8f8);
   --theme-panel-border: var(--vscode-panel-border, #e0e0e0);
 
-  /* 输入框 - 使用 VSCode 变量 */
+  /* Input - Use VSCode variables */
   --theme-input-bg: var(--vscode-input-background, #ffffff);
   --theme-input-fg: var(--vscode-input-foreground, #333333);
   --theme-input-border: var(--vscode-input-border, #e0e0e0);
   --theme-input-border-focus: var(--vscode-focusBorder, #007acc);
   --theme-input-placeholder: var(--vscode-input-placeholderForeground, #999999);
 
-  /* 按钮 - 使用 VSCode 变量 */
+  /* Button - Use VSCode variables */
   --theme-button-bg: var(--vscode-button-background, #007acc);
   --theme-button-fg: var(--vscode-button-foreground, #ffffff);
   --theme-button-hover-bg: var(--vscode-button-hoverBackground, #0062a3);
   --theme-button-disabled-bg: var(--vscode-button-secondaryBackground, #cccccc);
 
-  /* 列表 - 使用 VSCode 变量 */
+  /* List - Use VSCode variables */
   --theme-list-hover-bg: var(--vscode-list-hoverBackground, #e8e8e8);
   --theme-list-active-bg: var(--vscode-list-activeSelectionBackground, #e0e0e0);
   --theme-list-active-fg: var(--vscode-list-activeSelectionForeground, #333333);
   --theme-list-selection-bg: var(--vscode-list-activeSelectionBackground, #cce5ff);
   --theme-list-selection-fg: var(--vscode-list-activeSelectionForeground, #333333);
 
-  /* 菜单 - 使用 VSCode 变量 */
+  /* Menu - Use VSCode variables */
   --theme-menu-bg: var(--vscode-menu-background, #ffffff);
   --theme-menu-fg: var(--vscode-menu-foreground, #333333);
   --theme-menu-border: var(--vscode-menu-border, #e0e0e0);
   --theme-menu-selection-bg: var(--vscode-menu-selectionBackground, #e8e8e8);
   --theme-menu-selection-fg: var(--vscode-menu-selectionForeground, #333333);
 
-  /* Badge徽章 - 使用 VSCode 变量 */
+  /* Badge - Use VSCode variables */
   --theme-badge-bg: var(--vscode-badge-background, #007acc);
   --theme-badge-fg: var(--vscode-badge-foreground, #ffffff);
 
-  /* 滚动条 - 使用 VSCode 变量 */
+  /* Scrollbar - Use VSCode variables */
   --theme-scrollbar-bg: transparent;
   --theme-scrollbar-thumb: var(--vscode-scrollbarSlider-background, rgba(0, 0, 0, 0.2));
   --theme-scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, rgba(0, 0, 0, 0.3));
   --theme-scrollbar-thumb-active: var(--vscode-scrollbarSlider-activeBackground, rgba(0, 0, 0, 0.4));
 
-  /* 链接 - 使用 VSCode 变量 */
+  /* Link - Use VSCode variables */
   --theme-link-fg: var(--vscode-textLink-foreground, #0366d6);
   --theme-link-active-fg: var(--vscode-textLink-activeForeground, #0062a3);
 
-  /* 错误/警告/信息 - 使用 VSCode 变量 */
+  /* Error/Warning/Info - Use VSCode variables */
   --theme-error-fg: var(--vscode-errorForeground, #d73a49);
   --theme-warning-fg: var(--vscode-editorWarning-foreground, #e36209);
   --theme-info-fg: var(--vscode-editorInfo-foreground, #0366d6);
   --theme-success-fg: var(--vscode-testing-iconPassed, #28a745);
 
-  /* 特殊颜色 - 使用 VSCode 变量 */
+  /* Special colors - Use VSCode variables */
   --theme-focus-border: var(--vscode-focusBorder, #007acc);
   --theme-selection-bg: var(--vscode-editor-selectionBackground, #add6ff);
   --theme-shadow: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.1));
   --theme-overlay-bg: rgba(0, 0, 0, 0.5);
 
-  /* Claude特色 */
+  /* Claude Features */
   --theme-claude-orange: #d97757;
   --theme-claude-orange-hover: #c6613f;
 
-  /* 代码高亮 */
+  /* Code Highlighting */
   --theme-code-bg: var(--vscode-textCodeBlock-background, #f6f8fa);
   --theme-code-fg: var(--vscode-editor-foreground, #333333);
   --theme-code-border: var(--vscode-panel-border, #e1e4e8);
 }
 
-/* VSCode 变量映射 - 将所有VSCode变量映射到我们的主题变量 */
+/* Claude Features */
+/* VSCode Variable Mapping - Maps all VSCode variables to our theme variables */
 /* 
  * NOTE: These are fallbacks only. VSCode injects its own CSS variables.
  * We only provide fallbacks for when running outside VSCode.

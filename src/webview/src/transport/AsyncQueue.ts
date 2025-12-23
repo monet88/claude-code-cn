@@ -1,10 +1,10 @@
 /**
- * AsyncQueue - WebView 端的异步队列
+ * AsyncQueue - An asynchronous queue for WebView applications
  *
- * 与 Extension 端的 AsyncStream 相同的实现
- * 用于 WebView 接收来自 Extension 的消息
+ * Similar to the AsyncStream implementation on the Extension side
+ * Used to receive messages from the Extension in the WebView
  *
- * 为了语义清晰，WebView 端命名为 AsyncQueue
+ * To ensure semantic clarity, the AsyncQueue is named AsyncQueue on the WebView side
  */
 
 export class AsyncQueue<T> implements AsyncIterable<T>, AsyncIterator<T> {

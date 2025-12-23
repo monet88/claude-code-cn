@@ -297,7 +297,7 @@ function getLineNumber(patch: any, lineIndex: number): string {
   font-family: var(--vscode-editor-font-family);
   font-size: 0.85em;
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   overflow: hidden;
 }
 

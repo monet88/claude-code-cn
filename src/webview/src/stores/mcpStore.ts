@@ -1,5 +1,5 @@
 /**
- * MCP 服务器配置 Store
+ * MCP Server Store
  */
 
 import { defineStore } from 'pinia';
@@ -8,13 +8,13 @@ import type { McpServer, McpServersMap, McpPreset } from '../types/mcp';
 import { getVsCodeApi } from '../utils/vscodeApi';
 
 /**
- * MCP 预设服务器配置
+ * MCP Preset Servers
  */
 export const MCP_PRESETS: McpPreset[] = [
   {
     id: 'fetch',
     name: 'mcp-server-fetch',
-    description: 'Web 内容获取工具，可以抓取网页内容',
+    description: 'Web content fetching tool, can crawl web content',
     tags: ['stdio', 'http', 'web'],
     server: {
       type: 'stdio',
@@ -27,7 +27,7 @@ export const MCP_PRESETS: McpPreset[] = [
   {
     id: 'time',
     name: '@modelcontextprotocol/server-time',
-    description: '时间和时区工具',
+    description: 'Time and timezone tool',
     tags: ['stdio', 'time', 'utility'],
     server: {
       type: 'stdio',
@@ -40,7 +40,7 @@ export const MCP_PRESETS: McpPreset[] = [
   {
     id: 'memory',
     name: '@modelcontextprotocol/server-memory',
-    description: '知识图谱和记忆存储工具',
+    description: 'Knowledge graph and memory storage tool',
     tags: ['stdio', 'memory', 'graph'],
     server: {
       type: 'stdio',
@@ -53,7 +53,7 @@ export const MCP_PRESETS: McpPreset[] = [
   {
     id: 'sequential-thinking',
     name: '@modelcontextprotocol/server-sequential-thinking',
-    description: '顺序思考和推理工具',
+    description: 'Sequential thinking and reasoning tool',
     tags: ['stdio', 'thinking', 'reasoning'],
     server: {
       type: 'stdio',
@@ -66,7 +66,7 @@ export const MCP_PRESETS: McpPreset[] = [
   {
     id: 'context7',
     name: '@upstash/context7-mcp',
-    description: '文档搜索和上下文检索工具',
+    description: 'Document search and context retrieval tool',
     tags: ['stdio', 'docs', 'search'],
     server: {
       type: 'stdio',
@@ -79,7 +79,7 @@ export const MCP_PRESETS: McpPreset[] = [
 ];
 
 /**
- * 向 VSCode 扩展发送消息并等待响应
+ * Send message to extension and wait for response
  */
 function sendMessageToExtension(type: string, payload?: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -90,20 +90,20 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       return;
     }
 
-    // 生成唯一消息 ID
+    // Generate unique message ID
     const messageId = `${type}_${Date.now()}_${Math.random()}`;
 
-    // 监听响应
+    // Listen for response
     const handleMessage = (event: MessageEvent) => {
       const data = event.data;
       if (data && data.type === 'from-extension') {
         const message = data.message;
-        // 根据不同的响应类型匹配
+        // Match response type
         const expectedTypes = [
-          'allMcpServersData',    // getAllMcpServers 的响应
-          'mcpServerUpserted',    // upsertMcpServer 的响应
-          'mcpServerDeleted',     // deleteMcpServer 的响应
-          'mcpServerValidated'    // validateMcpServer 的响应
+          'allMcpServersData',    // getAllMcpServers response
+          'mcpServerUpserted',    // upsertMcpServer response
+          'mcpServerDeleted',     // deleteMcpServer response
+          'mcpServerValidated'    // validateMcpServer response
         ];
 
         if (expectedTypes.some(t => message.type === t)) {
@@ -115,11 +115,11 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
 
     window.addEventListener('message', handleMessage);
 
-    // 确保 payload 是可序列化的 - 进行深度克隆以去除不可序列化的属性
+    // Ensure payload is serializable - perform deep cloning to remove non-serializable properties
     let serializedPayload = payload;
     if (payload !== undefined && payload !== null) {
       try {
-        // 通过 JSON 序列化/反序列化来确保数据可克隆
+        // Serialize/Deserialize through JSON to ensure data is cloneable
         serializedPayload = JSON.parse(JSON.stringify(payload));
       } catch (e) {
         console.error('Failed to serialize payload:', e);
@@ -128,7 +128,7 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       }
     }
 
-    // 发送消息
+    // Send message
     try {
       vscodeApi.postMessage({
         type,
@@ -141,7 +141,7 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
       return;
     }
 
-    // 超时处理
+    // Timeout handling
     setTimeout(() => {
       window.removeEventListener('message', handleMessage);
       reject(new Error(`Request timeout: ${type}`));
@@ -150,22 +150,22 @@ function sendMessageToExtension(type: string, payload?: any): Promise<any> {
 }
 
 /**
- * MCP 服务器配置 Store
+ * MCP Server Store
  */
 export const useMcpStore = defineStore('mcp', () => {
-  // 服务器列表
+  // Server list
   const servers = ref<McpServersMap>({});
 
-  // 加载状态
+  // Loading state
   const loading = ref(false);
 
-  // 错误信息
+  // Error message
   const error = ref<string | null>(null);
 
-  // 计算服务器数量
+  // Calculate server count
   const serverCount = computed(() => Object.keys(servers.value).length);
 
-  // 计算服务器数组
+  // Calculate server list
   const serverList = computed(() =>
     Object.entries(servers.value).map(([id, server]) => ({
       ...server,
@@ -174,14 +174,14 @@ export const useMcpStore = defineStore('mcp', () => {
   );
 
   /**
-   * 初始化，加载服务器列表
+   * Initialize, load server list
    */
   async function initialize() {
     await loadServers();
   }
 
   /**
-   * 加载所有 MCP 服务器
+   * Load all MCP servers
    */
   async function loadServers() {
     loading.value = true;
@@ -204,7 +204,7 @@ export const useMcpStore = defineStore('mcp', () => {
   }
 
   /**
-   * 添加或更新服务器
+   * Add or update server
    */
   async function upsertServer(server: McpServer): Promise<{ success: boolean; error?: string }> {
     loading.value = true;
@@ -213,11 +213,11 @@ export const useMcpStore = defineStore('mcp', () => {
     try {
       const result = await sendMessageToExtension('upsertMcpServer', { server });
       if (result.success) {
-        // 重新加载服务器列表
+        // Reload server list
         await loadServers();
         return { success: true };
       } else {
-        error.value = result.error || '添加服务器失败';
+        error.value = result.error || 'Failed to add server';
         return { success: false, error: error.value ?? undefined };
       }
     } catch (e) {
@@ -230,7 +230,7 @@ export const useMcpStore = defineStore('mcp', () => {
   }
 
   /**
-   * 删除服务器
+   * Delete server
    */
   async function deleteServer(id: string): Promise<{ success: boolean; error?: string }> {
     loading.value = true;
@@ -239,11 +239,11 @@ export const useMcpStore = defineStore('mcp', () => {
     try {
       const result = await sendMessageToExtension('deleteMcpServer', { id });
       if (result.success) {
-        // 重新加载服务器列表
+        // Reload server list
         await loadServers();
         return { success: true };
       } else {
-        error.value = result.error || '删除服务器失败';
+        error.value = result.error || 'Failed to delete server';
         return { success: false, error: error.value ?? undefined };
       }
     } catch (e) {
@@ -256,7 +256,7 @@ export const useMcpStore = defineStore('mcp', () => {
   }
 
   /**
-   * 验证服务器配置
+   * Validate server configuration
    */
   async function validateServer(server: McpServer): Promise<{ valid: boolean; errors: string[] }> {
     try {
@@ -269,14 +269,14 @@ export const useMcpStore = defineStore('mcp', () => {
   }
 
   /**
-   * 获取预设服务器列表
+   * Get presets
    */
   function getPresets(): McpPreset[] {
     return MCP_PRESETS;
   }
 
   /**
-   * 从预设创建服务器
+   * Create server from preset
    */
   function createFromPreset(preset: McpPreset): McpServer {
     return {
@@ -297,14 +297,14 @@ export const useMcpStore = defineStore('mcp', () => {
   }
 
   /**
-   * 检查服务器 ID 是否已存在
+   * Check if server ID exists
    */
   function isIdExists(id: string): boolean {
     return id in servers.value;
   }
 
   /**
-   * 生成唯一的服务器 ID
+   * Generate unique server ID
    */
   function generateUniqueId(baseId: string): string {
     if (!isIdExists(baseId)) {

@@ -1,6 +1,6 @@
 /**
- * VSCode API 工具函数
- * 提供统一的 VSCode API 访问接口，确保整个应用只调用一次 acquireVsCodeApi()
+ * VSCode API tools
+ * Provide a unified VSCode API access interface, ensuring that the entire application only calls acquireVsCodeApi() once
  */
 
 interface VsCodeApi {
@@ -10,16 +10,16 @@ interface VsCodeApi {
 }
 
 /**
- * 获取共享的 VSCode API 实例
- * 确保整个应用只调用一次 acquireVsCodeApi()
+ * Get the shared VSCode API instance
+ * Ensure that the entire application only calls acquireVsCodeApi() once
  */
 export function getVsCodeApi(): VsCodeApi | null {
-  // 检查是否已经有实例
+  // Check if there is already an instance
   if ((window as any).__vscodeApi) {
     return (window as any).__vscodeApi;
   }
 
-  // 第一次调用，尝试获取并缓存实例
+  // First call, try to get and cache the instance
   if (typeof (window as any).acquireVsCodeApi === 'function') {
     try {
       (window as any).__vscodeApi = (window as any).acquireVsCodeApi();
@@ -36,8 +36,8 @@ export function getVsCodeApi(): VsCodeApi | null {
 }
 
 /**
- * 获取 VSCode API 实例（抛出异常版本）
- * 如果无法获取 API 实例，则抛出异常
+ * Get the VSCode API instance (throw exception version)
+ * If the API instance cannot be obtained, throw an exception
  */
 export function requireVsCodeApi(): VsCodeApi {
   const api = getVsCodeApi();

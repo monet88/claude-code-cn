@@ -32,7 +32,7 @@ const resultClasses = computed(() => {
 <style scoped>
 .command-result-block {
   margin: 8px 0;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   overflow: hidden;
 }
 

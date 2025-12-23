@@ -1,8 +1,17 @@
 <template>
-  <!-- Unified input container -->
-  <div ref="containerRef" class="full-input-box">
+  <!-- Wrapper for status bar + input box -->
+  <div class="chat-input-wrapper">
+    <!-- 0. Sticky status bar (file changes + context window) - OUTSIDE the input box -->
+    <InputStatusBar
+      :percentage="normalizedProgress"
+      :context-window="contextWindow"
+      :show-progress="showProgress"
+    />
     
-    <!-- 1. Attachment preview area (horizontal scroll) -->
+    <!-- Unified input container -->
+    <div ref="containerRef" class="full-input-box">
+      
+      <!-- 1. Attachment preview area (horizontal scroll) -->
     <div
       v-if="imageAttachments.length || fileAttachments.length"
       class="attachments-scroll-view custom-scrollbar"
@@ -193,6 +202,7 @@
         </div>
       </template>
     </Dropdown>
+    </div>
   </div>
 </template>
 
@@ -202,6 +212,7 @@ import { Motion } from 'motion-v'
 import type { PermissionMode } from '@anthropic-ai/claude-agent-sdk'
 import FileIcon from './FileIcon.vue'
 import ButtonArea from './ButtonArea.vue'
+import InputStatusBar from './InputStatusBar.vue'
 import type { AttachmentItem } from '../types/attachment'
 import { IMAGE_MEDIA_TYPES } from '../types/attachment'
 import { Dropdown, DropdownItem } from './Dropdown'
@@ -282,6 +293,12 @@ const fileAttachments = computed(() => attachmentsList.value.filter(a => !isImag
 
 const isSubmitDisabled = computed(() => {
   return !content.value.trim() || isLoading.value
+})
+
+const normalizedProgress = computed(() => {
+  const raw = Number(props.progressPercentage ?? 0)
+  if (Number.isNaN(raw)) return 0
+  return Math.min(100, Math.max(0, raw))
 })
 
 // Dropdown width based on container
@@ -688,21 +705,28 @@ defineExpose({
 </script>
 
 <style scoped>
+/* Wrapper for status bar + input box */
+.chat-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 /* Unified input container layout */
 .full-input-box {
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
-  background-color: var(--vscode-input-background);
-  border: 1px solid var(--vscode-input-border);
-  border-radius: 6px;
-  transition: border-color 0.2s ease;
+  background-color: var(--theme-input-bg, var(--vscode-input-background));
+  border: none;
+  border-radius: 0 0 var(--theme-radius-lg, 12px) var(--theme-radius-lg, 12px);
+  transition: box-shadow 0.2s ease;
 }
 
 /* Highlight border when focused */
 .full-input-box:focus-within {
-  border-color: var(--vscode-focusBorder);
+  box-shadow: none;
   outline: none;
 }
 
@@ -721,16 +745,16 @@ defineExpose({
 .attachment-card {
   position: relative;
   flex-shrink: 0;
-  border-radius: 6px;
-  border: 1px solid var(--vscode-editorWidget-border);
-  background-color: var(--vscode-editor-background);
+  border-radius: var(--theme-radius-md, 8px);
+  border: 1px solid var(--theme-border-subtle, rgba(255, 255, 255, 0.03));
+  background-color: var(--theme-bg-secondary, var(--vscode-editor-background));
   transition: all 0.2s ease;
   user-select: none;
   cursor: default;
 }
 
 .attachment-card:hover {
-  border-color: var(--vscode-focusBorder);
+  border-color: var(--theme-border-default, rgba(255, 255, 255, 0.2));
 }
 
 /* Image attachment card */

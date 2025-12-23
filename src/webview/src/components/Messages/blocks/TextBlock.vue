@@ -75,7 +75,7 @@ const renderedMarkdown = computed(() => {
 .markdown-content :deep(pre) {
   background-color: color-mix(in srgb, var(--vscode-editor-background) 50%, transparent);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   padding: 12px;
   margin: 8px 0;
   overflow-x: auto;

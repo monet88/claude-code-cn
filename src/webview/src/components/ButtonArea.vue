@@ -16,14 +16,8 @@
         />
       </div>
 
-      <!-- Right Section: Token Indicator + Action Buttons -->
+      <!-- Right Section: Action Buttons -->
       <div class="actions-section">
-        <!-- Token Indicator -->
-        <TokenIndicator
-          v-if="shouldShowTokenIndicator"
-          :percentage="normalizedProgress"
-          :context-window="contextWindow"
-        />
 
         <!-- Thinking toggle button (hidden) -->
         <!-- <button
@@ -166,7 +160,6 @@
 <script setup lang="ts">
 import type { PermissionMode } from '@anthropic-ai/claude-agent-sdk'
 import { ref, computed, inject } from 'vue'
-import TokenIndicator from './TokenIndicator.vue'
 import ModeSelect from './ModeSelect.vue'
 import ModelSelect from './ModelSelect.vue'
 import FileIcon from './FileIcon.vue'
@@ -257,14 +250,6 @@ const fileCompletion = useCompletionDropdown({
 
 
 const isActionDisabled = computed(() => props.disabled || props.loading)
-
-const normalizedProgress = computed(() => {
-  const raw = Number(props.progressPercentage ?? 0)
-  if (Number.isNaN(raw)) return 0
-  return Math.min(100, Math.max(0, raw))
-})
-
-const shouldShowTokenIndicator = computed(() => props.showProgress)
 
 const isThinkingOn = computed(() => props.thinkingLevel !== 'off')
 

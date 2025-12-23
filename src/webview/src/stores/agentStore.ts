@@ -1,5 +1,5 @@
 /**
- * Agents 配置 Store
+ * Agents Store
  */
 
 import { defineStore } from 'pinia';
@@ -8,7 +8,7 @@ import type { Agent, AgentsMap, AgentsConfig, AgentScope } from '../types/agent'
 import { getVsCodeApi } from '../utils/vscodeApi';
 
 /**
- * 向 VSCode 扩展发送消息并等待响应
+ * Send message to extension and wait for response
  */
 function sendMessageToExtension(type: string, payload?: any): Promise<any> {
   return new Promise((resolve, reject) => {

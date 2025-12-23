@@ -1,49 +1,49 @@
 /**
- * 供应商配置相关类型定义
+ * Provider configuration related type definitions
  */
 
 /**
- * 供应商配置
+ * Provider configuration
  */
 export interface ProviderConfig {
-  /** 供应商唯一 ID */
+  /** Unique ID */
   id: string;
-  /** 供应商名称 */
+  /** Name */
   name: string;
-  /** 官网链接 */
+  /** Website URL */
   websiteUrl?: string;
   /** API Key */
   apiKey: string;
-  /** 请求地址（API 端点） */
+  /** Base URL */
   baseUrl: string;
-  /** 主模型 */
+  /** Main model */
   mainModel?: string;
-  /** Haiku 默认模型 */
+  /** Haiku default model */
   haikuModel?: string;
-  /** Sonnet 默认模型 */
+  /** Sonnet default model */
   sonnetModel?: string;
-  /** Opus 默认模型 */
+  /** Opus default model */
   opusModel?: string;
-  /** 是否为预设供应商 */
+  /** Whether it is a preset provider */
   isPreset?: boolean;
-  /** 是否为当前使用的供应商 */
+  /** Whether it is the active provider */
   isActive?: boolean;
-  /** 是否为默认供应商（不可删除） */
+  /** Whether it is the default provider (cannot be deleted) */
   isDefault?: boolean;
 }
 
 /**
- * 供应商分类
+ * Provider category
  */
 export type ProviderCategory =
-  | 'official'      // 官方
-  | 'cn_official'   // 国产官方
-  | 'aggregator'    // 聚合服务
-  | 'third_party'   // 第三方
-  | 'custom';       // 自定义
+  | 'official'      // Official
+  | 'cn_official'   // Chinese official
+  | 'aggregator'    // Aggregator
+  | 'third_party'   // Third party
+  | 'custom';       // Custom
 
 /**
- * 预设供应商
+ * Preset provider
  */
 export interface PresetProvider {
   id: string;
@@ -52,8 +52,8 @@ export interface PresetProvider {
   baseUrl?: string;
   isRecommended?: boolean;
   category?: ProviderCategory;
-  isPartner?: boolean;  // 是否为合作伙伴
-  description?: string;  // 描述
+  isPartner?: boolean;  // Whether it is a partner
+  description?: string;  // Description
   theme?: {
     backgroundColor?: string;
     textColor?: string;
@@ -62,7 +62,7 @@ export interface PresetProvider {
 }
 
 /**
- * Claude settings.json 配置结构
+ * Claude settings.json configuration structure
  */
 export interface ClaudeSettings {
   env: {
@@ -73,16 +73,16 @@ export interface ClaudeSettings {
 }
 
 /**
- * 预设供应商列表
+ * Preset provider list
  */
 export const PRESET_PROVIDERS: PresetProvider[] = [
-  // 官方供应商
+  // Official provider
   {
     id: 'claude-official',
-    name: 'Claude官方',
+    name: 'Claude',
     baseUrl: 'https://api.anthropic.com',
     category: 'official',
-    description: '官方 API，需要国外信用卡',
+    description: 'Official API',
     theme: {
       backgroundColor: '#7C3AED',
       textColor: '#FFFFFF',
@@ -90,13 +90,13 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     }
   },
 
-  // 国产官方
+  // Chinese official
   {
     id: 'deepseek',
     name: 'DeepSeek',
     websiteUrl: 'https://platform.deepseek.com',
     category: 'cn_official',
-    description: '深度求索，国产大模型',
+    description: 'DeepSeek',
     isRecommended: false,
     theme: {
       backgroundColor: '#0EA5E9',
@@ -108,7 +108,7 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     name: 'Zhipu GLM',
     websiteUrl: 'https://open.bigmodel.cn',
     category: 'cn_official',
-    description: '智谱清言，支持长文本',
+    description: 'Zhipu GLM',
     isRecommended: true,
     theme: {
       backgroundColor: '#10B981',
@@ -120,7 +120,7 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     name: 'Z.ai GLM',
     category: 'cn_official',
     isRecommended: true,
-    description: '智谱AI平台',
+    description: 'Z.ai GLM',
     theme: {
       backgroundColor: '#8B5CF6',
       textColor: '#FFFFFF'
@@ -131,7 +131,7 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     name: 'Qwen Coder',
     websiteUrl: 'https://dashscope.aliyun.com',
     category: 'cn_official',
-    description: '阿里通义千问',
+    description: 'Qwen Coder',
     theme: {
       backgroundColor: '#F97316',
       textColor: '#FFFFFF'
@@ -142,20 +142,20 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     name: 'Kimi k2',
     websiteUrl: 'https://platform.moonshot.cn',
     category: 'cn_official',
-    description: '月之暗面 Kimi',
+    description: 'Kimi',
     theme: {
       backgroundColor: '#EC4899',
       textColor: '#FFFFFF'
     }
   },
 
-  // 聚合服务
+  // Aggregator
   {
     id: '88code',
-    name: '88供应商',
+    name: '88code',
     websiteUrl: 'https://www.88code.org',
     category: 'aggregator',
-    description: '稳定聚合服务',
+    description: 'Stable aggregation service',
     isRecommended: false,
     theme: {
       backgroundColor: '#EF4444',
@@ -168,7 +168,7 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     category: 'aggregator',
     isRecommended: true,
     isPartner: true,
-    description: '合作伙伴，9折优惠',
+    description: 'Partner, 9折 discount',
     theme: {
       backgroundColor: '#F59E0B',
       textColor: '#FFFFFF',
@@ -179,53 +179,53 @@ export const PRESET_PROVIDERS: PresetProvider[] = [
     id: 'aihubmix',
     name: 'AiHubMix',
     category: 'aggregator',
-    description: 'AI 聚合平台'
+    description: 'AI Hub Mix'
   },
   {
     id: 'anyrouter',
     name: 'AnyRouter',
     category: 'aggregator',
-    description: '智能路由服务'
+    description: 'AnyRouter'
   },
 
-  // 第三方供应商
+  // Third party
   {
     id: 'kat-coder',
     name: 'KAT-Coder',
     category: 'third_party',
-    description: '第三方中转服务'
+    description: 'Third party'
   },
   {
     id: 'longcat',
     name: 'Longcat',
     category: 'third_party',
-    description: '长猫中转服务'
+    description: 'Longcat'
   },
   {
     id: 'minimax',
     name: 'MiniMax',
     websiteUrl: 'https://platform.minimaxi.com',
     category: 'third_party',
-    description: 'MiniMax 平台'
+    description: 'MiniMax'
   },
   {
     id: 'modelscope',
     name: 'ModelScope',
     websiteUrl: 'https://modelscope.cn',
     category: 'third_party',
-    description: '魔搭社区'
+    description: 'ModelScope'
   },
   {
     id: 'dmxapi',
     name: 'DMXAPI',
     category: 'third_party',
-    description: 'DMX API 服务'
+    description: 'DMX API'
   },
   {
     id: 'foxcode',
     name: 'FoxCode',
     websiteUrl: 'https://foxcode.rjj.cc/',
     category: 'third_party',
-    description: '狐狸代码中转'
+    description: 'FoxCode'
   }
 ];

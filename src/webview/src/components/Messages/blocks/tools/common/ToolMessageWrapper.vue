@@ -1,5 +1,5 @@
 <template>
-  <div class="tool-message-wrapper">
+  <div class="tool-message-wrapper" :class="{ 'is-processing': isProcessing }">
     <!-- Custom layout mode -->
     <template v-if="isCustomLayout">
       <slot name="custom"></slot>
@@ -124,6 +124,11 @@ const indicatorState = computed<'success' | 'error' | 'pending' | null>(() => {
   return null;
 });
 
+// Check if tool is still processing (no result yet)
+const isProcessing = computed(() => {
+  return !props.toolResult && props.permissionState !== 'pending';
+});
+
 // Toggle expand
 function toggleExpand() {
   if (hasExpandableContent.value) {
@@ -133,18 +138,35 @@ function toggleExpand() {
 </script>
 
 <style scoped>
+/* Match TodoList styling */
 .tool-message-wrapper {
   display: flex;
   flex-direction: column;
-  padding: 0px;
+  margin: 4px 0;
+  background: color-mix(in srgb, var(--vscode-editor-background) 95%, transparent);
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 60%, transparent);
+  border-radius: var(--theme-radius-md, 8px);
+  overflow: hidden;
+  transition: background-color 0.15s ease;
+}
+
+.tool-message-wrapper:hover {
+  background: color-mix(in srgb, var(--vscode-editor-background) 100%, transparent);
+}
+
+/* Processing state - subtle background */
+.tool-message-wrapper.is-processing {
+  background: color-mix(in srgb, var(--vscode-editor-background) 90%, transparent);
 }
 
 .main-line {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 0;
+  padding: 6px 10px;
   user-select: none;
+  background: color-mix(in srgb, var(--vscode-list-hoverBackground) 30%, transparent);
+  transition: background-color 0.15s;
 }
 
 .main-line.is-expandable {
@@ -152,7 +174,7 @@ function toggleExpand() {
 }
 
 .main-line.is-expandable:hover {
-  background-color: color-mix(in srgb, var(--vscode-list-hoverBackground) 30%, transparent);
+  background: color-mix(in srgb, var(--vscode-list-hoverBackground) 50%, transparent);
 }
 
 .tool-icon-btn {
@@ -185,9 +207,8 @@ function toggleExpand() {
 }
 
 .expandable-content {
-  padding: 4px 0 0px 16px;
-  margin-left: 10px;
-  border-left: 1px solid var(--vscode-panel-border);
+  padding: 8px 10px;
+  border-top: 1px solid color-mix(in srgb, var(--vscode-panel-border) 40%, transparent);
 }
 
 /* Permission approval buttons */
@@ -202,7 +223,7 @@ function toggleExpand() {
 .btn-reject,
 .btn-accept {
   padding: 4px 12px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   font-size: 0.9em;
   cursor: pointer;
   border: 1px solid var(--vscode-button-border);

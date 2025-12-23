@@ -28,7 +28,12 @@
         <!-- File header -->
         <div v-if="filePath" class="diff-file-header">
           <FileIcon :file-name="filePath" :size="16" class="file-icon" />
-          <span class="file-name">{{ fileName }}</span>
+          <span class="file-path">{{ displayFilePath }}</span>
+          <span v-if="diffStats" class="diff-stats-badge">
+            <span v-if="diffStats.added > 0" class="stat-add">+{{ diffStats.added }}</span>
+            <span v-if="diffStats.removed > 0" class="stat-remove">-{{ diffStats.removed }}</span>
+            <span v-if="diffStats.modified > 0" class="stat-modify">~{{ diffStats.modified }}</span>
+          </span>
         </div>
         <!-- Diff double column layout: line numbers + content -->
         <div class="diff-scroll-container">
@@ -72,13 +77,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, inject } from 'vue';
 import path from 'path-browserify-esm';
+import type { ComputedRef } from 'vue';
 import type { ToolContext } from '@/types/tool';
 import ToolMessageWrapper from './common/ToolMessageWrapper.vue';
 import ToolError from './common/ToolError.vue';
 import ToolFilePath from './common/ToolFilePath.vue';
 import FileIcon from '@/components/FileIcon.vue';
+import { recordFromEditResult } from '@/stores/fileChangeStore';
 
 interface Props {
   toolUse?: any;
@@ -89,6 +96,13 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Inject workspace root for relative path display
+const workspaceRootRef = inject<ComputedRef<string> | string>('workspaceRoot', '');
+const workspaceRoot = computed(() => {
+  if (typeof workspaceRootRef === 'string') return workspaceRootRef;
+  return workspaceRootRef?.value || '';
+});
+
 const filePath = computed(() => {
   return props.toolUse?.input?.file_path || '';
 });
@@ -96,6 +110,33 @@ const filePath = computed(() => {
 const fileName = computed(() => {
   if (!filePath.value) return '';
   return path.basename(filePath.value);
+});
+
+// Display relative file path (similar to ToolFilePath logic)
+const displayFilePath = computed(() => {
+  if (!filePath.value) return '';
+  
+  const normalizedPath = filePath.value.replace(/\\/g, '/');
+  const normalizedRoot = (workspaceRoot.value || '').replace(/\\/g, '/');
+  
+  if (normalizedRoot && normalizedPath.toLowerCase().startsWith(normalizedRoot.toLowerCase())) {
+    let relativePath = normalizedPath.substring(normalizedRoot.length);
+    if (relativePath.startsWith('/')) {
+      relativePath = relativePath.substring(1);
+    }
+    return relativePath || fileName.value;
+  }
+  
+  // Fallback patterns
+  const patterns = ['/src/', '/lib/', '/app/', '/packages/', '/components/', '/webview/'];
+  for (const pattern of patterns) {
+    const index = normalizedPath.toLowerCase().indexOf(pattern);
+    if (index !== -1) {
+      return normalizedPath.substring(index + 1);
+    }
+  }
+  
+  return fileName.value;
 });
 
 const replaceAll = computed(() => {
@@ -119,6 +160,10 @@ watch(
     // If there is a structuredPatch in toolUseResult, use it (the real diff after execution)
     if (props.toolUseResult?.structuredPatch) {
       structuredPatch.value = props.toolUseResult.structuredPatch;
+      // Record file change for realtime stats
+      if (filePath.value && props.toolUseResult.structuredPatch) {
+        recordFromEditResult(filePath.value, props.toolUseResult.structuredPatch);
+      }
     }
     // If there is an input, generate a temporary diff (for permission request stage or after real-time conversation execution)
     else if (props.toolUse?.input?.old_string && props.toolUse?.input?.new_string) {
@@ -200,7 +245,10 @@ const diffStats = computed(() => {
     });
   });
 
-  return { added, removed };
+  // Calculate modified as minimum of added/removed (lines that were changed)
+  const modified = Math.min(added, removed);
+
+  return { added, removed, modified };
 });
 
 // Get diff line type class name
@@ -324,10 +372,10 @@ function getLineNumber(patch: any, lineIndex: number): string {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px;
-  background-color: color-mix(in srgb, var(--vscode-editor-background) 80%, transparent);
+  padding: 6px 12px;
+  background-color: var(--vscode-sideBarSectionHeader-background, color-mix(in srgb, var(--vscode-editor-background) 90%, var(--vscode-foreground) 10%));
+  border-bottom: 1px solid var(--vscode-widget-border);
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -336,9 +384,34 @@ function getLineNumber(patch: any, lineIndex: number): string {
   flex-shrink: 0;
 }
 
-.diff-file-header .file-name {
+.diff-file-header .file-path {
+  flex: 1;
   color: var(--vscode-foreground);
   font-family: var(--vscode-editor-font-family);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.diff-stats-badge {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.diff-stats-badge .stat-add {
+  color: var(--vscode-gitDecoration-addedResourceForeground, #89d185);
+}
+
+.diff-stats-badge .stat-remove {
+  color: var(--vscode-gitDecoration-deletedResourceForeground, #f48771);
+}
+
+.diff-stats-badge .stat-modify {
+  color: var(--vscode-gitDecoration-modifiedResourceForeground, #e2c08d);
 }
 
 .diff-scroll-container {

@@ -1,42 +1,42 @@
 /**
- * MCP (Model Context Protocol) 前端类型定义
+ * MCP (Model Context Protocol) frontend type definitions
  *
- * 支持两种配置来源：
- * 1. cc-switch 格式: ~/.cc-switch/config.json (主要)
- * 2. Claude 原生格式: ~/.claude.json (兼容)
+ * Support two configuration sources:
+ * 1. cc-switch format: ~/.cc-switch/config.json (primary)
+ * 2. Claude native format: ~/.claude.json (backward compatibility)
  */
 
 /**
- * MCP 服务器连接规格
- * 支持三种连接方式: stdio, http, sse
+ * MCP server connection specification
+ * Support three connection methods: stdio, http, sse
  */
 export interface McpServerSpec {
-  /** 连接类型，默认为 stdio */
+  /** Connection type, default to stdio */
   type?: 'stdio' | 'http' | 'sse';
 
-  // stdio 类型字段
-  /** 执行命令 (stdio 类型必需) */
+  // stdio type fields
+  /** Command to execute (required for stdio type) */
   command?: string;
-  /** 命令参数 */
+  /** Command arguments */
   args?: string[];
-  /** 环境变量 */
+  /** Environment variables */
   env?: Record<string, string>;
-  /** 工作目录 */
+  /** Working directory */
   cwd?: string;
 
-  // http/sse 类型字段
-  /** 服务器 URL (http/sse 类型必需) */
+  // http/sse type fields
+  /** Server URL (required for http/sse type) */
   url?: string;
-  /** 请求头 */
+  /** Request headers */
   headers?: Record<string, string>;
 
-  /** 允许扩展字段 */
+  /** Allow extension fields */
   [key: string]: any;
 }
 
 /**
- * MCP 应用启用状态 (cc-switch v3.7.0 格式)
- * 标记服务器应用到哪些客户端
+ * MCP application enable status (cc-switch v3.7.0 format)
+ * Mark which clients the server is applied to
  */
 export interface McpApps {
   claude: boolean;
@@ -45,38 +45,38 @@ export interface McpApps {
 }
 
 /**
- * MCP 服务器完整配置
+ * MCP server complete configuration
  */
 export interface McpServer {
-  /** 唯一标识符 (配置文件中的 key) */
+  /** Unique identifier (key in config file) */
   id: string;
-  /** 显示名称 */
+  /** Display name */
   name?: string;
-  /** 服务器连接规格 */
+  /** Server connection specification */
   server: McpServerSpec;
-  /** 应用启用状态 (cc-switch 格式) */
+  /** Application enable status (cc-switch format) */
   apps?: McpApps;
-  /** 描述 */
+  /** Description */
   description?: string;
-  /** 标签 */
+  /** Tags */
   tags?: string[];
-  /** 主页链接 */
+  /** Homepage link */
   homepage?: string;
-  /** 文档链接 */
+  /** Documentation link */
   docs?: string;
-  /** 是否启用 (旧格式兼容) */
+  /** Whether enabled (old format compatibility) */
   enabled?: boolean;
-  /** 允许扩展字段 */
+  /** Allow extension fields */
   [key: string]: any;
 }
 
 /**
- * MCP 服务器映射 (id -> McpServer)
+ * MCP server mapping (id -> McpServer)
  */
 export type McpServersMap = Record<string, McpServer>;
 
 /**
- * MCP 预设配置
+ * MCP preset configuration
  */
 export interface McpPreset {
   id: string;

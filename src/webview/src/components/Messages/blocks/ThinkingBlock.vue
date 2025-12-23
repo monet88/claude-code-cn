@@ -1,8 +1,8 @@
 <template>
   <div class="thinking-block">
     <div class="thinking-header" @click="toggleExpanded">
+      <span class="codicon" :class="expanded ? 'codicon-chevron-down' : 'codicon-chevron-right'" />
       <span class="thinking-label">Thinking</span>
-      <span class="codicon" :class="expanded ? 'codicon-chevron-up' : 'codicon-chevron-down'" />
     </div>
     <div v-if="expanded" class="thinking-content">
       {{ block.thinking }}
@@ -29,21 +29,22 @@ function toggleExpanded() {
 
 <style scoped>
 .thinking-block {
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 .thinking-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
   user-select: none;
+  padding: 2px 0;
 }
 
 .thinking-header .codicon {
-  font-size: 14px;
+  font-size: 11px;
   color: var(--vscode-descriptionForeground);
-  opacity: 0.7;
+  opacity: 0.6;
   transition: opacity 0.1s ease;
 }
 
@@ -52,10 +53,10 @@ function toggleExpanded() {
 }
 
 .thinking-label {
-  font-size: 14px;
-  font-style: italic;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--vscode-descriptionForeground);
-  opacity: 0.7;
+  opacity: 0.6;
   transition: opacity 0.2s ease;
 }
 
@@ -64,13 +65,14 @@ function toggleExpanded() {
 }
 
 .thinking-content {
-  margin-left: 16px;
-  padding: 4px 0;
-  margin-top: 4px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--app-secondary-foreground);
+  margin-left: 15px;
+  padding: 4px 8px;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--vscode-descriptionForeground);
   white-space: pre-wrap;
   word-wrap: break-word;
+  opacity: 0.8;
 }
 </style>

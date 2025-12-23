@@ -111,7 +111,7 @@ const shouldExpand = computed(() => {
   padding: 8px 12px;
   background-color: color-mix(in srgb, var(--vscode-charts-green) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--vscode-charts-green) 30%, transparent);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   color: var(--vscode-foreground);
   font-size: 0.85em;
 }

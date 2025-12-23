@@ -35,7 +35,7 @@ function handleClick() {
   padding: 6px 10px;
   background-color: var(--vscode-editor-background);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   cursor: pointer;
   transition: background-color 0.2s;
 }

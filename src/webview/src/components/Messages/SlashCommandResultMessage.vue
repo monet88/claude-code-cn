@@ -57,7 +57,7 @@ const headerLabel = computed(() => {
 <style scoped>
 .slash-command-result-message {
   margin: 4px 12px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   overflow: hidden;
   font-family: var(--vscode-editor-font-family);
   margin-bottom: 16px !important;

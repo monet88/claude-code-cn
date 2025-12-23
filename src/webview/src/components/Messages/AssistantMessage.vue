@@ -1,5 +1,5 @@
 <template>
-  <div class="assistant-message" :class="messageClasses">
+  <div class="assistant-message">
     <template v-if="typeof message.message.content === 'string'">
       <ContentBlock :block="{ type: 'text', text: message.message.content }" :context="context" />
     </template>
@@ -119,44 +119,21 @@ const groupedContent = computed<GroupedItem[]>(() => {
 
   return result;
 });
-
-// Calculate dynamic class
-const messageClasses = computed(() => {
-  const content = props.message.message.content;
-
-  // content is always an array, check if it contains tool_use
-  if (Array.isArray(content)) {
-    const hasToolUse = content.some(wrapper => wrapper.content.type === 'tool_use');
-    // Only display the dot for plain text messages (no tool_use)
-    return hasToolUse ? [] : ['prefix'];
-  }
-
-  return [];
-});
 </script>
 
 <style scoped>
 .assistant-message {
   display: block;
   outline: none;
-  padding: 0px 16px 0.4rem;
-  background-color: var(--vscode-sideBar-background);
+  padding: 8px 16px;
+  margin: 4px 12px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
   opacity: 1;
   font-size: 13px;
   line-height: 1.6;
   color: var(--vscode-editor-foreground);
   word-wrap: break-word;
-  padding-left: 24px;
-}
-
-/* Only display the dot for plain text messages (no tool_use) */
-.assistant-message.prefix::before {
-  content: "\25cf";
-  position: absolute;
-  left: 8px;
-  padding-top: 2px;
-  font-size: 10px;
-  color: color-mix(in srgb, var(--vscode-foreground) 60%, transparent);
-  z-index: 1;
 }
 </style>

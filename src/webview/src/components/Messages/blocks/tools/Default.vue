@@ -192,7 +192,7 @@ function getValueClass(value: any): string {
   font-size: 0.85em;
   padding: 8px;
   background-color: color-mix(in srgb, var(--vscode-editor-background) 30%, transparent);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   border: 1px dashed var(--vscode-panel-border);
 }
 </style>

@@ -104,7 +104,7 @@ const shouldExpand = computed(() => {
     transparent
   );
   border: 1px solid var(--vscode-terminal-border, var(--vscode-panel-border));
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   padding: 8px 12px;
   color: var(--vscode-terminal-foreground, var(--vscode-editor-foreground));
   font-family: var(--vscode-editor-font-family);
@@ -132,7 +132,7 @@ const shouldExpand = computed(() => {
     transparent
   );
   border: 1px solid var(--vscode-terminal-border, var(--vscode-panel-border));
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   padding: 8px 12px;
   color: var(--vscode-terminal-foreground, var(--vscode-editor-foreground));
   font-family: var(--vscode-editor-font-family);

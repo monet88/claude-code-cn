@@ -53,7 +53,7 @@ const completedCount = computed(() => {
   padding: 4px 10px;
   background: color-mix(in srgb, var(--vscode-editor-background) 90%, transparent);
   border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 50%, transparent);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   font-size: 0.85em;
   color: var(--vscode-foreground);
   opacity: 0.9;

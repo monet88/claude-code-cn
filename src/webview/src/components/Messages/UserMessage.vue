@@ -244,8 +244,9 @@ onUnmounted(() => {
 .user-message {
   display: block;
   outline: none;
-  padding: 1px 12px 8px;
-  background-color: var(--vscode-sideBar-background);
+  padding: 0;
+  margin: 8px 12px;
+  background-color: transparent;
   opacity: 1;
 }
 
@@ -253,28 +254,28 @@ onUnmounted(() => {
   background-color: transparent;
 }
 
-/* Message content container -统一 border and background */
+/* Message content container - unified border and background */
 .message-content {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background-color: var(--vscode-input-background); /*统一 use input background */
+  background-color: var(--theme-input-bg, var(--vscode-input-background));
   outline: none;
-  border: 1px solid var(--vscode-input-border);
-  border-radius: 6px;
+  border: 1px solid var(--theme-border-subtle, rgba(255, 255, 255, 0.03));
+  border-radius: var(--theme-radius-lg, 12px);
   position: relative;
   transition: all 0.2s ease;
 }
 
 .message-content:hover {
-  border-color: var(--vscode-focusBorder);
+  border-color: var(--theme-border-default, rgba(255, 255, 255, 0.2));
 }
 
 .message-content.editing {
   z-index: 200;
-  /* Editing mode, keep the same card border and background as normal mode to avoid left and right shaking */
-  border: 1px solid var(--vscode-input-border);
-  background-color: var(--vscode-input-background);
+  border: 1px solid var(--theme-border-focus, var(--vscode-focusBorder));
+  background-color: var(--theme-input-bg, var(--vscode-input-background));
+  box-shadow: 0 0 0 1px var(--theme-border-focus, var(--vscode-focusBorder));
 }
 
 /* Normal display mode */
@@ -300,9 +301,9 @@ onUnmounted(() => {
 .attachment-card {
   position: relative;
   flex-shrink: 0;
-  border-radius: 6px;
-  border: 1px solid var(--vscode-editorWidget-border);
-  background-color: var(--vscode-editor-background);
+  border-radius: var(--theme-radius-md, 8px);
+  border: 1px solid var(--theme-border-subtle, rgba(255, 255, 255, 0.03));
+  background-color: var(--theme-bg-secondary, var(--vscode-editor-background));
   user-select: none;
   cursor: default;
 }

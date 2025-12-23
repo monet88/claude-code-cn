@@ -30,7 +30,7 @@ const formattedContent = computed(() => {
   padding: 12px;
   background-color: var(--vscode-inputValidation-warningBackground);
   border-left: 3px solid var(--vscode-inputValidation-warningBorder);
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
 }
 
 .unknown-label {

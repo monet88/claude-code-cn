@@ -2,6 +2,31 @@
 
 All notable changes to CCVN (Claude Code VN) will be documented in this file.
 
+## [2.1.0] - 2024-12-23
+
+### 🎨 UI Redesign - Cleaner & Minimal
+
+- **Unified card design**: Tool blocks (Command Line, Read, Edit, Write, etc.) now match Task List styling
+  - Consistent border: `color-mix(in srgb, var(--vscode-panel-border) 60%, transparent)`
+  - Subtle background with hover effects
+  - Rounded corners (8px) for all cards
+
+- **Removed visual clutter**:
+  - Removed border from AI text responses (AssistantMessage)
+  - Removed border from ThinkingBlock - now minimal text with chevron toggle
+  - Removed chatbox border and input separator line
+  - All borders across the codebase are now much lighter (rgba 255,255,255,0.03)
+
+- **New InputStatusBar component**: Sticky header above chat input
+  - Left: File change stats (files added/modified/deleted)
+  - Right: Context window percentage usage
+
+- **SessionDropdown improvements**:
+  - Removed "New Thread" button, keeping only "View All"
+  - Responsive width (min-width 280px instead of fixed 500px)
+
+- **App border**: Now matches Task List border style for visual consistency
+
 ## [2.0.2] - 2024-12-23
 
 ### ✨ New Feature

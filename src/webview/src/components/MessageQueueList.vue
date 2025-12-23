@@ -108,7 +108,7 @@ function toggleExpanded() {
   align-items: center;
   gap: 8px;
   padding: 3px 8px 3px 6px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   transition: background-color 0.1s ease;
   cursor: pointer;
 }

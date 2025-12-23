@@ -1,5 +1,5 @@
 /**
- * Toast 轻提示 Store
+ * Toast light prompt store
  */
 
 import { defineStore } from 'pinia';
@@ -16,7 +16,7 @@ export const useToastStore = defineStore('toast', () => {
   const toasts = ref<ToastMessage[]>([]);
 
   /**
-   * 显示 toast 消息
+   * Show toast message
    */
   function show(message: string, type: ToastMessage['type'] = 'info', duration = 3000) {
     const id = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -24,7 +24,7 @@ export const useToastStore = defineStore('toast', () => {
 
     toasts.value.push(toast);
 
-    // 自动移除
+    // Automatically remove
     if (duration > 0) {
       setTimeout(() => {
         remove(id);
@@ -35,35 +35,35 @@ export const useToastStore = defineStore('toast', () => {
   }
 
   /**
-   * 显示成功消息
+   * Show success message
    */
   function success(message: string, duration = 3000) {
     return show(message, 'success', duration);
   }
 
   /**
-   * 显示信息消息
+   * Show info message
    */
   function info(message: string, duration = 3000) {
     return show(message, 'info', duration);
   }
 
   /**
-   * 显示警告消息
+   * Show warning message
    */
   function warning(message: string, duration = 3000) {
     return show(message, 'warning', duration);
   }
 
   /**
-   * 显示错误消息
+   * Show error message
    */
   function error(message: string, duration = 5000) {
     return show(message, 'error', duration);
   }
 
   /**
-   * 移除指定 toast
+   * Remove specified toast
    */
   function remove(id: string) {
     const index = toasts.value.findIndex(t => t.id === id);
@@ -73,7 +73,7 @@ export const useToastStore = defineStore('toast', () => {
   }
 
   /**
-   * 清除所有 toast
+   * Clear all toasts
    */
   function clear() {
     toasts.value = [];

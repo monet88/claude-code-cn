@@ -44,7 +44,7 @@ const resultClasses = computed(() => {
 <style scoped>
 .result-message {
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: var(--theme-radius-sm, 4px);
   font-size: 12px;
 }
 

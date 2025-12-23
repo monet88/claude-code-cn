@@ -49,11 +49,11 @@ export class KeybindingManager {
       if (!b.allowInEditable && isEditableTarget(e.target)) continue
       if (b.when && !b.when()) continue
 
-      // 执行
+      // Execute
       try {
         if (b.handler) b.handler()
-        // command 的执行留给调用方在 handler 里调用 runtime.registry
-      } catch {}
+        // command execution is left to the caller in the handler to call runtime.registry
+      } catch { }
 
       e.preventDefault()
       e.stopPropagation()
