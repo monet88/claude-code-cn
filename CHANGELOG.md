@@ -2,6 +2,13 @@
 
 All notable changes to CCVN (Claude Code VN) will be documented in this file.
 
+## [2.0.1] - 2024-12-23
+
+### 🐛 Bug Fix
+- **macOS slash command loading**: Fixed issue where slash commands wouldn't load on macOS
+- Changed `process.env.HOME` to `os.homedir()` in `ClaudeSdkService.ts` for cross-platform compatibility
+- Used `path.join()` instead of string concatenation for reliable path handling
+
 ## [2.0.0] - 2024-12-23
 
 ### 🎨 Theme Sync with IDE

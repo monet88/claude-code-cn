@@ -14,6 +14,8 @@
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { createDecorator } from '../../di/instantiation';
 import { ILogService } from '../logService';
 import { IConfigurationService } from '../configurationService';
@@ -338,9 +340,10 @@ export class ClaudeSdkService implements IClaudeSdkService {
         const arch = process.arch;
 
         // 1. Check for global CLI installation (typically has latest version)
+        const homeDir = os.homedir();
         const globalCliPath = process.platform === "win32"
-            ? `${process.env.USERPROFILE}\\.local\\bin\\claude.exe`
-            : `${process.env.HOME}/.local/bin/claude`;
+            ? path.join(homeDir, '.local', 'bin', 'claude.exe')
+            : path.join(homeDir, '.local', 'bin', 'claude');
 
         if (fs.existsSync(globalCliPath)) {
             this.logService.info(`[ClaudeSdkService] Using global CLI: ${globalCliPath}`);
