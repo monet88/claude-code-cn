@@ -89,61 +89,6 @@
           <h3 class="section-title">Basic settings</h3>
           <p class="section-desc">Configure basic settings and environment for Claude Code.</p>
 
-          <!-- Interface Theme -->
-          <div class="theme-section">
-            <div class="section-header">
-              <h4>
-                <span class="codicon codicon-symbol-color"></span>
-                Interface Theme
-              </h4>
-            </div>
-
-            <div class="theme-options">
-              <div
-                :class="['theme-option', { active: themeStore.mode === 'light' }]"
-                @click="themeStore.setTheme('light')"
-              >
-                <div class="theme-icon light-theme-icon">
-                  <span class="codicon codicon-circle-large"></span>
-                </div>
-                <div class="theme-info">
-                  <h5>Light theme</h5>
-                  <span class="theme-desc">Fresh and bright, suitable for daytime use.</span>
-                </div>
-                <div v-if="themeStore.mode === 'light'" class="theme-check">
-                  <span class="codicon codicon-check"></span>
-                </div>
-              </div>
-
-              <div
-                :class="['theme-option', { active: themeStore.mode === 'dark' }]"
-                @click="themeStore.setTheme('dark')"
-              >
-                <div class="theme-icon dark-theme-icon">
-                  <span class="codicon codicon-circle-filled"></span>
-                </div>
-                <div class="theme-info">
-                  <h5>Dark theme</h5>
-                  <span class="theme-desc">Eye-friendly and comfortable, suitable for nighttime use.</span>
-                </div>
-                <div v-if="themeStore.mode === 'dark'" class="theme-check">
-                  <span class="codicon codicon-check"></span>
-                </div>
-              </div>
-            </div>
-
-            <div class="theme-follow-options">
-              <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  :checked="themeStore.followSystem"
-                  @change="(e) => themeStore.setFollowSystem((e.target as HTMLInputElement).checked)"
-                />
-                <span>Follow the system theme</span>
-              </label>
-            </div>
-          </div>
-
           <!-- Provider list -->
           <div class="provider-section">
             <div class="section-header">
@@ -305,7 +250,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive, computed, inject } from 'vue';
 import { useProviderStore } from '../stores/providerStore';
-import { useThemeStore } from '../stores/themeStore';
 import type { ProviderConfig } from '../types/provider';
 import ProviderEditDialog from '../components/ProviderEditDialog.vue';
 import AddProviderDialog from '../components/AddProviderDialog.vue';
@@ -324,7 +268,6 @@ defineEmits<{
 
 const runtime = inject(RuntimeKey);
 const providerStore = useProviderStore();
-const themeStore = useThemeStore();
 const currentTab = ref('basic');
 const showEditDialog = ref(false);
 const showAddDialog = ref(false);
@@ -1300,145 +1243,6 @@ async function handleTestConnection() {
 
   .qrcode-tip {
     font-size: 12px;
-  }
-}
-
-/* 主题切换样式 */
-.theme-section {
-  margin-bottom: 32px;
-  padding: 0;
-}
-
-.theme-section .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.theme-section .section-header h4 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--vscode-foreground);
-}
-
-.theme-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.theme-option {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1px solid var(--vscode-panel-border);
-  border-radius: 6px;
-  background: var(--vscode-editor-background);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.theme-option:hover {
-  background: var(--vscode-list-hoverBackground);
-  border-color: var(--vscode-focusBorder);
-}
-
-.theme-option.active {
-  background: var(--vscode-list-activeSelectionBackground);
-  border-color: var(--vscode-focusBorder);
-}
-
-.theme-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  font-size: 24px;
-}
-
-.light-theme-icon {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  color: #333333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.dark-theme-icon {
-  background: linear-gradient(135deg, #2d2d2d 0%, #1e1e1e 100%);
-  color: #cccccc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.theme-info {
-  flex: 1;
-}
-
-.theme-info h5 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--vscode-foreground);
-}
-
-.theme-desc {
-  font-size: 12px;
-  color: var(--vscode-descriptionForeground);
-}
-
-.theme-check {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
-}
-
-.theme-follow-options {
-  padding: 12px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-  margin: 0;
-}
-
-.checkbox-label input[type="checkbox"]:disabled + span {
-  opacity: 0.5;
-}
-
-.checkbox-label span {
-  font-size: 13px;
-  color: var(--vscode-foreground);
-}
-
-/* 响应式布局 */
-@media (max-width: 768px) {
-  .theme-options {
-    grid-template-columns: 1fr;
   }
 }
 </style>
