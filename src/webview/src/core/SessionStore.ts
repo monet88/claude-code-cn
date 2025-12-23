@@ -175,6 +175,23 @@ export class SessionStore {
     this.activeSession(session);
   }
 
+  removeSession(session: Session): void {
+    const currentSessions = this.sessions();
+    const filtered = currentSessions.filter(s => s !== session);
+    
+    if (filtered.length !== currentSessions.length) {
+      this.sessions(filtered);
+      
+      // If removed session was active, switch to the first available or undefined
+      if (this.activeSession() === session) {
+        this.activeSession(filtered.length > 0 ? filtered[0] : undefined);
+      }
+      
+      // Dispose the removed session
+      session.dispose();
+    }
+  }
+
   dispose(): void {
     // Clean up all effects
     for (const cleanup of this.effectCleanups) {

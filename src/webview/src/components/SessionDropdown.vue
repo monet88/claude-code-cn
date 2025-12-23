@@ -17,7 +17,7 @@
             ref="searchInputRef"
             v-model="searchQuery"
             type="text"
-            placeholder="Find thread..."
+            placeholder="Find session..."
             class="search-input"
             @keydown.escape="closeDropdown"
             @keydown.enter="selectFirstResult"
@@ -69,7 +69,7 @@
           <!-- Empty state -->
           <div v-if="filteredSessions.length === 0" class="empty-state">
             <span class="codicon codicon-search-stop"></span>
-            <span>No threads found</span>
+            <span>No sessions found</span>
           </div>
         </div>
 
@@ -261,18 +261,18 @@ function copySessionId() {
 }
 
 // Delete session
-async function deleteSession() {
+function deleteSession() {
   if (menuOpenFor.value) {
     const sessionId = menuOpenFor.value;
     menuOpenFor.value = null;
     
-    // Find and delete the session
+    // Find and remove the session
     const session = sessionList.value.find(s => s.sessionId.value === sessionId);
     if (session) {
       try {
-        await store.deleteSession(session.__session);
+        store.removeSession(session.__session);
       } catch (e) {
-        console.error('[SessionDropdown] Failed to delete session:', e);
+        console.error('[SessionDropdown] Failed to remove session:', e);
       }
     }
   }

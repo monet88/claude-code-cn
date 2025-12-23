@@ -39,6 +39,7 @@ export interface UseSessionStoreReturn {
   createSession: (options?: SessionOptions) => Promise<Session>;
   listSessions: () => Promise<void>;
   setActiveSession: (session: Session | undefined) => void;
+  removeSession: (session: Session) => void;
   dispose: () => void;
 
   // Thể hiện gốc (dùng cho các trường hợp nâng cao)
@@ -66,6 +67,7 @@ export function useSessionStore(store: SessionStore): UseSessionStoreReturn {
   const createSession = store.createSession.bind(store);
   const listSessions = store.listSessions.bind(store);
   const setActiveSession = store.setActiveSession.bind(store);
+  const removeSession = store.removeSession.bind(store);
   const dispose = store.dispose.bind(store);
 
   return {
@@ -83,6 +85,7 @@ export function useSessionStore(store: SessionStore): UseSessionStoreReturn {
     createSession,
     listSessions,
     setActiveSession,
+    removeSession,
     dispose,
 
     // Thể hiện gốc
