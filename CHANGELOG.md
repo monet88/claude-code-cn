@@ -2,6 +2,19 @@
 
 All notable changes to CCVN (Claude Code VN) will be documented in this file.
 
+## [2.0.2] - 2024-12-23
+
+### ✨ New Feature
+- **Nested commands support**: Commands in subfolders are now recognized
+  - Example: `~/.claude/commands/sc/my-cmd.md` → `/sc:my-cmd`
+  - Recursive scanning for deep nested structures
+  - Command directories with `command.md` still work as before
+
+### 📝 Documentation
+- Simplified README - focus on features and usage only
+- Removed technical/development sections
+- Added detailed usage guide in Vietnamese and English
+
 ## [2.0.1] - 2024-12-23
 
 ### 🐛 Bug Fix

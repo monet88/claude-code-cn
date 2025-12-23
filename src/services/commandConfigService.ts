@@ -86,10 +86,10 @@ export class CommandConfigService implements ICommandConfigService {
     }
   }
 
-  private async scanCommandsDirectory(dir: string, scope: CommandScope): Promise<CommandsMap> {
+  private async scanCommandsDirectory(dir: string, scope: CommandScope, prefix: string = ''): Promise<CommandsMap> {
     const commands: CommandsMap = {};
 
-    this.logService.info(`[Commands] Scanning ${scope} directory: ${dir}`);
+    this.logService.info(`[Commands] Scanning ${scope} directory: ${dir}${prefix ? ` (prefix: ${prefix})` : ''}`);
 
     try {
       if (!fs.existsSync(dir)) {
@@ -119,23 +119,51 @@ export class CommandConfigService implements ICommandConfigService {
           }
         }
 
-        const type: CommandType = entry.isDirectory() ? 'directory' : 'file';
-        const baseName = entry.name.replace(/\.md$/, '');
-        const id = `${scope}-${baseName}`;
+        if (entry.isDirectory()) {
+          // Check if this is a command directory (has command.md inside)
+          const commandMdPath = path.join(fullPath, 'command.md');
+          if (fs.existsSync(commandMdPath)) {
+            // This is a command directory
+            const commandName = prefix ? `${prefix}:${entry.name}` : entry.name;
+            const id = `${scope}-${commandName}`;
+            const metadata = await this.extractMetadata(fullPath, true);
 
-        const metadata = await this.extractMetadata(fullPath, entry.isDirectory());
+            commands[id] = {
+              id,
+              name: commandName,
+              type: 'directory',
+              scope,
+              path: fullPath,
+              description: metadata.description,
+              argumentHint: metadata.argumentHint,
+              createdAt: stats.birthtime.toISOString(),
+              modifiedAt: stats.mtime.toISOString(),
+            };
+          } else {
+            // This is a nested folder, scan recursively
+            const nestedPrefix = prefix ? `${prefix}:${entry.name}` : entry.name;
+            const nestedCommands = await this.scanCommandsDirectory(fullPath, scope, nestedPrefix);
+            Object.assign(commands, nestedCommands);
+          }
+        } else if (entry.name.endsWith('.md')) {
+          // This is a command file
+          const baseName = entry.name.replace(/\.md$/, '');
+          const commandName = prefix ? `${prefix}:${baseName}` : baseName;
+          const id = `${scope}-${commandName}`;
+          const metadata = await this.extractMetadata(fullPath, false);
 
-        commands[id] = {
-          id,
-          name: baseName,
-          type,
-          scope,
-          path: fullPath,
-          description: metadata.description,
-          argumentHint: metadata.argumentHint,
-          createdAt: stats.birthtime.toISOString(),
-          modifiedAt: stats.mtime.toISOString(),
-        };
+          commands[id] = {
+            id,
+            name: commandName,
+            type: 'file',
+            scope,
+            path: fullPath,
+            description: metadata.description,
+            argumentHint: metadata.argumentHint,
+            createdAt: stats.birthtime.toISOString(),
+            modifiedAt: stats.mtime.toISOString(),
+          };
+        }
       }
 
       this.logService.info(`[Commands] Got ${Object.keys(commands).length} Commands from ${scope} directory: ${dir}`);
